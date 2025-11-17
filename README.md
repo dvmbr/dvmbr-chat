@@ -33,6 +33,27 @@ dvmbr Chat은 Next.js 15, PostgreSQL(Neon), WebSocket을 기반으로 만든 실
 
 ---
 
+## Database / Prisma 설정
+
+이 프로젝트는 Neon에서 호스팅되는 PostgreSQL과 Prisma ORM을 사용합니다.  
+전체 흐름은 다음과 같습니다.
+
+1. Neon에서 PostgreSQL 인스턴스를 생성합니다.
+2. Neon 대시보드에서 제공하는 Connection string을 `.env`의 `DATABASE_URL`에 설정합니다.
+3. `prisma/schema.prisma`에 데이터 모델(User, Room, Message 등)을 정의합니다.
+4. `npx prisma migrate dev`로 실제 DB에 테이블을 생성합니다.
+5. 애플리케이션 코드에서는 `PrismaClient`를 통해 DB에 접근합니다.
+
+### 1. Neon PostgreSQL 연결
+
+Neon 프로젝트 생성 후, 대시보드에서 Connection string을 복사해 `.env`에 설정합니다.
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
+```
+
+---
+
 ## Features (MVP)
 
 ### Authentication
