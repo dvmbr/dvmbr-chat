@@ -1,5 +1,6 @@
 import {PrismaClient} from "@prisma/client";
 
+// 싱글톤 패턴
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };

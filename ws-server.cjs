@@ -6,14 +6,10 @@ const PORT = process.env.PORT ?? process.env.WS_PORT ?? 4000;
 
 const wss = new WebSocketServer({port: Number(PORT)});
 
-/**
- * 각 클라이언트에 대해 roomId, userId 정보를 들고 있을 객체
- */
+// 각 클라이언트에 대해 roomId, userId 정보를 들고 있을 객체
 const clients = new Set();
 
-/**
- * 헬퍼: 같은 roomId 를 가진 클라이언트들에게 브로드캐스트
- */
+// 헬퍼: 같은 roomId 를 가진 클라이언트들에게 브로드캐스트
 function broadcastToRoom(roomId, payload, excludeClient) {
   const message = JSON.stringify(payload);
 
@@ -45,14 +41,18 @@ wss.on("connection", (socket) => {
 
     switch (msg.type) {
       case "join": {
-        // { type: "join", roomId, userId }
+        if (!msg.roomId || !msg.userId || !msg.username) {
+          console.warn("Invalid join payload:", msg);
+          socket.close();
+          return;
+        }
+
         client.roomId = msg.roomId;
         client.userId = msg.userId;
         client.username = msg.username;
         console.log(
           `Client joined room ${client.roomId} (user: ${client.userId}, name: ${client.username})`
         );
-        break;
       }
 
       case "leave": {

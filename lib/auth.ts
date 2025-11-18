@@ -1,5 +1,6 @@
 import {cookies} from "next/headers";
 import {prisma} from "@/lib/db";
+import type {User} from "@prisma/client";
 
 const SESSION_COOKIE = "chat_session";
 
@@ -9,7 +10,7 @@ type SessionPayload = {
 };
 
 // 현재 로그인한 유저를 DB에서 조회
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
     const raw = cookieStore.get(SESSION_COOKIE)?.value;
@@ -53,4 +54,13 @@ export async function createSession(params: {
     console.error("createSession error:", error);
     throw new Error("Failed to create session");
   }
+}
+
+// 로그인된 유저만 접근 허용, 없으면 에러 던짐
+export async function requireUser() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+  return user;
 }
