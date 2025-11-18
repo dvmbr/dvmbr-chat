@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ws": "node ws-server.cjs"
+    "ws": "node ws-server/server.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
