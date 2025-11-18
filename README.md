@@ -104,7 +104,7 @@ npm run ws
 ### Backend
 
 - Next.js Route Handlers (`/app/api/*`)
-- Node.js WebSocket 서버 (`ws` 또는 Socket.IO)
+- Node.js WebSocket 서버 (`/ws-server/server.js`)
 
 ### Database & ORM
 
@@ -123,7 +123,7 @@ npm run ws
 
 - 닉네임 기반 로그인 후 HTTP-only 쿠키(`chat_session`) 저장
 - 서버 컴포넌트 및 API 라우트에서 쿠키 기반 현재 사용자 조회
-- (예정) 특정 페이지 보호를 위해 middleware.ts 추가 예정
+- 특정 페이지 보호를 위해 middleware.ts 추가 예정
 
 ### Chat Rooms
 
