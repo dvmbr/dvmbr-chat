@@ -117,7 +117,7 @@ npm run ws
 - Railway (WebSocket 서버)
 - Neon (PostgreSQL)
 
-## Features (MVP)
+## Features
 
 ### Authentication
 
