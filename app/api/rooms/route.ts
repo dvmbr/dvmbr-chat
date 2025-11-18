@@ -1,15 +1,11 @@
 import {NextRequest, NextResponse} from "next/server";
 import {prisma} from "@/lib/db";
-import {getCurrentUser} from "@/lib/auth";
+import {requireUser} from "@/lib/auth";
 
 // GET /api/rooms  : 방 목록 조회
 export async function GET() {
   try {
-    const user = await getCurrentUser();
-
-    if (!user) {
-      return NextResponse.json({error: "Unauthorized"}, {status: 401});
-    }
+    await requireUser();
 
     const rooms = await prisma.room.findMany({
       orderBy: {createdAt: "desc"},
@@ -32,11 +28,7 @@ export async function GET() {
 // POST /api/rooms : 방 생성
 export async function POST(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
-
-    if (!user) {
-      return NextResponse.json({error: "Unauthorized"}, {status: 401});
-    }
+    await requireUser();
 
     const body = await req.json().catch(() => null);
     const name = body?.name;

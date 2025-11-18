@@ -1,16 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
 import {prisma} from "@/lib/db";
-import {getCurrentUser} from "@/lib/auth";
+import {requireUser} from "@/lib/auth";
 
 // POST /api/messages
 // Body: { roomId: string; text: string }
 export async function POST(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
-
-    if (!user) {
-      return NextResponse.json({error: "Unauthorized"}, {status: 401});
-    }
+    const user = await requireUser();
 
     const body = await req.json().catch(() => null);
 
@@ -41,7 +37,7 @@ export async function POST(req: NextRequest) {
     const message = await prisma.message.create({
       data: {
         text: trimmedText,
-        roomId: roomId,
+        roomId,
         userId: user.id,
       },
       include: {

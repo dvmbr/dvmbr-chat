@@ -18,11 +18,8 @@ export default async function RoomPage(props: RoomPageProps) {
 
   let sessionUser: {id: string; username: string} | null = null;
 
-  console.log(sessionUser);
   try {
-    console.log(1);
     sessionUser = JSON.parse(session.value);
-    console.log(sessionUser);
   } catch {
     redirect("/login");
   }
