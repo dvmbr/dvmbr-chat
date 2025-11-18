@@ -1,12 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  /* dvmbr 기본 다크 테마 */
-  --background: #0a0e17;
-  --text: #e6ecf3;
+/* dvmbr 색 팔레트 정의 (Tailwind v4 방식) */
+@theme {
+  /* 브랜드 컬러 */
+  --color-brand-red: #ff3131;
+  --color-brand-mint: #67fff0;
+
+  /* 배경 계층 */
+  --color-bg-primary: #0a0e17;
+  --color-bg-secondary: #101522;
+  --color-bg-tertiary: #161c2a;
+
+  /* 서피스 */
+  --color-surface: #1c2433;
+  --color-surface-hover: #232d40;
+  --color-surface-border: #2f3a4f;
+
+  /* 텍스트 */
+  --color-text-primary: #e6ecf3;
+  --color-text-secondary: #a8b3c2;
+  --color-text-muted: #6c7280;
+
+  /* 상태 컬러 */
+  --color-success: #4ade80; /* 초록 */
+  --color-error: #ff3131; /* 브랜드 레드 재사용 */
+  --color-warning: #facc15; /* 경고(노란 계열) */
+  --color-info: #38bdf8; /* 정보(하늘색) */
 }
 
+/* 전역 배경/텍스트 기본값 */
 body {
-  background: var(--background);
-  color: var(--text);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }

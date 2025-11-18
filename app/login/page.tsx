@@ -23,9 +23,7 @@ export default function LoginPage() {
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({username: trimmed}),
       });
 
@@ -57,25 +55,22 @@ export default function LoginPage() {
             <label className="block text-sm font-medium mb-1 text-text-secondary">
               닉네임
             </label>
+
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-bg-secondary border border-surface-border rounded px-3 py-2 text-sm outline-none 
-                         text-text-primary placeholder:text-text-muted
-                         focus:border-brand-mint focus:ring-1 focus:ring-brand-mint"
               placeholder="예: dvmbr"
+              className="w-full bg-bg-secondary border border-surface-border rounded px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-brand-mint focus:ring-1 focus:ring-brand-mint"
             />
           </div>
 
-          {error && <p className="text-sm text-state-error">{error}</p>}
+          {error && <p className="text-sm text-error">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded bg-brand-mint text-bg-primary py-2 text-sm font-medium 
-                       disabled:opacity-60 disabled:cursor-not-allowed
-                       hover:bg-accent-mintLight transition"
+            className="w-full rounded bg-brand-mint text-bg-primary py-2 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
           >
             {loading ? "로그인 중..." : "로그인"}
           </button>
