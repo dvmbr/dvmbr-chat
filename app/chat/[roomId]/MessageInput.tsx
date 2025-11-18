@@ -4,9 +4,24 @@ import {useState} from "react";
 
 type MessageInputProps = {
   roomId: string;
+  onMessageSent?: (message: {
+    id: string;
+    text: string;
+    createdAt: string;
+    roomId: string;
+    user?: {
+      id: string;
+      username: string | null;
+    } | null;
+  }) => void;
+  onSendSocket?: (text: string) => void;
 };
 
-export default function MessageInput({roomId}: MessageInputProps) {
+export default function MessageInput({
+  roomId,
+  onMessageSent,
+  onSendSocket,
+}: MessageInputProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,10 +51,25 @@ export default function MessageInput({roomId}: MessageInputProps) {
         return;
       }
 
+      const created = await res.json(); // API에서 돌려준 메시지
+
+      if (onSendSocket) {
+        onSendSocket(trimmed);
+      }
+
+      // 입력창 비우기
       setText("");
 
-      // 나중에 WebSocket 붙이면 optimistic UI 로 대체됨
-      console.log("Message sent:", trimmed);
+      // 상위로 알리기 (리스트 갱신)
+      if (onMessageSent) {
+        onMessageSent({
+          id: created.id,
+          text: created.text,
+          createdAt: created.createdAt,
+          roomId: created.roomId,
+          user: created.user,
+        });
+      }
     } catch (err) {
       console.error("Message send failed:", err);
     } finally {

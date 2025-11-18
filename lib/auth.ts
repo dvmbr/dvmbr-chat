@@ -3,25 +3,49 @@ import {prisma} from "@/lib/db";
 
 const SESSION_COOKIE = "chat_session";
 
+type SessionPayload = {
+  id: string;
+  username: string;
+};
+
+// 현재 로그인한 유저를 DB에서 조회
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
-    const session = cookieStore.get(SESSION_COOKIE)?.value;
-    if (!session) return null;
+    const raw = cookieStore.get(SESSION_COOKIE)?.value;
+    if (!raw) return null;
 
-    return await prisma.user.findUnique({where: {id: session}});
+    const session = JSON.parse(raw) as SessionPayload;
+    if (!session?.id) return null;
+
+    // DB에서 실제 User 조회
+    return await prisma.user.findUnique({
+      where: {id: session.id},
+    });
   } catch (error) {
     console.error("getCurrentUser error:", error);
     return null;
   }
 }
 
-export async function createSession(userId: string) {
+// 세션 쿠키 생성
+export async function createSession(params: {
+  userId: string;
+  username: string;
+}) {
+  const {userId, username} = params;
+
   try {
     const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE, userId, {
+
+    const payload: SessionPayload = {
+      id: userId,
+      username,
+    };
+
+    cookieStore.set(SESSION_COOKIE, JSON.stringify(payload), {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production", // 로컬에서는 false, 프로덕션만 true
       sameSite: "lax",
       path: "/",
     });

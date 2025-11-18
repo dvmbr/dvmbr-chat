@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 세션 쿠키 설정
-    await createSession(user.id);
+    await createSession({userId: user.id, username: user.username});
 
     return NextResponse.json(
       {

@@ -1,8 +1,7 @@
 import {cookies} from "next/headers";
 import {redirect, notFound} from "next/navigation";
 import {prisma} from "@/lib/db";
-import MessageList from "./MessageList";
-import MessageInput from "./MessageInput";
+import RoomChatClient from "./RoomChatClient";
 
 type RoomPageProps = {
   params: Promise<{roomId: string}>;
@@ -10,12 +9,25 @@ type RoomPageProps = {
 
 export default async function RoomPage(props: RoomPageProps) {
   const {roomId} = await props.params;
+  if (!roomId) notFound();
 
   const cookieStore = await cookies();
   const session = cookieStore.get("chat_session");
+
   if (!session) redirect("/login");
 
-  if (!roomId) notFound();
+  let sessionUser: {id: string; username: string} | null = null;
+
+  console.log(sessionUser);
+  try {
+    console.log(1);
+    sessionUser = JSON.parse(session.value);
+    console.log(sessionUser);
+  } catch {
+    redirect("/login");
+  }
+
+  if (!sessionUser) redirect("/login");
 
   const room = await prisma.room.findUnique({
     where: {id: roomId},
@@ -42,6 +54,7 @@ export default async function RoomPage(props: RoomPageProps) {
     id: m.id,
     text: m.text,
     createdAt: m.createdAt.toISOString(),
+    roomId: m.roomId,
     user: m.user,
   }));
 
@@ -59,13 +72,11 @@ export default async function RoomPage(props: RoomPageProps) {
           </a>
         </header>
 
-        {/* 메시지 리스트 영역 */}
-        <div className="flex-1 bg-surface border border-surface-border rounded-lg p-4 flex flex-col">
-          <MessageList roomId={roomId} messages={messages} />
-        </div>
-
-        {/* 메시지 입력창 */}
-        <MessageInput roomId={roomId} />
+        <RoomChatClient
+          roomId={roomId}
+          sessionUser={sessionUser}
+          initialMessages={messages}
+        />
       </div>
     </div>
   );
