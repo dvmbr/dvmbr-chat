@@ -3,6 +3,7 @@ import {redirect} from "next/navigation";
 import {prisma} from "@/lib/db";
 import CreateRoomForm from "./CreateRoomForm";
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
 export default async function ChatPage() {
   const cookieStore = await cookies();
@@ -19,7 +20,11 @@ export default async function ChatPage() {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold mb-4">채팅방</h1>
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold">채팅방</h1>
+          <LogoutButton />
+        </div>
 
         {/* 새 방 생성 폼 */}
         <CreateRoomForm />
