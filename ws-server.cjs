@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const {WebSocketServer, WebSocket} = require("ws");
 
-const PORT = process.env.WS_PORT ?? 4000;
+// Railway의 PORT 또는 수동 WS_PORT, 없으면 4000
+const PORT = process.env.PORT ?? process.env.WS_PORT ?? 4000;
 
 const wss = new WebSocketServer({port: Number(PORT)});
 
