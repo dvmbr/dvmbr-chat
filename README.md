@@ -29,7 +29,6 @@ dvmbr Chat은 Next.js 15, PostgreSQL(Neon), WebSocket을 기반으로 만든 실
 - Vercel (Next.js + API Routes)
 - Railway (WebSocket 서버)
 - Neon (PostgreSQL)
-- Upstash Redis (선택 사항)
 
 ---
 
@@ -58,18 +57,15 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
 
 ### Authentication
 
-- 닉네임 기반 로그인
-- HTTP-only 쿠키 기반 세션
-- `/login` 페이지에서 유저 이름 입력 → DB 생성/조회 → 세션 발급
-- 인증이 필요한 모든 경로는 middleware 기반 보호
+- 닉네임 기반 로그인 후 HTTP-only 쿠키(`chat_session`) 저장
+- 서버 컴포넌트 및 API 라우트에서 쿠키 기반 현재 사용자 조회
+- (예정) 특정 페이지 보호를 위해 middleware.ts 추가 예정
 
 ### Chat Rooms
 
 - 채팅방 생성
 - 채팅방 리스트 조회
-- 채팅방 입장
-- 각 방별로 마지막 메시지 및 시간 표시
-- lastActive 기반 NEW 표시
+- 채팅방 입장 (클릭 시 `/chat/[roomId]`)
 
 ### Real-Time Messaging
 
@@ -80,14 +76,14 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
 
 ### Message List UX
 
-- 새로운 메시지 도착 시 자동 스크롤
-- 같은 사용자가 같은 분 안에 보낸 연속 메시지는 compact 형태로 렌더링
-- 시간 및 유저명 표시는 조건부로 축약
+- 메시지 목록 표시 (최신 메시지 SSR + WebSocket 실시간 추가)
+- (예정) 자동 스크롤
+- (예정) 연속 메시지 compact 렌더링
 
 ### LocalStorage Tracking
 
-- 각 방마다 마지막 방문 시간(lastActive) 저장
-- 마지막 메시지 시간이 lastActive보다 최신이고, 보낸 사람이 내가 아닐 경우 NEW 표시
+- (예정) 방별 lastActive 관리
+- (예정) NEW 배지 표시
 
 ### Error Handling
 
@@ -110,39 +106,81 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
 
 ### Backend (Rest API via Route Handlers)
 
-- POST `/api/auth` — 로그인
-- GET `/api/me` — 현재 로그인 유저 확인
-- GET `/api/rooms` — 방 리스트
-- POST `/api/rooms` — 방 생성
-- GET `/api/rooms/[roomId]` — 방 상세
-- GET `/api/rooms/[roomId]/messages` — 메시지 조회
+- POST `/api/auth` — 로그인 처리 및 세션 쿠키 발급
+- GET `/api/rooms` — 채팅방 목록 조회
+- POST `/api/rooms` — 새로운 방 생성
+- POST `/api/messages` — 메시지 생성 (DB 저장)
 
 ### Backend (WebSocket)
 
-- Railway Node.js 서버
-- ws 또는 socket.io 기반
-- 메시지 프로토콜 예시:
+실시간 메시징은 별도의 Node.js WebSocket 서버(`ws` 라이브러리)에서 처리합니다.  
+클라이언트는 방에 입장하면 WebSocket에 연결하여 실시간으로 메시지를 주고받습니다.
+
+### WebSocket Protocol
+
+- 클라이언트가 WebSocket에 연결되면 `{type: "join"}` 메시지를 먼저 전송합니다.
+- 서버는 join 정보를 저장하여 해당 roomId에 연결된 소켓을 관리합니다.
+- 클라이언트가 메시지를 보내면:
+  1. HTTP `/api/messages` 요청으로 PostgreSQL에 저장되고
+  2. WebSocket을 통해 같은 방의 다른 클라이언트에게 실시간 전파됩니다.
+- 서버는 메시지 ID를 생성하지 않으므로, 클라이언트는 임시 ID(`ws-${Date.now()}`)를 생성할 수 있습니다.
+
+#### Client -> Server
+
+클라이언트가 WebSocket을 통해 서버로 전송하는 메시지 타입입니다.
 
 ```ts
 type ClientMessage =
-  | {type: "joinRoom"; roomId: string}
-  | {type: "leaveRoom"; roomId: string}
-  | {type: "newMessage"; roomId: string; content: string}
-  | {type: "ping"};
+  | {
+      type: "join";
+      roomId: string;
+      userId: string;
+      username: string;
+    }
+  | {
+      type: "leave";
+    }
+  | {
+      type: "message";
+      roomId: string;
+      text: string;
+      userId: string;
+      username: string;
+    };
+```
 
-type ServerMessage =
-  | {type: "joinedRoom"; roomId: string}
-  | {type: "leftRoom"; roomId: string}
-  | {type: "messageCreated"; message: ChatMessagePayload}
-  | {type: "error"; message: string}
-  | {type: "pong"};
+```json
+{ "type": "join", "roomId": "abc123", "userId": "u1", "username": "dvmbr" }
 
-type ChatMessagePayload = {
-  id: string;
+{ "type": "message", "roomId": "abc123", "text": "Hello", "userId": "u1", "username": "dvmbr" }
+
+{ "type": "leave" }
+```
+
+#### Server -> Client
+
+서버가 같은 방(roomId)에 있는 다른 클라이언트들에게 브로드캐스트하는 메시지 타입입니다.
+
+```ts
+type ServerMessage = {
+  type: "message";
   roomId: string;
+  text: string;
   userId: string;
-  username: string;
-  content: string;
+  username: string | null;
   createdAt: string;
+  id?: string;
 };
+```
+
+```json
+{
+  "type": "message",
+  "roomId": "abc123",
+  "text": "Hello",
+  "userId": "u2",
+  "username": "november",
+  "createdAt": "2025-11-18T00:00:00.000Z",
+  "id": "cmi472m740001mqnizdioztp3"
+}
 ```
