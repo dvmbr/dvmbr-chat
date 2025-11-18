@@ -45,31 +45,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow p-6">
-        <h1 className="text-xl font-semibold mb-4">dvmbr Chat 로그인</h1>
-        <p className="text-sm text-gray-600 mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-bg-primary text-text-primary">
+      <div className="w-full max-w-sm bg-surface rounded-xl shadow-lg border border-surface-border p-6">
+        <h1 className="text-xl font-semibold mb-2">dvmbr Chat</h1>
+        <p className="text-sm text-text-secondary mb-6">
           닉네임만 입력하면 바로 채팅을 시작할 수 있습니다.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">닉네임</label>
+            <label className="block text-sm font-medium mb-1 text-text-secondary">
+              닉네임
+            </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full bg-bg-secondary border border-surface-border rounded px-3 py-2 text-sm outline-none 
+                         text-text-primary placeholder:text-text-muted
+                         focus:border-brand-mint focus:ring-1 focus:ring-brand-mint"
               placeholder="예: dvmbr"
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-state-error">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded bg-blue-600 text-white py-2 text-sm font-medium disabled:opacity-60"
+            className="w-full rounded bg-brand-mint text-bg-primary py-2 text-sm font-medium 
+                       disabled:opacity-60 disabled:cursor-not-allowed
+                       hover:bg-accent-mintLight transition"
           >
             {loading ? "로그인 중..." : "로그인"}
           </button>
