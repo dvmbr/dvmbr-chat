@@ -32,13 +32,13 @@ export async function POST(req: NextRequest) {
     }
 
     // 3) 세션 쿠키 설정 (세션에는 username으로 저장)
-    await createSession({userId: user.id, username: user.name});
+    await createSession({id: user.id, name: user.name});
 
     // 4) 응답 (프론트에서 굳이 안 써도 되지만, 참고용)
     return NextResponse.json(
       {
         id: user.id,
-        username: user.name,
+        name: user.name,
       },
       {status: 200}
     );

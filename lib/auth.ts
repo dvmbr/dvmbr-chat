@@ -6,7 +6,7 @@ const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
 type SessionPayload = {
   id: string;
-  username: string;
+  name: string;
 };
 
 // 현재 로그인한 유저 조회 (없으면 null)
@@ -29,18 +29,15 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 // 세션 쿠키 생성
-export async function createSession(params: {
-  userId: string;
-  username: string;
-}) {
-  const {userId, username} = params;
+export async function createSession(params: {id: string; name: string}) {
+  const {id, name} = params;
 
   try {
     const cookieStore = await cookies();
 
     const payload: SessionPayload = {
-      id: userId,
-      username,
+      id,
+      name,
     };
 
     cookieStore.set(SESSION_COOKIE, JSON.stringify(payload), {
