@@ -4,6 +4,7 @@ import {getMessagesByRoomId} from "@/lib/message";
 import {getRoomByRoomId} from "@/lib/room";
 import ChatView from "./ChatView";
 import {SessionUser} from "@/types/session";
+import Link from "next/link";
 
 type Props = {
   params: Promise<{roomId: string}>;
@@ -50,12 +51,12 @@ export default async function RoomPage({params}: Props) {
         {/* 헤더 */}
         <header className="mb-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold">{room.name}</h1>
-          <a
+          <Link
             href="/chat"
             className="text-sm text-text-secondary hover:text-brand-mint"
           >
             {"<-"} 채팅방 목록으로
-          </a>
+          </Link>
         </header>
 
         <ChatView
