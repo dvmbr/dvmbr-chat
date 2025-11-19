@@ -1,22 +1,28 @@
 import {cookies} from "next/headers";
 import {redirect, notFound} from "next/navigation";
-import {prisma} from "@/lib/db";
-import RoomChatClient from "./RoomChatClient";
+import {getMessagesByRoomId} from "@/lib/message";
+import {getRoomByRoomId} from "@/lib/room";
+import ChatView from "./ChatView";
+import {SessionUser} from "@/types/session";
 
-type RoomPageProps = {
+type Props = {
   params: Promise<{roomId: string}>;
 };
 
-export default async function RoomPage(props: RoomPageProps) {
-  const {roomId} = await props.params;
+const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
+
+export default async function RoomPage({params}: Props) {
+  const {roomId} = await params;
   if (!roomId) notFound();
 
+  // 세션 검사
   const cookieStore = await cookies();
-  const session = cookieStore.get("chat_session");
+  const session = cookieStore.get(SESSION_COOKIE);
+  if (!session) {
+    redirect("/login");
+  }
 
-  if (!session) redirect("/login");
-
-  let sessionUser: {id: string; username: string} | null = null;
+  let sessionUser: SessionUser = null;
 
   try {
     sessionUser = JSON.parse(session.value);
@@ -24,36 +30,19 @@ export default async function RoomPage(props: RoomPageProps) {
     redirect("/login");
   }
 
-  if (!sessionUser) redirect("/login");
+  if (!sessionUser) {
+    redirect("/login");
+  }
 
-  const room = await prisma.room.findUnique({
-    where: {id: roomId},
-  });
+  // 방 정보 조회
+  const room = await getRoomByRoomId(roomId);
 
-  if (!room) notFound();
+  if (!room) {
+    notFound();
+  }
 
-  // 실제 메시지 목록 DB에서 조회
-  const rawMessages = await prisma.message.findMany({
-    where: {roomId},
-    orderBy: {createdAt: "asc"},
-    include: {
-      user: {
-        select: {
-          id: true,
-          username: true,
-        },
-      },
-    },
-  });
-
-  // 클라이언트에 넘길 수 있는 형태로 가공 (Date => string)
-  const messages = rawMessages.map((m) => ({
-    id: m.id,
-    text: m.text,
-    createdAt: m.createdAt.toISOString(),
-    roomId: m.roomId,
-    user: m.user,
-  }));
+  // 공용 함수 사용해서 메시지 조회 (DB -> ChatMessage[])
+  const messagesFromServer = await getMessagesByRoomId(roomId);
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
@@ -65,14 +54,14 @@ export default async function RoomPage(props: RoomPageProps) {
             href="/chat"
             className="text-sm text-text-secondary hover:text-brand-mint"
           >
-            ← 채팅방 목록으로
+            {"<-"} 채팅방 목록으로
           </a>
         </header>
 
-        <RoomChatClient
+        <ChatView
           roomId={roomId}
           sessionUser={sessionUser}
-          initialMessages={messages}
+          messages={messagesFromServer}
         />
       </div>
     </div>

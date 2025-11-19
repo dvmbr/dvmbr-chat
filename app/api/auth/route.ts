@@ -1,17 +1,21 @@
 import {NextRequest, NextResponse} from "next/server";
-import {prisma} from "@/lib/db";
 import {createSession} from "@/lib/auth";
+import {getUserByName, createUserByName} from "@/lib/user";
 
+// POST /api/auth
+// Body: { name: string }
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const username = body?.username;
+    const body = await req.json().catch(() => null);
 
-    if (!username || typeof username !== "string") {
+    // 프론트에서 { name: "닉네임" } 형태로 보내는 것을 기준으로 함
+    const rawName = body?.name;
+
+    if (!rawName || typeof rawName !== "string") {
       return NextResponse.json({error: "Invalid username"}, {status: 400});
     }
 
-    const trimmed = username.trim();
+    const trimmed = rawName.trim();
     if (!trimmed) {
       return NextResponse.json(
         {error: "Username cannot be empty"},
@@ -19,24 +23,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 유저 조회 또는 생성
-    let user = await prisma.user.findUnique({
-      where: {username: trimmed},
-    });
+    // 1) 이름으로 유저 조회
+    let user = await getUserByName(trimmed);
 
+    // 2) 없으면 새로 생성
     if (!user) {
-      user = await prisma.user.create({
-        data: {username: trimmed},
-      });
+      user = await createUserByName(trimmed);
     }
 
-    // 세션 쿠키 설정
-    await createSession({userId: user.id, username: user.username});
+    // 3) 세션 쿠키 설정 (세션에는 username으로 저장)
+    await createSession({userId: user.id, username: user.name});
 
+    // 4) 응답 (프론트에서 굳이 안 써도 되지만, 참고용)
     return NextResponse.json(
       {
         id: user.id,
-        username: user.username,
+        username: user.name,
       },
       {status: 200}
     );

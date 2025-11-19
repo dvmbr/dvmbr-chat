@@ -21,7 +21,7 @@ export default function CreateRoomForm() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/rooms", {
+      const res = await fetch("/api/room", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

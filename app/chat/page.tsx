@@ -1,21 +1,19 @@
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
-import {prisma} from "@/lib/db";
 import CreateRoomForm from "./CreateRoomForm";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
-
+import {getRooms} from "@/lib/room";
+const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 export default async function ChatPage() {
   const cookieStore = await cookies();
-  const session = cookieStore.get("chat_session");
+  const session = cookieStore.get(SESSION_COOKIE);
 
   if (!session) {
     redirect("/login");
   }
 
-  const rooms = await prisma.room.findMany({
-    orderBy: {createdAt: "desc"},
-  });
+  const rooms = await getRooms();
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">

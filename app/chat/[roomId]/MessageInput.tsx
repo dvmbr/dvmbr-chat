@@ -1,26 +1,24 @@
 "use client";
 
 import {useState} from "react";
+import type {ChatMessage} from "@/types/chat";
 
 type MessageInputProps = {
   roomId: string;
-  onMessageSent?: (message: {
-    id: string;
-    text: string;
-    createdAt: string;
-    roomId: string;
-    user?: {
-      id: string;
-      username: string | null;
-    } | null;
-  }) => void;
-  onSendSocket?: (text: string) => void;
+  pendingMessages: ChatMessage[];
+  setPendingMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
+  setDisplayMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  onMessageCreated: (msg: ChatMessage) => void;
 };
 
 export default function MessageInput({
   roomId,
-  onMessageSent,
-  onSendSocket,
+  pendingMessages,
+  setPendingMessages,
+  setIsPending,
+  setDisplayMessages,
+  onMessageCreated,
 }: MessageInputProps) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,10 +29,29 @@ export default function MessageInput({
     const trimmed = text.trim();
     if (!trimmed) return;
 
+    const createdAt = new Date();
+
+    // 입력창 비우기
+    setText("");
+
+    setIsPending(true);
     setLoading(true);
 
+    // 낙관적 UI 업데이트
+    const optimisticMessage: ChatMessage = {
+      id: "optimistic-" + Date.now(),
+      roomId,
+      userId: "",
+      username: "pending...",
+      text: trimmed,
+      createdAt,
+      isPending: true,
+    };
+
+    setPendingMessages([...pendingMessages, optimisticMessage]);
+
     try {
-      const res = await fetch("/api/messages", {
+      const res = await fetch("/api/message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,6 +59,7 @@ export default function MessageInput({
         body: JSON.stringify({
           roomId,
           text: trimmed,
+          createdAt,
         }),
       });
 
@@ -51,28 +69,15 @@ export default function MessageInput({
         return;
       }
 
-      const created = await res.json(); // API에서 돌려준 메시지
+      const created: ChatMessage = await res.json();
+      setDisplayMessages((prev) => [...prev, created]);
+      setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
 
-      if (onSendSocket) {
-        onSendSocket(trimmed);
-      }
-
-      // 입력창 비우기
-      setText("");
-
-      // 상위로 알리기 (리스트 갱신)
-      if (onMessageSent) {
-        onMessageSent({
-          id: created.id,
-          text: created.text,
-          createdAt: created.createdAt,
-          roomId: created.roomId,
-          user: created.user,
-        });
-      }
+      onMessageCreated(created);
     } catch (err) {
       console.error("Message send failed:", err);
     } finally {
+      setIsPending(false);
       setLoading(false);
     }
   }

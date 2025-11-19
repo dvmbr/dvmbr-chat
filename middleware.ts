@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server";
 
-const SESSION_COOKIE = "chat_session";
+const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;

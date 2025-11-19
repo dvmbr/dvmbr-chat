@@ -9,11 +9,11 @@ generator client {
 
 model User {
   id        String   @id @default(cuid())
-  username  String   @unique
+  name      String   @unique
   createdAt DateTime @default(now())
 
-  rooms    RoomMember[]
-  messages Message[]
+  rooms     RoomMember[]
+  messages  Message[]
 }
 
 model Room {
@@ -22,8 +22,8 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  messages Message[]
-  members  RoomMember[]
+  messages  Message[]
+  members   RoomMember[]
 }
 
 model RoomMember {
@@ -32,8 +32,8 @@ model RoomMember {
   roomId   String
   joinedAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
-  room Room @relation(fields: [roomId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  room     Room     @relation(fields: [roomId], references: [id])
 
   @@unique([userId, roomId])
 }
@@ -42,9 +42,9 @@ model Message {
   id        String   @id @default(cuid())
   text      String
   userId    String
-  room      Room     @relation(fields: [roomId], references: [id])
   roomId    String
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  room      Room     @relation(fields: [roomId], references: [id])
 }

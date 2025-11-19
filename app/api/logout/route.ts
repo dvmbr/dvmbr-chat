@@ -1,18 +1,14 @@
+import {clearSession} from "@/lib/auth";
 import {NextResponse} from "next/server";
-import {cookies} from "next/headers";
 
-const SESSION_COOKIE = "chat_session";
-
+// POST /api/logout
 export async function POST() {
-  const cookieStore = await cookies();
+  try {
+    await clearSession();
 
-  cookieStore.set(SESSION_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0, // 삭제
-  });
-
-  return NextResponse.json({success: true});
+    return NextResponse.json({ok: true}, {status: 200});
+  } catch (error) {
+    console.error("POST /api/logout error:", error);
+    return NextResponse.json({error: "Internal server error"}, {status: 500});
+  }
 }
