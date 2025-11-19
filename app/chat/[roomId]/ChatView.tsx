@@ -3,7 +3,7 @@
 import {ChatMessage} from "@/types/chat";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import {useWebSocket} from "@/hooks/useWebSocket";
 import {SessionUser} from "@/types/session";
 type Props = {
@@ -21,12 +21,18 @@ export default function ChatView({roomId, sessionUser, messages}: Props) {
     ? [...displayMessages, ...pendingMessages]
     : displayMessages;
 
+  // -> onBroadcast를 메모이제이션
+  const handleBroadcast = useCallback(
+    (incoming: ChatMessage) => {
+      setDisplayMessages((prev) => [...prev, incoming]);
+    },
+    [] // setState 자체는 안정적인 ref라 deps 없어도 괜찮아
+  );
+
   const {sendToServer} = useWebSocket({
     roomId,
     sessionUser: sessionUser,
-    onBroadcast: (incoming) => {
-      setDisplayMessages((prev) => [...prev, incoming]);
-    },
+    onBroadcast: handleBroadcast,
   });
 
   return (

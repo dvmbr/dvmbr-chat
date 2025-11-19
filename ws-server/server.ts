@@ -89,6 +89,10 @@ wss.on("connection", (socket: WebSocket) => {
     }
   });
 
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
+  });
+
   socket.on("close", () => {
     console.log(`Client left [${client.roomId}:${client.clientId}]`);
     clients.delete(client);
