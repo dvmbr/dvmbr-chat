@@ -1,5 +1,7 @@
 import {ChatMessage} from "@/types/chat";
-import {WebSocket} from "ws";
+import {WebSocketServer, WebSocket} from "ws";
+
+const PORT = Number(process.env.PORT ?? process.env.WS_PORT ?? 4000);
 
 // 서버가 관리하는 클라이언트 상태
 type Client = {
@@ -24,12 +26,10 @@ type Payload =
       type: "broadcast";
     } & ChatMessage);
 
-const ws = new WebSocket(
-  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000"
-);
+const wss = new WebSocketServer({port: PORT});
 const clients = new Set<Client>();
 
-ws.on("connection", (socket: WebSocket) => {
+wss.on("connection", (socket: WebSocket) => {
   const client: Client = {
     socket,
     roomId: null,
@@ -121,7 +121,7 @@ ws.on("connection", (socket: WebSocket) => {
   });
 });
 
-console.log(`WebSocket server listening on ${process.env.NEXT_PUBLIC_WS_URL}`);
+console.log(`WebSocket server listening on ${PORT}`);
 
 function broadcastToRoom(payload: Extract<Payload, {type: "broadcast"}>) {
   const message = JSON.stringify(payload);
