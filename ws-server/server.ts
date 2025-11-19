@@ -78,6 +78,7 @@ wss.on("connection", (socket: WebSocket) => {
         };
 
         broadcastToRoom(payload);
+        console.log(`Client send message: ${JSON.stringify(msg)}`);
         break;
       }
 
