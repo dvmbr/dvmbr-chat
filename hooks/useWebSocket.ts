@@ -18,7 +18,9 @@ export function useWebSocket({
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(process.env.WS_URL || "ws://localhost:4000");
+    const ws = new WebSocket(
+      process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000"
+    );
     wsRef.current = ws;
 
     ws.onopen = () => {
