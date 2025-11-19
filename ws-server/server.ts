@@ -1,7 +1,6 @@
 import {ChatMessage} from "@/types/chat";
 import {WebSocketServer, WebSocket} from "ws";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost";
 const PORT = Number(process.env.PORT ?? 4000);
 
 // 서버가 관리하는 클라이언트 상태
@@ -96,7 +95,7 @@ wss.on("connection", (socket: WebSocket) => {
   });
 });
 
-console.log(`WebSocket server listening on ${WS_URL}:${PORT}`);
+console.log(`WebSocket server listening on ${PORT}`);
 
 function broadcastToRoom(payload: Extract<Payload, {type: "broadcast"}>) {
   const message = JSON.stringify(payload);
