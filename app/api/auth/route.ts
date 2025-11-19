@@ -12,15 +12,12 @@ export async function POST(req: NextRequest) {
     const rawName = body?.name;
 
     if (!rawName || typeof rawName !== "string") {
-      return NextResponse.json({error: "Invalid username"}, {status: 400});
+      return NextResponse.json({error: "Invalid name"}, {status: 400});
     }
 
     const trimmed = rawName.trim();
     if (!trimmed) {
-      return NextResponse.json(
-        {error: "Username cannot be empty"},
-        {status: 400}
-      );
+      return NextResponse.json({error: "name cannot be empty"}, {status: 400});
     }
 
     // 1) 이름으로 유저 조회
@@ -31,10 +28,10 @@ export async function POST(req: NextRequest) {
       user = await createUserByName(trimmed);
     }
 
-    // 3) 세션 쿠키 설정 (세션에는 username으로 저장)
+    // 3) 세션 쿠키 설정
     await createSession({id: user.id, name: user.name});
 
-    // 4) 응답 (프론트에서 굳이 안 써도 되지만, 참고용)
+    // 4) 응답
     return NextResponse.json(
       {
         id: user.id,
