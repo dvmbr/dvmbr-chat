@@ -40,6 +40,10 @@ npx prisma migrate dev
 
 ### 4. 개발 서버 실행
 
+```env
+SESSION_COOKIE_NAME=chat_session
+```
+
 ```bash
 npm run dev
 ```
@@ -51,7 +55,7 @@ npm run dev
 로컬에서 WebSocket 서버를 실행하려면:
 
 ```env
-NEXT_PUBLIC_WS_URL="ws://localhost:4000"
+WS_PORT=4000
 ```
 
 ```bash
@@ -65,46 +69,60 @@ npm run ws
 ```txt
 /app
   /api
-    /auth          # POST -> 로그인 & 세션 발급
-    /logout        # POST -> 로그아웃 (세션 쿠키 삭제)
-    /rooms         # GET -> 방 목록 조회, POST -> 방 생성
-    /me            # GET -> 현재 로그인된 유저 조회
-    /messages      # POST -> 메시지 생성, DB 저장
+    /auth           # POST - 로그인 및 세션 생성
+    /logout         # POST - 로그아웃(세션 쿠키 제거)
+    /room           # POST - 방 생성
+    /message        # POST - 메시지 생성
   /chat
-    page.tsx       # 채팅방 목록 페이지
+    page.tsx        # 채팅방 목록 페이지
     /[roomId]
-      page.tsx     # 특정 채팅방 페이지
+      page.tsx      # 특정 채팅방 페이지
     CreateRoomForm.tsx
     LogoutButton.tsx
   /login
-    page.tsx       # 로그인 페이지
+    page.tsx        # 로그인 페이지
   layout.tsx
-  page.tsx         # 홈 페이지 (유저는 실제로 “홈 화면”을 보는 일이 없고 상태에 따라 적절한 페이지로 라우팅되도록 설계되어 있습니다.)
+  page.tsx          # 홈 페이지 (유저는 실제로 “홈 화면”을 보는 일이 없고 상태에 따라 적절한 페이지로 라우팅되도록 설계되어 있습니다.)
 
 /lib
-  auth.ts          # 세션 쿠키 기반 인증 유틸 (requireUser)
-  db.ts            # PrismaClient 싱글톤 래퍼
+  auth.ts           # 세션 쿠키 기반 인증 / 로그인 상태 검증
+  db.ts             # PrismaClient 싱글톤 인스턴스 관리
+  message.ts        # 메시지 생성·조회 등 Message 도메인 로직
+  room.ts           # 채팅방 생성·조회 등 Room 도메인 로직
+  user.ts           # 사용자 생성·조회 등 User 도메인 로직
 
 /prisma
-  schema.prisma    # User, Room, RoomMember, Message 모델 정의
+  schema.prisma     # User, Room, RoomMember, Message 모델 정의
 
 /ws-server
-  server.js        # Node.js WebSocket 서버 (Railway 배포 대상)
+  server.ts         # Node.js WebSocket 서버 (Railway 배포 대상)
 ```
 
 ## Tech Stack
 
-### Frontend / Full Stack
+### Frontend (Next.js 16)
 
 - Next.js 16
 - React
 - TypeScript
 - Tailwind CSS
+- 서버 컴포넌트 + 클라이언트 컴포넌트 혼합
+- 메시지 목록은 SSR로 초기 렌더
+- 이후 WebSocket을 통해 실시간 메시지 추가
 
-### Backend
+### Backend — HTTP API (Next.js Route Handlers)
 
 - Next.js Route Handlers (`/app/api/*`)
-- Node.js WebSocket 서버 (`/ws-server/server.js`)
+- 메시지 생성
+- 채팅방 생성
+- 유저 인증
+- SSR에서 초기 메시지 및 채팅방 데이터 로드
+- Node.js WebSocket 서버 (`/ws-server/server.ts`)
+
+### Backend - Web Socket Server (Node.js)
+
+- 특정 roomId에 join한 클라이언트 관리
+- 메시지 broadcast
 
 ### Database & ORM
 
@@ -172,7 +190,7 @@ npm run ws
 - POST `/api/auth` — 로그인 처리 및 세션 쿠키 발급
 - GET `/api/rooms` — 채팅방 목록 조회
 - POST `/api/rooms` — 새로운 방 생성
-- POST `/api/messages` — 메시지 생성 (DB 저장)
+- POST `/api/messages` — 메시지 생성
 
 ### Backend (WebSocket)
 
@@ -186,7 +204,7 @@ npm run ws
 - 클라이언트가 메시지를 보내면:
   1. HTTP `/api/messages` 요청으로 PostgreSQL에 저장되고
   2. WebSocket을 통해 같은 방의 다른 클라이언트에게 실시간 전파됩니다.
-- 서버는 메시지 ID를 생성하지 않으므로, 클라이언트는 임시 ID(`ws-${Date.now()}`)를 생성할 수 있습니다.
+- 서버는 메시지 ID를 생성하지 않으므로, 클라이언트는 임시 ID(`optimistic-${Date.now()}`)를 생성할 수 있습니다.
 
 #### Client -> Server
 
@@ -198,26 +216,23 @@ type ClientMessage =
       type: "join";
       roomId: string;
       userId: string;
-      username: string;
-    }
-  | {
-      type: "leave";
     }
   | {
       type: "message";
-      roomId: string;
+      id: string;
       text: string;
+      roomId: string;
       userId: string;
       username: string;
+      createdAt: Date;
+      isPending?: boolean;
     };
 ```
 
 ```json
 { "type": "join", "roomId": "abc123", "userId": "u1", "username": "dvmbr" }
 
-{ "type": "message", "roomId": "abc123", "text": "Hello", "userId": "u1", "username": "dvmbr" }
-
-{ "type": "leave" }
+{ "type": "message", "id": "aaa111", "text": "Hello", "roomId": "abc123", "userId": "u1", "username": "dvmbr", "createdAt": "2025-11-19T08:36:12.730Z" }
 ```
 
 #### Server -> Client
@@ -226,24 +241,24 @@ type ClientMessage =
 
 ```ts
 type ServerMessage = {
-  type: "message";
-  roomId: string;
-  text: string;
-  userId: string;
-  username: string | null;
-  createdAt: string;
+  type: "broadcast";
   id: string;
+  roomId: string;
+  userId: string;
+  username: string;
+  text: string;
+  createdAt: Date;
 };
 ```
 
 ```json
 {
-  "type": "message",
+  "type": "broadcast",
+  "id": "cmi472m740001mqnizdioztp3",
   "roomId": "abc123",
-  "text": "Hello",
   "userId": "u2",
   "username": "november",
-  "createdAt": "2025-11-18T00:00:00.000Z",
-  "id": "cmi472m740001mqnizdioztp3"
+  "text": "Hello",
+  "createdAt": "2025-11-18T00:00:00.000Z"
 }
 ```

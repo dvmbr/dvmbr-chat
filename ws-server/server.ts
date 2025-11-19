@@ -1,7 +1,8 @@
 import {ChatMessage} from "@/types/chat";
 import {WebSocketServer, WebSocket} from "ws";
 
-const PORT = Number(process.env.PORT ?? process.env.WS_PORT ?? 4000);
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost";
+const PORT = Number(process.env.PORT ?? 4000);
 
 // 서버가 관리하는 클라이언트 상태
 type Client = {
@@ -13,18 +14,11 @@ type Client = {
 
 export type ReceivedMessage =
   | {type: "join"; roomId: string; userId: string}
-  | {type: "leave"; roomId: string; userId: string}
-  | {type: "ping"}
   | ({type: "message"} & ChatMessage);
 
-type Payload =
-  | {
-      type: "pong";
-      ts: number;
-    }
-  | ({
-      type: "broadcast";
-    } & ChatMessage);
+type Payload = {
+  type: "broadcast";
+} & ChatMessage;
 
 const wss = new WebSocketServer({port: PORT});
 const clients = new Set<Client>();
@@ -67,26 +61,6 @@ wss.on("connection", (socket: WebSocket) => {
         break;
       }
 
-      case "leave": {
-        client.roomId = null;
-        client.clientId = null;
-        console.log(`Client left [${msg.roomId}:${msg.userId}]`);
-
-        break;
-      }
-
-      case "ping": {
-        client.lastPingAt = Date.now();
-
-        const payload: Payload = {
-          type: "pong",
-          ts: client.lastPingAt,
-        };
-
-        socket.send(JSON.stringify(payload));
-        break;
-      }
-
       case "message": {
         const {id, roomId, userId, username, text, createdAt} = msg;
         if (!id || !roomId || !userId || !username || !text || !createdAt) {
@@ -116,12 +90,13 @@ wss.on("connection", (socket: WebSocket) => {
   });
 
   socket.on("close", () => {
+    console.log(`Client left [${client.roomId}:${client.clientId}]`);
     clients.delete(client);
     console.log("Client disconnected. Total:", clients.size);
   });
 });
 
-console.log(`WebSocket server listening on ${PORT}`);
+console.log(`WebSocket server listening on ${WS_URL}:${PORT}`);
 
 function broadcastToRoom(payload: Extract<Payload, {type: "broadcast"}>) {
   const message = JSON.stringify(payload);

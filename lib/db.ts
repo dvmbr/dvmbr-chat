@@ -5,6 +5,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
+// PrismaClient 인스턴스 생성
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({

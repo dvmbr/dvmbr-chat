@@ -1,7 +1,7 @@
 import {prisma} from "@/lib/db";
 import type {ChatMessage} from "@/types/chat";
 
-// 특정 방의 메시지들 조회
+// 특정 채팅방의 메시지들 조회
 export async function getMessagesByRoomId(
   roomId: string
 ): Promise<ChatMessage[]> {
