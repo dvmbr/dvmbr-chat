@@ -58,8 +58,22 @@ export function useWebSocket({
       onBroadcast(incoming);
     };
 
+    ws.onerror = (e) => {
+      console.warn("WS error:", e);
+    };
+
+    ws.onclose = (e) => {
+      console.log("WS closed:", e.code, e.reason);
+    };
+
+    // cleanup
     return () => {
-      wsRef.current?.close();
+      if (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      ) {
+        ws.close();
+      }
     };
   }, [roomId, sessionUser, onBroadcast]);
 
