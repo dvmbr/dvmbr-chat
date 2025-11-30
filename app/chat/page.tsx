@@ -4,6 +4,7 @@ import CreateRoomForm from "./CreateRoomForm";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import {getRooms} from "@/lib/room";
+import {getLastMessagesForAllRooms} from "@/lib/message";
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
@@ -16,6 +17,7 @@ export default async function ChatPage() {
   }
 
   const rooms = await getRooms();
+  const lastMessageMap = await getLastMessagesForAllRooms();
 
   return (
     <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
@@ -39,21 +41,27 @@ export default async function ChatPage() {
             </p>
           ) : (
             <ul className="space-y-2">
-              {rooms.map((room) => (
-                <li key={room.id}>
-                  <Link
-                    href={`/chat/${room.id}`}
-                    className="flex items-center justify-between px-3 py-2 rounded-md bg-bg-secondary border border-surface-border hover:border-brand-mint hover:bg-surface-hover transition"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{room.name}</p>
-                      <p className="text-xs text-text-muted">
-                        {room.createdAt.toLocaleString("ko-KR")}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
+              {rooms.map((room) => {
+                const lastMessage = lastMessageMap?.[room.id];
+                return (
+                  <li key={room.id}>
+                    <Link
+                      href={`/chat/${room.id}`}
+                      className="flex items-center justify-between px-3 py-2 rounded-md bg-bg-secondary border border-surface-border hover:border-brand-mint hover:bg-surface-hover transition"
+                    >
+                      <div>
+                        <p className="text-lg font-medium mb-2">{room.name}</p>
+                        <p className="text-sm text-text-secondary">
+                          {lastMessage ?? "아직 메시지가 없습니다."}
+                        </p>
+                        <p className="text-xs text-text-muted">
+                          {room.createdAt.toLocaleString("ko-KR")}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
