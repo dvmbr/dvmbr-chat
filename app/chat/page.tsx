@@ -1,10 +1,10 @@
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
 import CreateRoomForm from "./CreateRoomForm";
-import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import {getRooms} from "@/lib/room";
-import {getLastMessagesForAllRooms} from "@/lib/message";
+import {getLastMessagesForAllRooms, getUnreadCountsByRoom} from "@/lib/message";
+import RoomList from "./RoomList";
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
@@ -16,8 +16,12 @@ export default async function ChatPage() {
     redirect("/login");
   }
 
+  const user = JSON.parse(session.value);
+  const userId = user.id;
+
   const rooms = await getRooms();
   const lastMessageMap = await getLastMessagesForAllRooms();
+  const unreadCountsMap = await getUnreadCountsByRoom(userId);
 
   return (
     <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
@@ -40,29 +44,11 @@ export default async function ChatPage() {
               아직 생성된 채팅방이 없습니다.
             </p>
           ) : (
-            <ul className="space-y-2">
-              {rooms.map((room) => {
-                const lastMessage = lastMessageMap?.[room.id];
-                return (
-                  <li key={room.id}>
-                    <Link
-                      href={`/chat/${room.id}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-md bg-bg-secondary border border-surface-border hover:border-brand-mint hover:bg-surface-hover transition"
-                    >
-                      <div>
-                        <p className="text-lg font-medium mb-2">{room.name}</p>
-                        <p className="text-sm text-text-secondary">
-                          {lastMessage ?? "아직 메시지가 없습니다."}
-                        </p>
-                        <p className="text-xs text-text-muted">
-                          {room.createdAt.toLocaleString("ko-KR")}
-                        </p>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <RoomList
+              rooms={rooms}
+              lastMessageMap={lastMessageMap}
+              unreadCountsMap={unreadCountsMap}
+            />
           )}
         </div>
       </div>

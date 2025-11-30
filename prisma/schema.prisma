@@ -14,6 +14,7 @@ model User {
 
   rooms     RoomMember[]
   messages  Message[]
+  reads     MessageRead[]
 }
 
 model Room {
@@ -47,4 +48,19 @@ model Message {
 
   user      User     @relation(fields: [userId], references: [id])
   room      Room     @relation(fields: [roomId], references: [id])
+  reads     MessageRead[]
 }
+
+model MessageRead {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  readAt    DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId]) // 같은 메시지를 여러 번 읽어도 1개만 존재
+  @@index([userId, messageId])
+}
+

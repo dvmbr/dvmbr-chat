@@ -1,7 +1,8 @@
-import {NextRequest, NextResponse} from "next/server";
+import {NextRequest} from "next/server";
 import {requireUser} from "@/lib/auth";
 import {prisma} from "@/lib/db";
 import {createMessage} from "@/lib/message";
+import {apiCreated, apiError} from "@/lib/apiResponse";
 
 // POST /api/messages -> 메시지 생성
 // Body: { roomId: string, text: string }
@@ -14,10 +15,10 @@ export async function POST(req: NextRequest) {
     const rawText = body?.text;
 
     if (!roomId || typeof roomId !== "string") {
-      return NextResponse.json({error: "Invalid roomId"}, {status: 400});
+      return apiError("Invalid roomId", 400);
     }
     if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
-      return NextResponse.json({error: "Invalid text"}, {status: 400});
+      return apiError("Invalid text", 400);
     }
 
     const room = await prisma.room.findUnique({
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
       select: {id: true},
     });
     if (!room) {
-      return NextResponse.json({error: "Room not found"}, {status: 404});
+      return apiError("Room not found", 404);
     }
 
     const message = await createMessage({
@@ -35,9 +36,9 @@ export async function POST(req: NextRequest) {
       createdAt: body?.createdAt,
     });
 
-    return NextResponse.json(message, {status: 201});
-  } catch (error) {
-    console.error("POST /api/messages error:", error);
-    return NextResponse.json({error: "Internal server error"}, {status: 500});
+    return apiCreated("Message created", message);
+  } catch (e) {
+    console.error("POST /api/messages error:", e);
+    return apiError("Failed to create message", 500);
   }
 }

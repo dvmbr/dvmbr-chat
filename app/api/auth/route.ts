@@ -1,58 +1,71 @@
-import {NextRequest, NextResponse} from "next/server";
+import {NextRequest} from "next/server";
 import {createSession} from "@/lib/auth";
 import {getUserByName, createUserByName} from "@/lib/user";
+import {apiCreated, apiError} from "@/lib/apiResponse";
 
 // POST /api/auth
 // Body: { name: string }
 export async function POST(req: NextRequest) {
+  // 1) Body 파싱
+  let body;
+
   try {
-    const body = await req.json().catch(() => null);
+    body = await req.json();
+  } catch (e) {
+    console.error("Invalid JSON body", e);
+    return apiError("Invalid JSON body", 400);
+  }
 
-    // 프론트에서 { name: "닉네임" } 형태로 보내는 것을 기준으로 함
-    const rawName = body?.name;
+  const rawName = body?.name;
 
+  // 2) 입력 검증
+  try {
     if (!rawName || typeof rawName !== "string") {
-      return NextResponse.json({error: "Invalid name"}, {status: 400});
+      return apiError("Invalid name", 400);
     }
 
     const trimmed = rawName.trim();
-    if (!trimmed) {
-      return NextResponse.json({error: "name cannot be empty"}, {status: 400});
-    }
+    if (!trimmed) return apiError("name cannot be empty", 400);
 
     const nicknameRegex = /^[a-zA-Z0-9가-힣_-]+$/;
     if (!nicknameRegex.test(trimmed)) {
-      return NextResponse.json(
-        {error: "Allowed characters: Korean, English letters, numbers, -, _"},
-        {status: 400}
+      return apiError(
+        "Allowed characters: Korean, English letters, numbers, -, _",
+        400
       );
     }
+  } catch (e) {
+    console.error("Validation error", e);
+    return apiError("Invalid name format", 400);
+  }
 
-    // 1) 이름으로 유저 조회
-    let user = await getUserByName(trimmed);
-    console.log(user);
+  // 3) 유저 조회 + 생성
+  let user;
+  try {
+    const trimmed = rawName.trim();
+    user = await getUserByName(trimmed);
 
-    // 2) 없으면 새로 생성
-    if (!user) {
-      user = await createUserByName(trimmed);
-    } else {
-      // 2-1) 이미 존재하는 이름이면 에러 반환
-      return NextResponse.json({error: "existing name"}, {status: 400});
+    if (user) {
+      return apiError("existing name", 400);
     }
 
-    // 3) 세션 쿠키 설정
-    await createSession({id: user.id, name: user.name});
-
-    // 4) 응답
-    return NextResponse.json(
-      {
-        id: user.id,
-        name: user.name,
-      },
-      {status: 200}
-    );
-  } catch (error) {
-    console.error("POST /api/auth error:", error);
-    return NextResponse.json({error: "Internal server error"}, {status: 500});
+    user = await createUserByName(trimmed);
+  } catch (e) {
+    console.error("POST /api/auth error:", e);
+    return apiError("Failed to create user", 500);
   }
+
+  // 4) 세션 생성
+  try {
+    await createSession({id: user.id, name: user.name});
+  } catch (e) {
+    console.error("Session creation error", e);
+    return apiError("Failed to create session", 500);
+  }
+
+  // 5) 성공 응답
+  return apiCreated("Authentication successful", {
+    id: user.id,
+    name: user.name,
+  });
 }
