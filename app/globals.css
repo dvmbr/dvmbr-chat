@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* dvmbr 색 팔레트 정의 (Tailwind v4 방식) */
+/* dvmbr 색 팔레트 정의 */
 @theme {
   /* 브랜드 컬러 */
   --color-brand-red: #ff3131;
@@ -30,6 +30,6 @@
 
 /* 전역 배경/텍스트 기본값 */
 body {
-  background: var(--color-bg-primary);
+  background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
 }

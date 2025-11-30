@@ -22,12 +22,9 @@ export default function ChatView({roomId, sessionUser, messages}: Props) {
     : displayMessages;
 
   // -> onBroadcast를 메모이제이션
-  const handleBroadcast = useCallback(
-    (incoming: ChatMessage) => {
-      setDisplayMessages((prev) => [...prev, incoming]);
-    },
-    [] // setState 자체는 안정적인 ref라 deps 없어도 괜찮아
-  );
+  const handleBroadcast = useCallback((incoming: ChatMessage) => {
+    setDisplayMessages((prev) => [...prev, incoming]);
+  }, []);
 
   const {sendToServer} = useWebSocket({
     roomId,

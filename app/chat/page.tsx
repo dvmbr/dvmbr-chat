@@ -4,7 +4,9 @@ import CreateRoomForm from "./CreateRoomForm";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import {getRooms} from "@/lib/room";
+
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
+
 export default async function ChatPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get(SESSION_COOKIE);
@@ -16,18 +18,20 @@ export default async function ChatPage() {
   const rooms = await getRooms();
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      <div className="max-w-3xl mx-auto p-6">
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">채팅방</h1>
-          <LogoutButton />
-        </div>
+    <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
+      {/* HEADER - 위에 고정 */}
+      <div className="flex items-center justify-between px-4 py-3 shrink-0">
+        <h1 className="text-2xl font-semibold">DVMBR CHAT APP</h1>
+        <LogoutButton />
+      </div>
 
-        {/* 새 방 생성 폼 */}
+      {/* 새 방 생성 폼 - 이것도 고정 영역 */}
+      <div className="px-4 pb-2 shrink-0">
         <CreateRoomForm />
+      </div>
 
-        {/* 방 목록 */}
+      {/* 방 목록만 스크롤 */}
+      <div className="px-4 pb-4 flex-1 overflow-y-auto">
         <div className="bg-surface border border-surface-border rounded-lg p-4">
           {rooms.length === 0 ? (
             <p className="text-text-secondary text-sm">

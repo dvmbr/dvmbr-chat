@@ -43,7 +43,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-primary text-text-primary">
+    <div className="min-h-screen flex items-center justify-center text-text-primary">
       <div className="w-full max-w-sm bg-surface rounded-xl shadow-lg border border-surface-border p-6">
         <h1 className="text-xl font-semibold mb-2">dvmbr Chat</h1>
         <p className="text-sm text-text-secondary mb-6">
