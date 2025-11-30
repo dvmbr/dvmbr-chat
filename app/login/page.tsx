@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "로그인에 실패했습니다.");
+        setError(`로그인에 실패했습니다. ${data?.error ?? ""}`);
         return;
       }
 

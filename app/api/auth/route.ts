@@ -20,12 +20,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({error: "name cannot be empty"}, {status: 400});
     }
 
+    const nicknameRegex = /^[a-zA-Z0-9가-힣_-]+$/;
+    if (!nicknameRegex.test(trimmed)) {
+      return NextResponse.json(
+        {error: "Allowed characters: Korean, English letters, numbers, -, _"},
+        {status: 400}
+      );
+    }
+
     // 1) 이름으로 유저 조회
     let user = await getUserByName(trimmed);
+    console.log(user);
 
     // 2) 없으면 새로 생성
     if (!user) {
       user = await createUserByName(trimmed);
+    } else {
+      // 2-1) 이미 존재하는 이름이면 에러 반환
+      return NextResponse.json({error: "existing name"}, {status: 400});
     }
 
     // 3) 세션 쿠키 설정
