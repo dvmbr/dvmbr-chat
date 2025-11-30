@@ -33,18 +33,3 @@ body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
-
-@keyframes nickname-scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.scrolling-nickname {
-  display: inline-block;
-  white-space: nowrap;
-  animation: nickname-scroll 8s linear infinite;
-}
