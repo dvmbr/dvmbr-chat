@@ -26,6 +26,8 @@ export async function POST(req: NextRequest) {
 
     const trimmed = rawName.trim();
     if (!trimmed) return apiError("name cannot be empty", 400);
+    if (trimmed.length < 2 || trimmed.length > 20)
+      return apiError("name must be between 2 and 20 characters", 400);
 
     const nicknameRegex = /^[a-zA-Z0-9가-힣_-]+$/;
     if (!nicknameRegex.test(trimmed)) {

@@ -9,17 +9,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const isDisabled = username.trim() === "" || loading;
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
     setError(null);
-
-    const trimmed = username.trim();
-    if (!trimmed) {
-      setError("닉네임을 입력해 주세요.");
-      return;
-    }
-
     setLoading(true);
+    const trimmed = username.trim();
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
@@ -29,15 +26,16 @@ export default function LoginPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        setError(`로그인에 실패했습니다. ${data?.error ?? ""}`);
+        setError(data?.message);
+        setLoading(false);
         return;
       }
 
       router.push("/chat");
     } catch (e) {
       console.error("Login error:", e);
-      setError("알 수 없는 오류가 발생했습니다.");
-    } finally {
+      // JS 런타임 오류
+      setError(e instanceof Error ? e.message : "Unexpected error");
       setLoading(false);
     }
   }
@@ -69,7 +67,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isDisabled}
             className="w-full rounded bg-brand-mint text-bg-primary py-2 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
           >
             {loading ? "로그인 중..." : "로그인"}

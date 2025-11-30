@@ -18,6 +18,7 @@ export default async function ChatPage() {
 
   const user = JSON.parse(session.value);
   const userId = user.id;
+  const userName = user.name;
 
   const rooms = await getRooms();
   const lastMessageMap = await getLastMessagesForAllRooms();
@@ -26,9 +27,9 @@ export default async function ChatPage() {
   return (
     <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
       {/* HEADER - 위에 고정 */}
-      <div className="flex items-center justify-between px-4 py-3 shrink-0">
+      <div className="flex items-center justify-between px-4 py-6 shrink-0">
         <h1 className="text-2xl font-semibold">DVMBR CHAT APP</h1>
-        <LogoutButton />
+        <LogoutButton userName={userName} />
       </div>
 
       {/* 새 방 생성 폼 - 이것도 고정 영역 */}

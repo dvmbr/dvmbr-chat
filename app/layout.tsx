@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./styles/animations.css";
 
 export const metadata = {
   title: "dvmbr Chat",
