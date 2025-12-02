@@ -32,28 +32,33 @@ export async function getMessagesByRoomId(
 export async function getUnreadCountsByRoom(
   userId: string
 ): Promise<Record<string, number> | undefined> {
-  const unreadMessages = await prisma.message.findMany({
+  const rows = await prisma.message.groupBy({
+    by: ["roomId"],
     where: {
+      // 내가 멤버인 방들 중에서
       room: {
         members: {
           some: {userId},
         },
       },
+      // 내가 아직 읽지 않은 메시지만
       reads: {
-        none: {userId},
+        none: {
+          userId,
+        },
       },
     },
-    select: {
-      roomId: true,
+    _count: {
+      _all: true,
     },
   });
 
-  if (unreadMessages.length === 0) return;
+  if (rows.length === 0) return;
 
   // { [roomId]: count } 형태로 변환
   const map: Record<string, number> = {};
-  for (const msg of unreadMessages) {
-    map[msg.roomId] = (map[msg.roomId] ?? 0) + 1;
+  for (const row of rows) {
+    map[row.roomId] = row._count._all;
   }
   return map;
 }
