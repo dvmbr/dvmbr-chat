@@ -1,10 +1,10 @@
 import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
-import CreateRoomForm from "./CreateRoomForm";
-import LogoutButton from "./LogoutButton";
+import CreateRoomForm from "./components/CreateRoomForm";
+import LogoutButton from "./components/LogoutButton";
 import {getRooms} from "@/lib/room";
 import {getLastMessagesForAllRooms, getUnreadCountsByRoom} from "@/lib/message";
-import RoomList from "./RoomList";
+import RoomList from "./components/RoomList";
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 

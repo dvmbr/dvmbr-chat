@@ -2,7 +2,7 @@ import {cookies} from "next/headers";
 import {redirect, notFound} from "next/navigation";
 import {getMessagesByRoomId} from "@/lib/message";
 import {getRoomByRoomId} from "@/lib/room";
-import ChatView from "./ChatView";
+import ChatView from "./components/ChatView";
 import {SessionUser} from "@/types/session";
 import Link from "next/link";
 
@@ -46,7 +46,7 @@ export default async function RoomPage({params}: Props) {
   const messagesFromServer = await getMessagesByRoomId(roomId);
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
+    <div className="h-full flex flex-col bg-bg-primary text-text-primary">
       <div className="max-w-3xl w-full mx-auto flex flex-col flex-1 p-6">
         {/* 헤더 */}
         <header className="mb-4 flex items-center justify-between">
