@@ -1,13 +1,28 @@
 "use client";
 
+import {apiFetch} from "@/lib/apiClient";
+import {useRouter} from "next/router";
+import {useState} from "react";
+
 type Props = {
   userName: string;
 };
 
 export default function LogoutButton({userName}: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  if (loading) return;
+
+  setLoading(true);
   async function handleLogout() {
-    await fetch("/api/logout", {method: "POST"});
-    window.location.href = "/login";
+    try {
+      await apiFetch("/api/logout", {method: "POST"});
+      router.push("/login");
+    } catch (e) {
+      console.error("Logout failed:", e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const isLong = userName.length > 10; // 긴 닉네임 기준

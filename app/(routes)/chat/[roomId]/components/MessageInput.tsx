@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import type {ChatMessage} from "@/types/chat";
+import {apiFetch} from "@/lib/apiClient";
 
 type MessageInputProps = {
   roomId: string;
@@ -51,11 +52,8 @@ export default function MessageInput({
     setPendingMessages([...pendingMessages, optimisticMessage]);
 
     try {
-      const res = await fetch("/api/message", {
+      const created = await apiFetch<ChatMessage>("/api/message", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           roomId,
           text: trimmed,
@@ -63,13 +61,6 @@ export default function MessageInput({
         }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        console.error("Failed:", data);
-        return;
-      }
-
-      const created: ChatMessage = await res.json();
       setDisplayMessages((prev) => [...prev, created]);
       setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
 

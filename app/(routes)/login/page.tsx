@@ -2,6 +2,7 @@
 
 import {FormEvent, useState} from "react";
 import {useRouter} from "next/navigation";
+import {apiFetch} from "@/lib/apiClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,24 +19,15 @@ export default function LoginPage() {
     setLoading(true);
     const trimmed = username.trim();
     try {
-      const res = await fetch("/api/auth", {
+      await apiFetch("/api/auth", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({name: trimmed}),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.message);
-        setLoading(false);
-        return;
-      }
-
       router.push("/chat");
     } catch (e) {
-      console.error("Login error:", e);
-      // JS 런타임 오류
-      setError(e instanceof Error ? e.message : "Unexpected error");
+      console.error("Login failed:", e);
+      setError("알 수 없는 오류가 발생했습니다.");
       setLoading(false);
     }
   }

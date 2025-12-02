@@ -1,10 +1,5 @@
+import {ApiBase} from "@/types/api";
 import {NextResponse} from "next/server";
-
-type ApiBase<T> = {
-  ok: boolean;
-  message: string;
-  data?: T;
-};
 
 // 성공 응답
 export function apiSuccess<T = unknown>(
