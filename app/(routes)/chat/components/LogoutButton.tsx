@@ -13,8 +13,8 @@ export default function LogoutButton({userName}: Props) {
   const [loading, setLoading] = useState(false);
   if (loading) return;
 
-  setLoading(true);
   async function handleLogout() {
+    setLoading(true);
     try {
       await apiFetch("/api/logout", {method: "POST"});
       router.push("/login");
