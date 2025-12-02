@@ -1,7 +1,7 @@
 "use client";
 
 import {apiFetch} from "@/lib/apiClient";
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation";
 import {useState} from "react";
 
 type Props = {
