@@ -74,15 +74,15 @@ npm run ws
     /room           # POST - 방 생성
     /message        # POST - 메시지 생성
   /chat
-    page.tsx        # 채팅방 목록 페이지
+    page.tsx        # 채팅방 목록 페이지 (ssr)
     /[roomId]
-      page.tsx      # 특정 채팅방 페이지
+      page.tsx      # 특정 채팅방 페이지 (ssr)
     CreateRoomForm.tsx
     LogoutButton.tsx
   /login
-    page.tsx        # 로그인 페이지
+    page.tsx        # 로그인 페이지 (csr)
   layout.tsx
-  page.tsx          # 홈 페이지 (유저는 실제로 “홈 화면”을 보는 일이 없고 상태에 따라 적절한 페이지로 라우팅되도록 설계되어 있습니다.)
+  page.tsx          # 홈 페이지 (ssr, 유저는 실제로 “홈 화면”을 보는 일이 없고 상태에 따라 적절한 페이지로 라우팅되도록 설계되어 있습니다.)
 
 /lib
   auth.ts           # 세션 쿠키 기반 인증 / 로그인 상태 검증
@@ -96,6 +96,108 @@ npm run ws
 
 /ws-server
   server.ts         # Node.js WebSocket 서버 (Railway 배포 대상)
+```
+
+## Environment Variables
+
+이 프로젝트에서 사용하는 주요 환경 변수는 다음과 같습니다.
+
+```env
+# PostgreSQL (Neon)
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
+```
+
+### Session Cookie
+
+```env
+SESSION_COOKIE_NAME=chat_session
+```
+
+### WebSocket local server
+
+```env
+WS_PORT=4000
+```
+
+## Data Model (Prisma)
+
+`prisma/schema.prisma`에는 다음과 같은 핵심 모델이 정의되어 있습니다.
+
+- **User**
+
+  - 닉네임 기반 유저
+  - 여러 채팅방에 참여 가능
+
+- **Room**
+
+  - 하나의 채팅방
+  - 여러 유저가 참여할 수 있음
+
+- **RoomMember**
+
+  - `User`와 `Room` 사이의 N:M 관계를 표현하는 조인 테이블
+  - 유저가 어떤 방에 참여 중인지 관리 (입장/참여)
+
+- **Message**
+
+  - 특정 채팅방의 메시지
+  - 작성자(`userId`)와 방(`roomId`)에 속함
+  - DB에 영구 저장되어 새로고침 후에도 유지
+
+- **MessageRead** _(준비 중 또는 선택적 기능)_
+  - 유저가 특정 메시지를 언제 읽었는지 기록하는 테이블
+  - `Message`와 `User` 사이의 N:M 관계
+  - 읽음 처리 / unread 카운트 기능을 위한 기반 구조
+
+예시 ERD (논리 구조)
+
+```mermaid
+User
+  - id (PK)
+  - name
+  - createdAt
+  - rooms         -> RoomMember[]
+  - messages      -> Message[]
+  - reads         -> MessageRead[]
+
+
+Room
+  - id (PK)
+  - name
+  - createdAt
+  - updatedAt
+  - messages      -> Message[]
+  - members       -> RoomMember[]
+
+
+RoomMember (User ↔ Room N:M 조인 테이블)
+  - id (PK)
+  - userId    (FK -> User.id)
+  - roomId    (FK -> Room.id)
+  - joinedAt
+  - user          -> User
+  - room          -> Room (unique: userId + roomId)
+
+
+Message
+  - id (PK)
+  - text
+  - userId    (FK -> User.id)
+  - roomId    (FK -> Room.id)
+  - createdAt
+  - user          -> User
+  - room          -> Room
+  - reads         -> MessageRead[]
+
+
+MessageRead (User ↔ Message N:M 조인 테이블)
+  - id (PK)
+  - messageId (FK -> Message.id)
+  - userId    (FK -> User.id)
+  - readAt
+  - message       -> Message
+  - user          -> User
+    (unique: messageId + userId)
 ```
 
 ## Tech Stack
@@ -127,7 +229,7 @@ npm run ws
 ### Database & ORM
 
 - PostgreSQL (Neon Free Tier)
-- Prisma ORM
+- Prisma ORM 6.19
 
 ### Deployment
 
