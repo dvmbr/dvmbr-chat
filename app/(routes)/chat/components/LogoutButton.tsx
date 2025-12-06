@@ -1,6 +1,6 @@
 "use client";
 
-import {apiFetch, FetchError} from "@/app/utils/apiFetch";
+import {apiFetch} from "@/app/utils/apiFetch";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 

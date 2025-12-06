@@ -2,7 +2,7 @@
 
 import {CreateMessageRequestBody} from "@/app/(server)/api/message/route";
 import {Message} from "@/app/(server)/lib/message";
-import {apiBody, apiFetch, FetchError} from "@/app/utils/apiFetch";
+import {apiBody, apiFetch} from "@/app/utils/apiFetch";
 import {useState} from "react";
 
 type MessageInputProps = {
