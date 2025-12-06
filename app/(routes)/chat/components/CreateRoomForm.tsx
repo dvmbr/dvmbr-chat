@@ -2,7 +2,8 @@
 
 import {FormEvent, useState} from "react";
 import {useRouter} from "next/navigation";
-import {apiFetch} from "@/lib/apiClient";
+import {apiBody, apiFetch, FetchError} from "@/app/utils/apiFetch";
+import {CreateRoomRequestBody} from "@/app/(server)/api/room/route";
 
 export default function CreateRoomForm() {
   const router = useRouter();
@@ -24,15 +25,16 @@ export default function CreateRoomForm() {
     try {
       await apiFetch("/api/room", {
         method: "POST",
-        body: JSON.stringify({name: trimmed}),
+        body: apiBody<CreateRoomRequestBody>({roomName: trimmed}),
       });
 
-      setName("");
       // 서버 컴포넌트(방 목록)를 다시 불러오기
+      setName("");
       router.refresh();
     } catch (e) {
-      console.error("Create room failed:", e);
-      setError("알 수 없는 오류가 발생했습니다.");
+      console.error(e);
+      const err = e as FetchError;
+      setError(err.message);
     } finally {
       setLoading(false);
     }

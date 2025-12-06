@@ -1,4 +1,4 @@
-import {ChatMessage} from "@/types/chat";
+import {ChatMessage} from "@/app/(server)/types/chat";
 import {WebSocketServer, WebSocket} from "ws";
 
 const PORT = Number(process.env.PORT ?? 4000);

@@ -2,12 +2,12 @@ import {cookies} from "next/headers";
 import type {User} from "@prisma/client";
 import {getUserById} from "./user";
 
-const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
-
-type SessionPayload = {
+export type SessionData = {
   id: string;
   name: string;
 };
+
+const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
 // 현재 로그인한 유저 조회 (없으면 null)
 export async function getCurrentUser(): Promise<User | null> {
@@ -16,26 +16,26 @@ export async function getCurrentUser(): Promise<User | null> {
     const raw = cookieStore.get(SESSION_COOKIE)?.value;
     if (!raw) return null;
 
-    const session = JSON.parse(raw) as SessionPayload;
+    const session = JSON.parse(raw) as SessionData;
     if (!session?.id) return null;
 
-    // 여기서는 prisma 직접 호출 X -> lib/user.ts의 getUserById 사용
     const user = await getUserById(session.id);
     return user;
-  } catch (error) {
-    console.error("getCurrentUser error:", error);
+  } catch {
     return null;
   }
 }
 
+type CreateSessionParams = {
+  id: string;
+  name: string;
+};
 // 세션 쿠키 생성
-export async function createSession(params: {id: string; name: string}) {
-  const {id, name} = params;
-
+export async function createSession({id, name}: CreateSessionParams) {
   try {
     const cookieStore = await cookies();
 
-    const payload: SessionPayload = {
+    const payload = {
       id,
       name,
     };
@@ -46,8 +46,7 @@ export async function createSession(params: {id: string; name: string}) {
       sameSite: "lax",
       path: "/",
     });
-  } catch (error) {
-    console.error("createSession error:", error);
+  } catch {
     throw new Error("Failed to create session");
   }
 }
@@ -67,8 +66,7 @@ export async function clearSession() {
   try {
     const cookieStore = await cookies();
     cookieStore.delete(SESSION_COOKIE);
-  } catch (error) {
-    console.error("clearSession error:", error);
+  } catch {
     throw new Error("Failed to clear session");
   }
 }

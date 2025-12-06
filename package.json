@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ws": "tsx ws-server/server.ts"
+    "ws": "tsx ws-server/server.ts",
+    "prisma": "npx prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

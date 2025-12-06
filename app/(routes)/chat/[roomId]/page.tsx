@@ -1,35 +1,20 @@
-import {cookies} from "next/headers";
 import {redirect, notFound} from "next/navigation";
-import {getMessagesByRoomId} from "@/lib/message";
-import {getRoomByRoomId} from "@/lib/room";
-import ChatView from "./components/ChatView";
-import {SessionUser} from "@/types/session";
 import Link from "next/link";
+import ChatRoom from "./components/ChatRoom";
+import {getCurrentUser} from "@/app/(server)/lib/auth";
+import {getMessagesByRoomId} from "@/app/(server)/lib/message";
+import {getRoomByRoomId} from "@/app/(server)/lib/room";
 
 type Props = {
   params: Promise<{roomId: string}>;
 };
-
-const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
 
 export default async function RoomPage({params}: Props) {
   const {roomId} = await params;
   if (!roomId) notFound();
 
   // 세션 검사
-  const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE);
-  if (!session) {
-    redirect("/login");
-  }
-
-  let sessionUser: SessionUser = null;
-
-  try {
-    sessionUser = JSON.parse(session.value);
-  } catch {
-    redirect("/login");
-  }
+  const sessionUser = await getCurrentUser();
 
   if (!sessionUser) {
     redirect("/login");
@@ -43,7 +28,7 @@ export default async function RoomPage({params}: Props) {
   }
 
   // 공용 함수 사용해서 메시지 조회 (DB -> ChatMessage[])
-  const messagesFromServer = await getMessagesByRoomId(roomId);
+  const messages = await getMessagesByRoomId(roomId);
 
   return (
     <div className="h-full flex flex-col bg-bg-primary text-text-primary">
@@ -59,11 +44,7 @@ export default async function RoomPage({params}: Props) {
           </Link>
         </header>
 
-        <ChatView
-          roomId={roomId}
-          sessionUser={sessionUser}
-          messages={messagesFromServer}
-        />
+        <ChatRoom roomId={roomId} user={sessionUser} messages={messages} />
       </div>
     </div>
   );

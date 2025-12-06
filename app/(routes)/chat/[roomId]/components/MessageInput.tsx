@@ -1,16 +1,17 @@
 "use client";
 
+import {CreateMessageRequestBody} from "@/app/(server)/api/message/route";
+import {Message} from "@/app/(server)/lib/message";
+import {apiBody, apiFetch, FetchError} from "@/app/utils/apiFetch";
 import {useState} from "react";
-import type {ChatMessage} from "@/types/chat";
-import {apiFetch} from "@/lib/apiClient";
 
 type MessageInputProps = {
   roomId: string;
-  pendingMessages: ChatMessage[];
-  setPendingMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  pendingMessages: Message[];
+  setPendingMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
-  setDisplayMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-  onMessageCreated: (msg: ChatMessage) => void;
+  setDisplayMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  onMessageCreated: (msg: Message) => void;
 };
 
 export default function MessageInput({
@@ -39,7 +40,7 @@ export default function MessageInput({
     setLoading(true);
 
     // 낙관적 UI 업데이트
-    const optimisticMessage: ChatMessage = {
+    const optimisticMessage: Message = {
       id: "optimistic-" + Date.now(),
       roomId,
       userId: "",
@@ -52,9 +53,9 @@ export default function MessageInput({
     setPendingMessages([...pendingMessages, optimisticMessage]);
 
     try {
-      const created = await apiFetch<ChatMessage>("/api/message", {
+      const created = await apiFetch<Message>("/api/message", {
         method: "POST",
-        body: JSON.stringify({
+        body: apiBody<CreateMessageRequestBody>({
           roomId,
           text: trimmed,
           createdAt,
@@ -65,8 +66,8 @@ export default function MessageInput({
       setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
 
       onMessageCreated(created);
-    } catch (err) {
-      console.error("Message send failed:", err);
+    } catch (e) {
+      console.error(e);
     } finally {
       setIsPending(false);
       setLoading(false);

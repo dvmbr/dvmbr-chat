@@ -1,3 +1,5 @@
+"use client";
+
 import {Room} from "@prisma/client";
 import Link from "next/link";
 

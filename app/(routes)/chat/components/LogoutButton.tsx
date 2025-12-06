@@ -1,6 +1,6 @@
 "use client";
 
-import {apiFetch} from "@/lib/apiClient";
+import {apiFetch, FetchError} from "@/app/utils/apiFetch";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 
@@ -19,7 +19,7 @@ export default function LogoutButton({userName}: Props) {
       await apiFetch("/api/logout", {method: "POST"});
       router.push("/login");
     } catch (e) {
-      console.error("Logout failed:", e);
+      console.error(e);
     } finally {
       setLoading(false);
     }

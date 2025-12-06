@@ -1,10 +1,17 @@
-import {prisma} from "@/lib/db";
-import type {ChatMessage} from "@/types/chat";
+import {prisma} from "./db";
+
+export type Message = {
+  id: string;
+  text: string;
+  roomId: string;
+  userId: string;
+  username: string;
+  createdAt: Date;
+  isPending?: boolean;
+};
 
 // 특정 채팅방의 메시지들 조회
-export async function getMessagesByRoomId(
-  roomId: string
-): Promise<ChatMessage[]> {
+export async function getMessagesByRoomId(roomId: string): Promise<Message[]> {
   const messages = await prisma.message.findMany({
     where: {roomId},
     orderBy: {createdAt: "asc"},
@@ -118,7 +125,7 @@ export async function createMessage(params: {
   userId: string;
   text: string;
   createdAt?: Date;
-}): Promise<ChatMessage> {
+}): Promise<Message> {
   const {roomId, userId, text, createdAt} = params;
 
   const message = await prisma.message.create({

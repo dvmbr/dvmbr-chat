@@ -1,20 +1,16 @@
 "use client";
 
+import {User} from "@prisma/client";
 import {useEffect, useRef} from "react";
-import {ChatMessage} from "@/types/chat";
-import {SessionUser} from "@/types/session";
+import {Message} from "../(server)/lib/message";
 
 type UseWebSocketParams = {
   roomId: string;
-  sessionUser: SessionUser;
-  onBroadcast: (msg: ChatMessage) => void; // 새 메시지 들어왔을 때 콜백
+  user: User;
+  onBroadcast: (message: Message) => void; // 새 메시지 들어왔을 때 콜백
 };
 
-export function useWebSocket({
-  roomId,
-  sessionUser,
-  onBroadcast,
-}: UseWebSocketParams) {
+export function useWebSocket({roomId, user, onBroadcast}: UseWebSocketParams) {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -28,7 +24,7 @@ export function useWebSocket({
         JSON.stringify({
           type: "join",
           roomId,
-          userId: sessionUser!.id,
+          userId: user!.id,
         })
       );
     };
@@ -44,9 +40,9 @@ export function useWebSocket({
 
       if (msg.type !== "broadcast") return;
       if (msg.roomId !== roomId) return;
-      if (msg.userId === sessionUser!.id) return; // 내가 보낸 건 무시
+      if (msg.userId === user!.id) return; // 내가 보낸 건 무시
 
-      const incoming: ChatMessage = {
+      const incoming: Message = {
         id: msg.id,
         roomId: msg.roomId,
         text: msg.text,
@@ -75,9 +71,9 @@ export function useWebSocket({
         ws.close();
       }
     };
-  }, [roomId, sessionUser, onBroadcast]);
+  }, [roomId, user, onBroadcast]);
 
-  function sendToServer(message: ChatMessage) {
+  function sendToServer(message: Message) {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 

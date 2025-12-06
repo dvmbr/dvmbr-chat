@@ -1,34 +1,34 @@
 "use client";
 
-import {ChatMessage} from "@/types/chat";
-import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import MessageList from "./MessageList";
 import {useCallback, useState} from "react";
-import {useWebSocket} from "@/hooks/useWebSocket";
-import {SessionUser} from "@/types/session";
+import {useWebSocket} from "@/app/hooks/useWebSocket";
+import {User} from "@prisma/client";
+import {Message} from "@/app/(server)/lib/message";
+
 type Props = {
   roomId: string;
-  sessionUser: SessionUser;
-  messages: ChatMessage[];
+  user: User;
+  messages: Message[];
 };
-export default function ChatView({roomId, sessionUser, messages}: Props) {
-  const [displayMessages, setDisplayMessages] =
-    useState<ChatMessage[]>(messages);
+export default function ChatRoom({roomId, user, messages}: Props) {
+  const [displayMessages, setDisplayMessages] = useState<Message[]>(messages);
   const [isPending, setIsPending] = useState(false);
-  const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+  const [pendingMessages, setPendingMessages] = useState<Message[]>([]);
 
   const mergedMessage = isPending
     ? [...displayMessages, ...pendingMessages]
     : displayMessages;
 
   // -> onBroadcast를 메모이제이션
-  const handleBroadcast = useCallback((incoming: ChatMessage) => {
+  const handleBroadcast = useCallback((incoming: Message) => {
     setDisplayMessages((prev) => [...prev, incoming]);
   }, []);
 
   const {sendToServer} = useWebSocket({
     roomId,
-    sessionUser: sessionUser,
+    user,
     onBroadcast: handleBroadcast,
   });
 

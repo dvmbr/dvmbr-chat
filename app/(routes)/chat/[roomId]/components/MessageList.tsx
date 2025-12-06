@@ -1,9 +1,9 @@
 "use client";
 
-import {ChatMessage} from "@/types/chat";
+import {Message} from "@/app/(server)/lib/message";
 
 type Props = {
-  messages: ChatMessage[];
+  messages: Message[];
 };
 
 export default function MessageList({messages}: Props) {
