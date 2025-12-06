@@ -27,7 +27,6 @@ export default async function RoomPage({params}: Props) {
     notFound();
   }
 
-  // 공용 함수 사용해서 메시지 조회 (DB -> ChatMessage[])
   const messages = await getMessagesByRoomId(roomId);
 
   return (

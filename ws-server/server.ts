@@ -1,4 +1,4 @@
-import {ChatMessage} from "@/app/(server)/types/chat";
+import {Message} from "@/app/(server)/lib/message";
 import {WebSocketServer, WebSocket} from "ws";
 
 const PORT = Number(process.env.PORT ?? 4000);
@@ -13,11 +13,11 @@ type Client = {
 
 export type ReceivedMessage =
   | {type: "join"; roomId: string; userId: string}
-  | ({type: "message"} & ChatMessage);
+  | ({type: "message"} & Message);
 
 type Payload = {
   type: "broadcast";
-} & ChatMessage;
+} & Message;
 
 const wss = new WebSocketServer({port: PORT});
 const clients = new Set<Client>();
