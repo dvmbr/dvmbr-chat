@@ -16,6 +16,15 @@ export type CreateMessageRequestBody = {
 export async function POST(req: NextRequest) {
   const log = apiLogger("POST", "/api/rooms");
 
+  let userId: string;
+  try {
+    const {id} = await requireUser();
+    userId = id;
+  } catch (e) {
+    log("error", "Login required", e);
+    return serverApiResponse(401, "Login required", e);
+  }
+
   let body: CreateMessageRequestBody;
 
   try {
@@ -26,8 +35,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const {id: userId} = await requireUser();
-
     const {roomId, text, createdAt} = body;
 
     if (!roomId) {

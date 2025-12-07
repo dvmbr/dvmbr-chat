@@ -1,15 +1,18 @@
 "use client";
 
-import {FormEvent, useState} from "react";
+import {FormEvent, startTransition, useState} from "react";
 import {useRouter} from "next/navigation";
-import {apiBody, apiFetch, FetchError} from "@/app/utils/apiFetch";
+import {apiBody, apiFetch} from "@/app/utils/apiFetch";
 import {CreateRoomRequestBody} from "@/app/(server)/api/room/route";
+import {FetchError} from "@/app/errors/FetchError";
+import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 
 export default function CreateRoomForm() {
   const router = useRouter();
+  const {isGlobalLoading, showGlobalLoading, hideGlobalLoading} =
+    useGlobalLoading();
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,7 +24,7 @@ export default function CreateRoomForm() {
       return;
     }
 
-    setLoading(true);
+    showGlobalLoading();
     try {
       await apiFetch("/api/room", {
         method: "POST",
@@ -30,13 +33,13 @@ export default function CreateRoomForm() {
 
       // 서버 컴포넌트(방 목록)를 다시 불러오기
       setName("");
-      router.refresh();
+      startTransition(() => router.refresh());
     } catch (e) {
       console.error(e);
       const err = e as FetchError;
       setError(err.message);
     } finally {
-      setLoading(false);
+      hideGlobalLoading();
     }
   }
 
@@ -52,10 +55,10 @@ export default function CreateRoomForm() {
         />
         <button
           type="submit"
-          disabled={loading}
+          disabled={isGlobalLoading}
           className="px-4 py-2 rounded bg-brand-mint text-bg-primary text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
         >
-          {loading ? "생성 중..." : "생성"}
+          생성
         </button>
       </div>
       {error && <p className="text-sm text-error">{error}</p>}

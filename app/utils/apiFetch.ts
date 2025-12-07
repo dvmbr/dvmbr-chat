@@ -1,23 +1,7 @@
 "use client";
 
 import {ApiResponseBody} from "@/types/api";
-
-type FetchErrorOptions = {
-  status: number;
-  url?: string;
-};
-
-export class FetchError extends Error {
-  status: number;
-  url?: string;
-
-  constructor(message: string, options: FetchErrorOptions) {
-    super(message);
-    this.name = "FetchError";
-    this.status = options.status;
-    this.url = options.url;
-  }
-}
+import {FetchError} from "../errors/FetchError";
 
 function normalizeError(e: unknown): string {
   if (e instanceof Error) return e.message;

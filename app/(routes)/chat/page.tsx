@@ -1,61 +1,32 @@
-import {cookies} from "next/headers";
 import {redirect} from "next/navigation";
-import LogoutButton from "./components/LogoutButton";
-import CreateRoomForm from "./components/CreateRoomForm";
-import RoomList from "./components/RoomList";
+import {getCurrentUser} from "@/app/(server)/lib/auth";
+import ChatWrapper from "./_client/ChatWrapper";
 import {
   getLastMessagesForAllRooms,
   getUnreadCountsByRoom,
 } from "@/app/(server)/lib/message";
 import {getRooms} from "@/app/(server)/lib/room";
 
-const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME!;
-
 export default async function ChatPage() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE);
+  const sessionUser = await getCurrentUser();
 
-  if (!session) {
+  if (!sessionUser) {
     redirect("/login");
   }
 
-  const user = JSON.parse(session.value);
-  const userId = user.id;
-  const userName = user.name;
+  const userId = sessionUser.id;
+  const userName = sessionUser.name;
 
   const rooms = await getRooms();
   const lastMessageMap = await getLastMessagesForAllRooms();
   const unreadCountsMap = await getUnreadCountsByRoom(userId);
 
   return (
-    <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
-      {/* HEADER - 위에 고정 */}
-      <div className="flex items-center justify-between px-4 py-6 shrink-0">
-        <h1 className="text-2xl font-semibold">DVMBR CHAT APP</h1>
-        <LogoutButton userName={userName} />
-      </div>
-
-      {/* 새 방 생성 폼 - 이것도 고정 영역 */}
-      <div className="px-4 pb-2 shrink-0">
-        <CreateRoomForm />
-      </div>
-
-      {/* 방 목록만 스크롤 */}
-      <div className="px-4 pb-4 flex-1 overflow-y-auto">
-        <div className="bg-surface border border-surface-border rounded-lg p-4">
-          {rooms.length === 0 ? (
-            <p className="text-text-secondary text-sm">
-              아직 생성된 채팅방이 없습니다.
-            </p>
-          ) : (
-            <RoomList
-              rooms={rooms}
-              lastMessageMap={lastMessageMap}
-              unreadCountsMap={unreadCountsMap}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+    <ChatWrapper
+      userName={userName}
+      rooms={rooms}
+      lastMessageMap={lastMessageMap}
+      unreadCountsMap={unreadCountsMap}
+    />
   );
 }

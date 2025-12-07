@@ -1,3 +1,4 @@
+import {GlobalLoadingProvider} from "./components/providers/GlobalLoadingProvider";
 import "./globals.css";
 import "./styles/animations.css";
 
@@ -21,7 +22,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           PC 전용 수직 중앙 정렬
         */}
         <div className="fixed inset-0 mx-auto w-full max-w-[430px] md:h-dvh md:max-h-[768px] md:top-1/2 md:-translate-y-1/2">
-          {children}
+          <GlobalLoadingProvider>{children}</GlobalLoadingProvider>
         </div>
       </body>
     </html>
