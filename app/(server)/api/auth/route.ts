@@ -1,8 +1,8 @@
 import {NextRequest} from "next/server";
-import {createUserByName, getUserByName} from "@/app/(server)/lib/user";
-import {createSession} from "@/app/(server)/lib/auth";
+import {createSession} from "../../lib/auth";
+import {getUserByName, createUserByName} from "../../lib/user";
+import {apiLogger} from "../../utils/apiLogger";
 import serverApiResponse from "../serverApiResponse";
-import {apiLogger} from "@/app/(server)/utils/apiLogger";
 
 export type AuthRequestBody = {
   userName: string;

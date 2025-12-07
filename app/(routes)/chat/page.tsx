@@ -17,16 +17,16 @@ export default async function ChatPage() {
   const userId = sessionUser.id;
   const userName = sessionUser.name;
 
-  const rooms = await getRooms();
-  const lastMessageMap = await getLastMessagesForAllRooms();
-  const unreadCountsMap = await getUnreadCountsByRoom(userId);
+  const [rooms, lastMessageMap, unreadCountsMap] = await Promise.all([
+    getRooms(),
+    getLastMessagesForAllRooms(),
+    getUnreadCountsByRoom(userId),
+  ]);
 
   return (
     <ChatWrapper
       userName={userName}
-      rooms={rooms}
-      lastMessageMap={lastMessageMap}
-      unreadCountsMap={unreadCountsMap}
+      initialRoomsData={{rooms, lastMessageMap, unreadCountsMap}}
     />
   );
 }

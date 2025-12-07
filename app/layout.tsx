@@ -1,4 +1,6 @@
+import ClientProviders from "./components/providers/ClientProviders";
 import {GlobalLoadingProvider} from "./components/providers/GlobalLoadingProvider";
+import StoreProvider from "./components/providers/StoreProvider";
 import "./globals.css";
 import "./styles/animations.css";
 
@@ -15,15 +17,15 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="ko" className="h-full">
       <body className="h-full">
-        {/* 모바일: 전체 화면 */}
-        {/*
-          PC에서는 auto
-          PC 전용 max-height: 800px
-          PC 전용 수직 중앙 정렬
-        */}
-        <div className="fixed inset-0 mx-auto w-full max-w-[430px] md:h-dvh md:max-h-[768px] md:top-1/2 md:-translate-y-1/2">
-          <GlobalLoadingProvider>{children}</GlobalLoadingProvider>
-        </div>
+        <ClientProviders>
+          {/* 모바일: 전체 화면 */}
+          {/* PC에서는 auto */}
+          {/* PC 전용 max-height: 800px */}
+          {/* PC 전용 수직 중앙 정렬 */}
+          <div className="fixed inset-0 mx-auto w-full max-w-[430px] md:h-dvh md:max-h-[768px] md:top-1/2 md:-translate-y-1/2">
+            {children}
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );

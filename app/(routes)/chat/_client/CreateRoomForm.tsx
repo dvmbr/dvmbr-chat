@@ -1,45 +1,34 @@
 "use client";
 
-import {FormEvent, startTransition, useState} from "react";
-import {useRouter} from "next/navigation";
-import {apiBody, apiFetch} from "@/app/utils/apiFetch";
+import {FormEvent, useState} from "react";
 import {CreateRoomRequestBody} from "@/app/(server)/api/room/route";
-import {FetchError} from "@/app/errors/FetchError";
-import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
+import {useCreateRoomMutation} from "@/app/redux/features/roomApi";
+import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
 
 export default function CreateRoomForm() {
-  const router = useRouter();
-  const {isGlobalLoading, showGlobalLoading, hideGlobalLoading} =
-    useGlobalLoading();
+  const [triggerCreateRoom, {isLoading, isError, error}] =
+    useCreateRoomMutation();
+
   const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const trimmed = name.trim();
+  const isSubmitDisabled = isLoading || trimmed.length === 0;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
 
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setError("방 이름을 입력해 주세요.");
-      return;
-    }
+    if (isSubmitDisabled) return;
 
-    showGlobalLoading();
+    const body: CreateRoomRequestBody = {roomName: trimmed};
+
     try {
-      await apiFetch("/api/room", {
-        method: "POST",
-        body: apiBody<CreateRoomRequestBody>({roomName: trimmed}),
-      });
+      // RTK Query mutation 호출
+      await triggerCreateRoom(body).unwrap();
 
-      // 서버 컴포넌트(방 목록)를 다시 불러오기
+      // 성공 -> 인풋 초기화
       setName("");
-      startTransition(() => router.refresh());
+      // 방 목록 갱신은 invalidatesTags(["Rooms"]) 때문에 자동으로 됨
     } catch (e) {
       console.error(e);
-      const err = e as FetchError;
-      setError(err.message);
-    } finally {
-      hideGlobalLoading();
     }
   }
 
@@ -55,13 +44,15 @@ export default function CreateRoomForm() {
         />
         <button
           type="submit"
-          disabled={isGlobalLoading}
+          disabled={isSubmitDisabled}
           className="px-4 py-2 rounded bg-brand-mint text-bg-primary text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
         >
           생성
         </button>
       </div>
-      {error && <p className="text-sm text-error">{error}</p>}
+      {isError && (
+        <p className="text-sm text-error">{getRtkErrorMessage(error)}</p>
+      )}
     </form>
   );
 }

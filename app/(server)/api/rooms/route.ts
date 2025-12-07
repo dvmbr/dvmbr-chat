@@ -1,3 +1,4 @@
+import {Room} from "@prisma/client";
 import {requireUser} from "../../lib/auth";
 import {
   getLastMessagesForAllRooms,
@@ -8,12 +9,7 @@ import {apiLogger} from "../../utils/apiLogger";
 import serverApiResponse from "../serverApiResponse";
 
 export type RoomsData = {
-  rooms: {
-    name: string;
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }[];
+  rooms: Room[];
   lastMessageMap: Record<string, string> | undefined;
   unreadCountsMap: Record<string, number> | undefined;
 };

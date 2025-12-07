@@ -1,4 +1,4 @@
-import {ApiResponseBody} from "@/types/api";
+import {ApiResponseBody} from "@/app/redux/types/api";
 import {NextResponse} from "next/server";
 
 export type ServerApiResponse<T> = NextResponse<ApiResponseBody<T>>;

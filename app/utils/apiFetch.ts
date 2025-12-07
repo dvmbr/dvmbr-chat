@@ -1,6 +1,6 @@
 "use client";
 
-import {ApiResponseBody} from "@/types/api";
+import {ApiResponseBody} from "@/app/redux/types/api";
 import {FetchError} from "../errors/FetchError";
 
 function normalizeError(e: unknown): string {
