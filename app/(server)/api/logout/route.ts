@@ -4,7 +4,7 @@ import serverApiResponse from "../serverApiResponse";
 
 // POST /api/logout
 export async function POST() {
-  const log = apiLogger("POST", "/api/auth");
+  const log = apiLogger("POST", "/api/logout");
   try {
     await clearSession();
 
