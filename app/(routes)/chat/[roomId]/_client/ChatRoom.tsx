@@ -1,28 +1,29 @@
 "use client";
 
-import MessageInput from "./MessageInput";
-import MessageList from "./MessageList";
 import {useCallback, useState} from "react";
 import {useWebSocket} from "@/app/hooks/useWebSocket";
 import {User} from "@prisma/client";
-import {Message} from "@/app/(server)/lib/message";
+import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
+import MessageList from "./MessageList";
+import MessageInput from "./MessageInput";
 
 type Props = {
   roomId: string;
   user: User;
-  messages: Message[];
+  messages: MessageDTO[];
 };
 export default function ChatRoom({roomId, user, messages}: Props) {
-  const [displayMessages, setDisplayMessages] = useState<Message[]>(messages);
+  const [displayMessages, setDisplayMessages] =
+    useState<MessageDTO[]>(messages);
   const [isPending, setIsPending] = useState(false);
-  const [pendingMessages, setPendingMessages] = useState<Message[]>([]);
+  const [pendingMessages, setPendingMessages] = useState<MessageDTO[]>([]);
 
   const mergedMessage = isPending
     ? [...displayMessages, ...pendingMessages]
     : displayMessages;
 
   // -> onBroadcast를 메모이제이션
-  const handleBroadcast = useCallback((incoming: Message) => {
+  const handleBroadcast = useCallback((incoming: MessageDTO) => {
     setDisplayMessages((prev) => [...prev, incoming]);
   }, []);
 

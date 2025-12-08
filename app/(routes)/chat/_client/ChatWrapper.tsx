@@ -1,16 +1,16 @@
 "use client";
 
+import {RoomListViewModel} from "@/app/(server)/lib/room/utils";
 import CreateRoomForm from "./CreateRoomForm";
 import LogoutButton from "./LogoutButton";
 import RoomList from "./RoomList";
 import {useGetRoomsQuery} from "@/app/redux/features/roomApi";
-import {RoomsData} from "@/app/(server)/api/rooms/route";
 
 type Props = {
   userName: string;
-  initialRoomsData: RoomsData;
+  viewModel: RoomListViewModel;
 };
-export default function ChatWrapper({userName, initialRoomsData}: Props) {
+export default function ChatWrapper({userName, viewModel}: Props) {
   const {data, isFetching, isError} = useGetRoomsQuery(undefined, {
     refetchOnFocus: true,
     refetchOnReconnect: true,
@@ -18,8 +18,7 @@ export default function ChatWrapper({userName, initialRoomsData}: Props) {
 
   // RTK Query에서 온 데이터가 있으면 그걸 쓰고
   // 아직 없다면 SSR initialRoomsData를 쓴다
-  const {rooms, lastMessageMap, unreadCountsMap} =
-    data?.data ?? initialRoomsData;
+  const {rooms, lastMessageMap, unreadCountsMap} = data?.data ?? viewModel;
 
   return (
     <div className="h-full flex flex-col bg-bg-secondary text-text-primary">

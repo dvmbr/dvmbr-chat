@@ -1,17 +1,16 @@
 "use client";
 
-import {CreateMessageRequestBody} from "@/app/(server)/api/message/route";
-import {Message} from "@/app/(server)/lib/message";
-import {apiBody, apiFetch} from "@/app/utils/apiFetch";
 import {useState} from "react";
+import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
+import {useCreateMessageMutation} from "@/app/redux/features/messageApi";
 
 type MessageInputProps = {
   roomId: string;
-  pendingMessages: Message[];
-  setPendingMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  pendingMessages: MessageDTO[];
+  setPendingMessages: React.Dispatch<React.SetStateAction<MessageDTO[]>>;
   setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
-  setDisplayMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  onMessageCreated: (msg: Message) => void;
+  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageDTO[]>>;
+  onMessageCreated: (msg: MessageDTO) => void;
 };
 
 export default function MessageInput({
@@ -22,8 +21,8 @@ export default function MessageInput({
   setDisplayMessages,
   onMessageCreated,
 }: MessageInputProps) {
+  const [triggerCreateMessage, {isLoading}] = useCreateMessageMutation();
   const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,14 +36,13 @@ export default function MessageInput({
     setText("");
 
     setIsPending(true);
-    setLoading(true);
 
     // 낙관적 UI 업데이트
-    const optimisticMessage: Message = {
+    const optimisticMessage: MessageDTO = {
       id: "optimistic-" + Date.now(),
       roomId,
       userId: "",
-      username: "pending...",
+      userName: "pending...",
       text: trimmed,
       createdAt,
       isPending: true,
@@ -53,24 +51,22 @@ export default function MessageInput({
     setPendingMessages([...pendingMessages, optimisticMessage]);
 
     try {
-      const created = await apiFetch<Message>("/api/message", {
-        method: "POST",
-        body: apiBody<CreateMessageRequestBody>({
-          roomId,
-          text: trimmed,
-          createdAt,
-        }),
-      });
+      const res = await triggerCreateMessage({
+        roomId,
+        createdAt,
+        text: trimmed,
+      }).unwrap();
 
-      setDisplayMessages((prev) => [...prev, created]);
+      const createdMessage = res.data;
+
+      setDisplayMessages((prev) => [...prev, createdMessage]);
       setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
 
-      onMessageCreated(created);
+      onMessageCreated(createdMessage);
     } catch (e) {
       console.error(e);
     } finally {
       setIsPending(false);
-      setLoading(false);
     }
   }
 
@@ -88,7 +84,7 @@ export default function MessageInput({
       />
       <button
         type="submit"
-        disabled={loading}
+        disabled={isLoading}
         className="px-4 py-2 rounded bg-brand-mint text-bg-primary text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
       >
         전송

@@ -1,6 +1,4 @@
 import ClientProviders from "./components/providers/ClientProviders";
-import {GlobalLoadingProvider} from "./components/providers/GlobalLoadingProvider";
-import StoreProvider from "./components/providers/StoreProvider";
 import "./globals.css";
 import "./styles/animations.css";
 

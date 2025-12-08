@@ -1,5 +1,5 @@
-import {AuthRequestBody, AuthResponseData} from "@/app/(server)/api/auth/route";
-import {ApiResponseBody} from "@/app/redux/types/api";
+import {ApiResponseBody} from "@/app/(server)/api/api.types";
+import {AuthResponseData, AuthPayload} from "@/app/(server)/api/auth/route";
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 
 export const authApi = createApi({
@@ -8,15 +8,13 @@ export const authApi = createApi({
     baseUrl: "/api",
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<ApiResponseBody<AuthResponseData>, AuthRequestBody>(
-      {
-        query: (body) => ({
-          url: "/auth",
-          method: "POST",
-          body,
-        }),
-      }
-    ),
+    login: builder.mutation<ApiResponseBody<AuthResponseData>, AuthPayload>({
+      query: (body) => ({
+        url: "/auth",
+        method: "POST",
+        body,
+      }),
+    }),
     logout: builder.mutation<ApiResponseBody<void>, void>({
       query: () => ({
         url: "/logout",

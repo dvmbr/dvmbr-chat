@@ -1,12 +1,10 @@
-import {ApiResponseBody} from "@/app/redux/types/api";
 import {NextResponse} from "next/server";
-
-export type ServerApiResponse<T> = NextResponse<ApiResponseBody<T>>;
+import {ApiResponseBody, ServerApiResponse} from "./api.types";
 
 export default function serverApiResponse<T>(
   status: number,
   message: string,
-  data?: T
+  data: T
 ): ServerApiResponse<T> {
   const ok = status >= 200 && status < 300;
 

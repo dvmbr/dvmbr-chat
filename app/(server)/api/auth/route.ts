@@ -1,10 +1,10 @@
 import {NextRequest} from "next/server";
-import {createSession} from "../../lib/auth";
-import {getUserByName, createUserByName} from "../../lib/user";
-import {apiLogger} from "../../utils/apiLogger";
+import {createSession} from "../../lib/auth/authService";
+import {getUserByName, createUserByName} from "../../lib/user/userService";
+import {apiLogger} from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
 
-export type AuthRequestBody = {
+export type AuthPayload = {
   userName: string;
 };
 
@@ -19,31 +19,35 @@ export async function POST(req: NextRequest) {
   const log = apiLogger("POST", "/api/auth");
 
   // 1) Body 파싱
-  let body: AuthRequestBody;
+  let body: AuthPayload;
 
   try {
     body = await req.json();
   } catch (e) {
     log("error", "Invalid JSON body", e);
-    return serverApiResponse(400, "Invalid JSON body");
+    return serverApiResponse(400, "Invalid JSON body", {});
   }
 
   // 2) 입력 검증
   if (!body.userName) {
     log("error", "Invalid name");
-    return serverApiResponse(400, "Invalid name");
+    return serverApiResponse(400, "Invalid name", {});
   }
 
   const trimmed = body.userName.trim();
 
   if (!trimmed) {
     log("error", "Name cannot be empty");
-    return serverApiResponse(400, "Name cannot be empty");
+    return serverApiResponse(400, "Name cannot be empty", {});
   }
 
   if (trimmed.length < 2 || trimmed.length > 20) {
     log("error", "Name must be between 2 and 20 characters");
-    return serverApiResponse(400, "Name must be between 2 and 20 characters");
+    return serverApiResponse(
+      400,
+      "Name must be between 2 and 20 characters",
+      {}
+    );
   }
 
   const nicknameRegex = /^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ_-]+$/;
@@ -51,7 +55,8 @@ export async function POST(req: NextRequest) {
     log("error", "Allowed characters: Korean, English, numbers, '-', '_'");
     return serverApiResponse(
       400,
-      "Allowed characters: Korean, English, numbers, '-', '_'"
+      "Allowed characters: Korean, English, numbers, '-', '_'",
+      {}
     );
   }
 
@@ -61,13 +66,13 @@ export async function POST(req: NextRequest) {
     user = await getUserByName(trimmed);
     if (user) {
       log("error", "Name already exists");
-      return serverApiResponse(400, "Name already exists");
+      return serverApiResponse(400, "Name already exists", {});
     }
 
     user = await createUserByName(trimmed);
   } catch (e) {
     log("error", "Failed to create user", e);
-    return serverApiResponse(500, "Failed to create user");
+    return serverApiResponse(500, "Failed to create user", {});
   }
 
   // 4) 세션 생성

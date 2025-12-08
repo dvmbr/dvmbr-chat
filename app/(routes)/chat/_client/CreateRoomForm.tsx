@@ -1,9 +1,9 @@
 "use client";
 
-import {FormEvent, useState} from "react";
-import {CreateRoomRequestBody} from "@/app/(server)/api/room/route";
+import {CreateRoomPayload} from "@/app/(server)/api/room/route";
 import {useCreateRoomMutation} from "@/app/redux/features/roomApi";
 import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
+import {FormEvent, useState} from "react";
 
 export default function CreateRoomForm() {
   const [triggerCreateRoom, {isLoading, isError, error}] =
@@ -18,7 +18,7 @@ export default function CreateRoomForm() {
 
     if (isSubmitDisabled) return;
 
-    const body: CreateRoomRequestBody = {roomName: trimmed};
+    const body: CreateRoomPayload = {roomName: trimmed};
 
     try {
       // RTK Query mutation 호출

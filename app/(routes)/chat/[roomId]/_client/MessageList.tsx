@@ -1,9 +1,9 @@
 "use client";
 
-import {Message} from "@/app/(server)/lib/message";
+import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
 
 type Props = {
-  messages: Message[];
+  messages: MessageDTO[];
 };
 
 export default function MessageList({messages}: Props) {
@@ -19,7 +19,7 @@ export default function MessageList({messages}: Props) {
           >
             {/* 나중에 '나/상대' 구분, 아바타, 닉네임 추가 가능 */}
             <p className="text-xs text-text-muted mb-1">
-              {m.username ?? "알 수 없는 사용자"}
+              {m.userName ?? "알 수 없는 사용자"}
             </p>
             <p className="text-sm text-text-primary">{m.text}</p>
             <p className="text-xs text-text-muted mt-1">

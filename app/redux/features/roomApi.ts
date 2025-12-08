@@ -1,6 +1,6 @@
-import {CreateRoomRequestBody} from "@/app/(server)/api/room/route";
-import {RoomsData} from "@/app/(server)/api/rooms/route";
-import {ApiResponseBody} from "@/app/redux/types/api";
+import {ApiResponseBody} from "@/app/(server)/api/api.types";
+import {CreateRoomPayload} from "@/app/(server)/api/room/route";
+import {RoomListViewModel} from "@/app/(server)/lib/room/utils";
 import {Room} from "@prisma/client";
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 
@@ -11,14 +11,14 @@ export const roomApi = createApi({
   }),
   tagTypes: ["Rooms"],
   endpoints: (builder) => ({
-    getRooms: builder.query<ApiResponseBody<RoomsData>, void>({
+    getRooms: builder.query<ApiResponseBody<RoomListViewModel>, void>({
       query: () => ({
         url: "/rooms",
         method: "GET",
       }),
       providesTags: ["Rooms"],
     }),
-    createRoom: builder.mutation<ApiResponseBody<Room>, CreateRoomRequestBody>({
+    createRoom: builder.mutation<ApiResponseBody<Room>, CreateRoomPayload>({
       query: (body) => ({
         url: "/room",
         method: "POST",

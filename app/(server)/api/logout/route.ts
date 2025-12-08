@@ -1,6 +1,6 @@
-import {clearSession} from "@/app/(server)/lib/auth";
+import {clearSession} from "../../lib/auth/authService";
+import {apiLogger} from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
-import {apiLogger} from "@/app/(server)/utils/apiLogger";
 
 // POST /api/logout
 export async function POST() {
@@ -9,9 +9,9 @@ export async function POST() {
     await clearSession();
 
     log("info", "Logged out successfully");
-    return serverApiResponse(200, "Logged out successfully");
+    return serverApiResponse(200, "Logged out successfully", {});
   } catch (e) {
     log("error", "Failed to logout", e);
-    return serverApiResponse(500, "Failed to logout");
+    return serverApiResponse(500, "Failed to logout", {});
   }
 }

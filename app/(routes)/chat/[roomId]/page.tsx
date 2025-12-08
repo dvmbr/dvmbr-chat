@@ -1,9 +1,9 @@
-import {redirect, notFound} from "next/navigation";
+import {getCurrentUser} from "@/app/(server)/lib/auth/authService";
+import {getMessagesByRoomId} from "@/app/(server)/lib/message/messageService";
+import {getRoomByRoomId} from "@/app/(server)/lib/room/roomService";
 import Link from "next/link";
-import ChatRoom from "./components/ChatRoom";
-import {getCurrentUser} from "@/app/(server)/lib/auth";
-import {getMessagesByRoomId} from "@/app/(server)/lib/message";
-import {getRoomByRoomId} from "@/app/(server)/lib/room";
+import {redirect, notFound} from "next/navigation";
+import ChatRoom from "./_client/ChatRoom";
 
 type Props = {
   params: Promise<{roomId: string}>;

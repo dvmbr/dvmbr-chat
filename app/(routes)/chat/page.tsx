@@ -1,11 +1,7 @@
 import {redirect} from "next/navigation";
-import {getCurrentUser} from "@/app/(server)/lib/auth";
+import {getCurrentUser} from "@/app/(server)/lib/auth/authService";
 import ChatWrapper from "./_client/ChatWrapper";
-import {
-  getLastMessagesForAllRooms,
-  getUnreadCountsByRoom,
-} from "@/app/(server)/lib/message";
-import {getRooms} from "@/app/(server)/lib/room";
+import {getRoomListViewModel} from "@/app/(server)/lib/room/utils";
 
 export default async function ChatPage() {
   const sessionUser = await getCurrentUser();
@@ -17,16 +13,7 @@ export default async function ChatPage() {
   const userId = sessionUser.id;
   const userName = sessionUser.name;
 
-  const [rooms, lastMessageMap, unreadCountsMap] = await Promise.all([
-    getRooms(),
-    getLastMessagesForAllRooms(),
-    getUnreadCountsByRoom(userId),
-  ]);
+  const roomListViewModel = await getRoomListViewModel(userId);
 
-  return (
-    <ChatWrapper
-      userName={userName}
-      initialRoomsData={{rooms, lastMessageMap, unreadCountsMap}}
-    />
-  );
+  return <ChatWrapper userName={userName} viewModel={roomListViewModel} />;
 }

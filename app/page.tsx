@@ -1,5 +1,5 @@
 import {redirect} from "next/navigation";
-import {getCurrentUser} from "./(server)/lib/auth";
+import {getCurrentUser} from "./(server)/lib/auth/authService";
 
 export default async function HomePage() {
   const sessionUser = await getCurrentUser();

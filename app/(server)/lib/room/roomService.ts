@@ -1,5 +1,5 @@
 import {Room} from "@prisma/client";
-import {prisma} from "./db";
+import {prisma} from "../db";
 
 // 채팅방 목록 조회 (최신 채팅방이 위로 오도록 정렬)
 export async function getRooms(): Promise<Room[]> {

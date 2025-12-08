@@ -4,9 +4,7 @@ import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider
 import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
 import {useLogoutMutation} from "@/app/redux/features/authApi";
 import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
-import {apiFetch} from "@/app/utils/apiFetch";
 import {useRouter} from "next/navigation";
-import {useState} from "react";
 
 type Props = {
   userName: string;

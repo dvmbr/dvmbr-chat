@@ -1,4 +1,4 @@
-import {Message} from "@/app/(server)/lib/message";
+import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
 import {WebSocketServer, WebSocket} from "ws";
 
 const PORT = Number(process.env.PORT ?? 4000);
@@ -13,11 +13,11 @@ type Client = {
 
 export type ReceivedMessage =
   | {type: "join"; roomId: string; userId: string}
-  | ({type: "message"} & Message);
+  | ({type: "message"} & MessageDTO);
 
 type Payload = {
   type: "broadcast";
-} & Message;
+} & MessageDTO;
 
 const wss = new WebSocketServer({port: PORT});
 const clients = new Set<Client>();
@@ -61,8 +61,8 @@ wss.on("connection", (socket: WebSocket) => {
       }
 
       case "message": {
-        const {id, roomId, userId, username, text, createdAt} = msg;
-        if (!id || !roomId || !userId || !username || !text || !createdAt) {
+        const {id, roomId, userId, userName, text, createdAt} = msg;
+        if (!id || !roomId || !userId || !userName || !text || !createdAt) {
           console.warn("Invalid message payload:", msg);
           return;
         }
@@ -72,7 +72,7 @@ wss.on("connection", (socket: WebSocket) => {
           id,
           roomId,
           userId,
-          username,
+          userName,
           text,
           createdAt,
         };

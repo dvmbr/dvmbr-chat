@@ -1,20 +1,9 @@
-import {Room} from "@prisma/client";
-import {requireUser} from "../../lib/auth";
-import {
-  getLastMessagesForAllRooms,
-  getUnreadCountsByRoom,
-} from "../../lib/message";
-import {getRooms} from "../../lib/room";
-import {apiLogger} from "../../utils/apiLogger";
+import {requireUser} from "../../lib/auth/authService";
+import {getRoomListViewModel} from "../../lib/room/utils";
+import {apiLogger} from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
 
-export type RoomsData = {
-  rooms: Room[];
-  lastMessageMap: Record<string, string> | undefined;
-  unreadCountsMap: Record<string, number> | undefined;
-};
-
-// GET /api/rooms -> 방 불러오기
+// GET /api/rooms -> 전체 방 불러오기
 export async function GET() {
   const log = apiLogger("GET", "/api/rooms");
 
@@ -28,18 +17,10 @@ export async function GET() {
   }
 
   try {
-    const [rooms, lastMessageMap, unreadCountsMap] = await Promise.all([
-      getRooms(),
-      getLastMessagesForAllRooms(),
-      getUnreadCountsByRoom(userId),
-    ]);
+    const roomListViewModel = await getRoomListViewModel(userId);
 
     log("info", "Rooms fetched");
-    return serverApiResponse(200, "Rooms fetched", {
-      rooms,
-      lastMessageMap,
-      unreadCountsMap,
-    });
+    return serverApiResponse(200, "Rooms fetched", roomListViewModel);
   } catch (e) {
     log("error", "Failed to fetch rooms", e);
     return serverApiResponse(500, "Failed to fetch rooms", e);

@@ -1,5 +1,5 @@
 import {User} from "@prisma/client";
-import {prisma} from "./db";
+import {prisma} from "../db";
 
 // ID로 유저 조회
 export async function getUserById(id: string): Promise<User | null> {
