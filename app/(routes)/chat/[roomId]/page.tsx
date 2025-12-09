@@ -1,10 +1,11 @@
 import {getCurrentUser} from "@/app/(server)/lib/auth/authService";
 import {getMessagesByRoomId} from "@/app/(server)/lib/message/messageService";
-import Link from "next/link";
+
 import {redirect, notFound} from "next/navigation";
-import ChatRoom from "./_client/ChatRoom";
+
 import {getRoomByRoomId} from "@/app/(server)/lib/room/roomService";
 import {toMessageListVM} from "./_server/MessageVM";
+import RoomWrapper from "./_client/RoomWrapper";
 
 type Props = {
   params: Promise<{roomId: string}>;
@@ -32,21 +33,11 @@ export default async function RoomPage({params}: Props) {
   const messageListVM = toMessageListVM(messages);
 
   return (
-    <div className="h-full flex flex-col bg-bg-primary text-text-primary">
-      <div className="max-w-3xl w-full mx-auto flex flex-col flex-1 p-6">
-        {/* 헤더 */}
-        <header className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">{room.name}</h1>
-          <Link
-            href="/chat"
-            className="text-sm text-text-secondary hover:text-brand-mint"
-          >
-            {"<-"} 채팅방 목록으로
-          </Link>
-        </header>
-
-        <ChatRoom roomId={roomId} user={sessionUser} messages={messageListVM} />
-      </div>
-    </div>
+    <RoomWrapper
+      roomId={roomId}
+      roomName={room.name}
+      sessionUser={sessionUser}
+      messages={messageListVM}
+    />
   );
 }

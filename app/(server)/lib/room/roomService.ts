@@ -130,3 +130,33 @@ export async function getRoomByRoomId(roomId: string): Promise<Room | null> {
 
   return room;
 }
+
+export type MarkMessagesReadInRoomParams = {
+  roomId: string;
+  userId: string;
+};
+export async function markMessagesReadInRoom({
+  roomId,
+  userId,
+}: MarkMessagesReadInRoomParams) {
+  const unreadMessages = await prisma.message.findMany({
+    where: {
+      roomId,
+      userId: {not: userId},
+      reads: {
+        none: {userId},
+      },
+    },
+    select: {id: true},
+  });
+
+  if (unreadMessages.length === 0) return;
+
+  await prisma.messageRead.createMany({
+    data: unreadMessages.map((m) => ({
+      userId,
+      messageId: m.id,
+    })),
+    skipDuplicates: true,
+  });
+}

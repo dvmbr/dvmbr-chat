@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import {RoomVM} from "../_server/roomVM";
+import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 
 type RoomListProps = {
   rooms: RoomVM[];
 };
 
 export default function RoomList({rooms}: RoomListProps) {
+  const {showGlobalLoading} = useGlobalLoading();
   return (
     <ul className="space-y-2">
       {rooms.map((room) => {
@@ -16,6 +18,7 @@ export default function RoomList({rooms}: RoomListProps) {
             <Link
               href={`/chat/${room.id}`}
               className="flex items-center justify-between px-3 py-2 rounded-md bg-bg-secondary border border-surface-border hover:border-brand-mint hover:bg-surface-hover transition"
+              onClick={() => showGlobalLoading()}
             >
               <div>
                 <p className="text-lg font-medium mb-2">{room.name}</p>

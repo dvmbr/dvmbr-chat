@@ -1,11 +1,13 @@
 "use client";
 
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useWebSocket} from "@/app/hooks/useWebSocket";
 import {User} from "@prisma/client";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import {MessageVM} from "../_server/MessageVM";
+import {useJoinRoomMutation} from "@/app/redux/features/roomApi";
+import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 
 type Props = {
   roomId: string;
@@ -13,6 +15,8 @@ type Props = {
   messages: MessageVM[];
 };
 export default function ChatRoom({roomId, user, messages}: Props) {
+  const [triggerJoinRoom] = useJoinRoomMutation();
+  const {showGlobalLoading, hideGlobalLoading} = useGlobalLoading();
   const [displayMessages, setDisplayMessages] = useState<MessageVM[]>(messages);
   const [isPending, setIsPending] = useState(false);
   const [pendingMessages, setPendingMessages] = useState<MessageVM[]>([]);
@@ -31,6 +35,19 @@ export default function ChatRoom({roomId, user, messages}: Props) {
     user,
     onBroadcast: handleBroadcast,
   });
+
+  useEffect(() => {
+    (async () => {
+      showGlobalLoading();
+      try {
+        await triggerJoinRoom(roomId).unwrap();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideGlobalLoading();
+      }
+    })();
+  }, [triggerJoinRoom, roomId, showGlobalLoading, hideGlobalLoading]);
 
   return (
     <>

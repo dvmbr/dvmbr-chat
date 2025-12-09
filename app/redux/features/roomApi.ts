@@ -6,6 +6,7 @@ import {
 import {ApiResponseBody} from "@/app/(server)/api/api.types";
 import {CreateRoomPayload} from "@/app/(server)/api/room/route";
 import {RoomDTO} from "@/app/(server)/lib/room/roomDTO";
+import {RoomMember} from "@prisma/client";
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 
 export const roomApi = createApi({
@@ -36,7 +37,32 @@ export const roomApi = createApi({
       },
       invalidatesTags: ["Rooms"],
     }),
+    joinRoom: builder.mutation<RoomMember, string>({
+      query: (roomId) => ({
+        url: `/rooms/${roomId}/join`,
+        method: "POST",
+      }),
+      transformResponse: (response: ApiResponseBody<RoomMember>) => {
+        return response.data;
+      },
+      invalidatesTags: ["Rooms"],
+    }),
+    markMessagesRead: builder.mutation<void, string>({
+      query: (roomId) => ({
+        url: `/rooms/${roomId}/read`,
+        method: "POST",
+      }),
+      transformResponse: () => {
+        return;
+      },
+      invalidatesTags: ["Rooms"],
+    }),
   }),
 });
 
-export const {useGetRoomsQuery, useCreateRoomMutation} = roomApi;
+export const {
+  useGetRoomsQuery,
+  useCreateRoomMutation,
+  useJoinRoomMutation,
+  useMarkMessagesReadMutation,
+} = roomApi;

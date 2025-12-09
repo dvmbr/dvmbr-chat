@@ -11,7 +11,7 @@ export type CreateRoomPayload = {
 
 // POST /api/room -> 방 생성
 export async function POST(req: NextRequest) {
-  const log = apiLogger("POST", "/api/room");
+  const log = apiLogger("POST", "/api/room/");
 
   // 1) 인증 체크
   let user;

@@ -59,11 +59,9 @@ export async function getUnreadCountsByRoom(
   const rows = await prisma.message.groupBy({
     by: ["roomId"],
     where: {
-      // 내가 멤버인 방들 중에서
-      room: {
-        members: {
-          some: {userId},
-        },
+      // 내가 보낸 메시지는 제외
+      userId: {
+        not: userId,
       },
       // 내가 아직 읽지 않은 메시지만
       reads: {
