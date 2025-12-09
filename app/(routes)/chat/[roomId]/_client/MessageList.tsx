@@ -1,9 +1,9 @@
 "use client";
 
-import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
+import {MessageVM} from "../_server/MessageVM";
 
 type Props = {
-  messages: MessageDTO[];
+  messages: MessageVM[];
 };
 
 export default function MessageList({messages}: Props) {

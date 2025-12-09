@@ -3,7 +3,7 @@
 import {useRouter} from "next/navigation";
 import {useState, FormEvent} from "react";
 import {useLoginMutation} from "@/app/redux/features/authApi";
-import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
+import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
 import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
 
 export default function LoginForm() {
@@ -43,7 +43,7 @@ export default function LoginForm() {
       </div>
 
       {isError && (
-        <p className="text-sm text-error">{getRtkErrorMessage(error)}</p>
+        <p className="text-sm text-error">{getRTKErrorMessage(error)}</p>
       )}
 
       <button

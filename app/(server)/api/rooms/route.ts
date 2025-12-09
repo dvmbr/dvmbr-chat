@@ -1,5 +1,5 @@
 import {requireUser} from "../../lib/auth/authService";
-import {getRoomListViewModel} from "../../lib/room/utils";
+import {getRooms} from "../../lib/room/roomService";
 import {apiLogger} from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
 
@@ -17,10 +17,10 @@ export async function GET() {
   }
 
   try {
-    const roomListViewModel = await getRoomListViewModel(userId);
+    const rooms = await getRooms({userId});
 
     log("info", "Rooms fetched");
-    return serverApiResponse(200, "Rooms fetched", roomListViewModel);
+    return serverApiResponse(200, "Rooms fetched", rooms);
   } catch (e) {
     log("error", "Failed to fetch rooms", e);
     return serverApiResponse(500, "Failed to fetch rooms", e);

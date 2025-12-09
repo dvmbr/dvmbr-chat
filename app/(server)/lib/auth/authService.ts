@@ -1,11 +1,6 @@
 import type {User} from "@prisma/client";
 import {getUserById} from "../user/userService";
-import {
-  readSession,
-  writeSession,
-  clearSessionCookie,
-  type SessionPayload,
-} from "./sessionStore";
+import {readSession, writeSession, clearSessionCookie} from "./sessionStore";
 
 // 현재 로그인한 유저 조회 (없으면 null)
 export async function getCurrentUser(): Promise<User | null> {
@@ -20,10 +15,13 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-type CreateSessionParams = SessionPayload;
+type CreateSessionPayload = {
+  id: string;
+  name: string;
+};
 
 // 세션 쿠키 생성
-export async function createSession({id, name}: CreateSessionParams) {
+export async function createSession({id, name}: CreateSessionPayload) {
   await writeSession({id, name});
 }
 

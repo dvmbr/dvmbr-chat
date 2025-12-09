@@ -1,16 +1,16 @@
 "use client";
 
 import {useState} from "react";
-import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
 import {useCreateMessageMutation} from "@/app/redux/features/messageApi";
+import {MessageVM} from "../_server/MessageVM";
 
 type MessageInputProps = {
   roomId: string;
-  pendingMessages: MessageDTO[];
-  setPendingMessages: React.Dispatch<React.SetStateAction<MessageDTO[]>>;
+  pendingMessages: MessageVM[];
+  setPendingMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
   setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
-  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageDTO[]>>;
-  onMessageCreated: (msg: MessageDTO) => void;
+  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
+  onMessageCreated: (msg: MessageVM) => void;
 };
 
 export default function MessageInput({
@@ -38,7 +38,7 @@ export default function MessageInput({
     setIsPending(true);
 
     // 낙관적 UI 업데이트
-    const optimisticMessage: MessageDTO = {
+    const optimisticMessage: MessageVM = {
       id: "optimistic-" + Date.now(),
       roomId,
       userId: "",
@@ -51,13 +51,11 @@ export default function MessageInput({
     setPendingMessages([...pendingMessages, optimisticMessage]);
 
     try {
-      const res = await triggerCreateMessage({
+      const createdMessage = await triggerCreateMessage({
         roomId,
         createdAt,
         text: trimmed,
       }).unwrap();
-
-      const createdMessage = res.data;
 
       setDisplayMessages((prev) => [...prev, createdMessage]);
       setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));

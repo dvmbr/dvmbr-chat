@@ -2,7 +2,7 @@
 
 import {CreateRoomPayload} from "@/app/(server)/api/room/route";
 import {useCreateRoomMutation} from "@/app/redux/features/roomApi";
-import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
+import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
 import {FormEvent, useState} from "react";
 
 export default function CreateRoomForm() {
@@ -51,7 +51,7 @@ export default function CreateRoomForm() {
         </button>
       </div>
       {isError && (
-        <p className="text-sm text-error">{getRtkErrorMessage(error)}</p>
+        <p className="text-sm text-error">{getRTKErrorMessage(error)}</p>
       )}
     </form>
   );

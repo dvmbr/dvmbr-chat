@@ -3,7 +3,8 @@
 import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
 import {useLogoutMutation} from "@/app/redux/features/authApi";
-import {getRtkErrorMessage} from "@/app/redux/utils/getRtkErrorMessage";
+import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
+
 import {useRouter} from "next/navigation";
 
 type Props = {
@@ -63,7 +64,7 @@ export default function LogoutButton({userName}: Props) {
         </button>
       </div>
       {isError && (
-        <p className="text-sm text-error">{getRtkErrorMessage(error)}</p>
+        <p className="text-sm text-error">{getRTKErrorMessage(error)}</p>
       )}
     </div>
   );

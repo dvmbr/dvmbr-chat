@@ -1,4 +1,4 @@
-import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
+import {MessageVM} from "@/app/(routes)/chat/[roomId]/_server/MessageVM";
 import {WebSocketServer, WebSocket} from "ws";
 
 const PORT = Number(process.env.PORT ?? 4000);
@@ -13,11 +13,11 @@ type Client = {
 
 export type ReceivedMessage =
   | {type: "join"; roomId: string; userId: string}
-  | ({type: "message"} & MessageDTO);
+  | ({type: "message"} & MessageVM);
 
 type Payload = {
   type: "broadcast";
-} & MessageDTO;
+} & MessageVM;
 
 const wss = new WebSocketServer({port: PORT});
 const clients = new Set<Client>();

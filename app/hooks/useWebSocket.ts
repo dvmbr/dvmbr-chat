@@ -2,12 +2,12 @@
 
 import {User} from "@prisma/client";
 import {useEffect, useRef} from "react";
-import {MessageDTO} from "../(server)/lib/message/messageDTO";
+import {MessageVM} from "../(routes)/chat/[roomId]/_server/MessageVM";
 
 type UseWebSocketParams = {
   roomId: string;
   user: User;
-  onBroadcast: (message: MessageDTO) => void; // 새 메시지 들어왔을 때 콜백
+  onBroadcast: (message: MessageVM) => void; // 새 메시지 들어왔을 때 콜백
 };
 
 export function useWebSocket({roomId, user, onBroadcast}: UseWebSocketParams) {
@@ -42,7 +42,7 @@ export function useWebSocket({roomId, user, onBroadcast}: UseWebSocketParams) {
       if (msg.roomId !== roomId) return;
       if (msg.userId === user!.id) return; // 내가 보낸 건 무시
 
-      const incoming: MessageDTO = {
+      const incoming: MessageVM = {
         id: msg.id,
         roomId: msg.roomId,
         text: msg.text,
@@ -73,7 +73,7 @@ export function useWebSocket({roomId, user, onBroadcast}: UseWebSocketParams) {
     };
   }, [roomId, user, onBroadcast]);
 
-  function sendToServer(message: MessageDTO) {
+  function sendToServer(message: MessageVM) {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 

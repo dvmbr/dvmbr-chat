@@ -1,7 +1,7 @@
 import {SerializedError} from "@reduxjs/toolkit";
 import {FetchBaseQueryError} from "@reduxjs/toolkit/query";
 
-export function getRtkErrorMessage(
+export function getRTKErrorMessage(
   error: FetchBaseQueryError | SerializedError | undefined
 ): string {
   if (!error) return "Unknown error";

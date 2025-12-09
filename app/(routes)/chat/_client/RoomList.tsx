@@ -1,26 +1,16 @@
 "use client";
 
-import {Room} from "@prisma/client";
 import Link from "next/link";
+import {RoomVM} from "../_server/roomVM";
 
 type RoomListProps = {
-  rooms: Room[];
-  lastMessageMap?: Record<string, string>;
-  unreadCountsMap?: Record<string, number>;
+  rooms: RoomVM[];
 };
 
-export default function RoomList({
-  rooms,
-  lastMessageMap,
-  unreadCountsMap,
-}: RoomListProps) {
+export default function RoomList({rooms}: RoomListProps) {
   return (
     <ul className="space-y-2">
       {rooms.map((room) => {
-        const lastMessage =
-          lastMessageMap?.[room.id] || "아직 메시지가 없습니다.";
-        const unreadCount = unreadCountsMap?.[room.id] ?? 0;
-
         return (
           <li key={room.id}>
             <Link
@@ -30,11 +20,13 @@ export default function RoomList({
               <div>
                 <p className="text-lg font-medium mb-2">{room.name}</p>
 
-                <p className="text-sm text-text-secondary">{lastMessage}</p>
+                <p className="text-sm text-text-secondary">
+                  {room.lastMessage?.text || "아직 메시지가 없습니다."}
+                </p>
 
-                {unreadCount > 0 && (
+                {room.unreadCount > 0 && (
                   <span className="mt-1 inline-block px-2 py-0.5 text-xs font-semibold bg-brand-red text-white rounded-full">
-                    {unreadCount}
+                    {room.unreadCount}
                   </span>
                 )}
 

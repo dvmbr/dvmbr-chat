@@ -1,14 +1,14 @@
 "use client";
 
-import {RoomListViewModel} from "@/app/(server)/lib/room/utils";
 import CreateRoomForm from "./CreateRoomForm";
 import LogoutButton from "./LogoutButton";
 import RoomList from "./RoomList";
 import {useGetRoomsQuery} from "@/app/redux/features/roomApi";
+import {RoomVM} from "../_server/roomVM";
 
 type Props = {
   userName: string;
-  viewModel: RoomListViewModel;
+  viewModel: RoomVM[];
 };
 export default function ChatWrapper({userName, viewModel}: Props) {
   const {data, isFetching, isError} = useGetRoomsQuery(undefined, {
@@ -18,7 +18,7 @@ export default function ChatWrapper({userName, viewModel}: Props) {
 
   // RTK Query에서 온 데이터가 있으면 그걸 쓰고
   // 아직 없다면 SSR initialRoomsData를 쓴다
-  const {rooms, lastMessageMap, unreadCountsMap} = data?.data ?? viewModel;
+  const rooms = data ?? viewModel;
 
   return (
     <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
@@ -48,11 +48,7 @@ export default function ChatWrapper({userName, viewModel}: Props) {
               아직 생성된 채팅방이 없습니다.
             </p>
           ) : (
-            <RoomList
-              rooms={rooms}
-              lastMessageMap={lastMessageMap}
-              unreadCountsMap={unreadCountsMap}
-            />
+            <RoomList rooms={rooms} />
           )}
         </div>
       </div>

@@ -1,7 +1,8 @@
 import {redirect} from "next/navigation";
 import {getCurrentUser} from "@/app/(server)/lib/auth/authService";
 import ChatWrapper from "./_client/ChatWrapper";
-import {getRoomListViewModel} from "@/app/(server)/lib/room/utils";
+import {toRoomListVM} from "./_server/roomVM";
+import {getRooms} from "@/app/(server)/lib/room/roomService";
 
 export default async function ChatPage() {
   const sessionUser = await getCurrentUser();
@@ -13,7 +14,8 @@ export default async function ChatPage() {
   const userId = sessionUser.id;
   const userName = sessionUser.name;
 
-  const roomListViewModel = await getRoomListViewModel(userId);
+  const roomListDTO = await getRooms({userId});
+  const roomListVM = toRoomListVM(roomListDTO);
 
-  return <ChatWrapper userName={userName} viewModel={roomListViewModel} />;
+  return <ChatWrapper userName={userName} viewModel={roomListVM} />;
 }

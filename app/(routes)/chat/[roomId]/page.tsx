@@ -1,9 +1,10 @@
 import {getCurrentUser} from "@/app/(server)/lib/auth/authService";
 import {getMessagesByRoomId} from "@/app/(server)/lib/message/messageService";
-import {getRoomByRoomId} from "@/app/(server)/lib/room/roomService";
 import Link from "next/link";
 import {redirect, notFound} from "next/navigation";
 import ChatRoom from "./_client/ChatRoom";
+import {getRoomByRoomId} from "@/app/(server)/lib/room/roomService";
+import {toMessageListVM} from "./_server/MessageVM";
 
 type Props = {
   params: Promise<{roomId: string}>;
@@ -28,6 +29,7 @@ export default async function RoomPage({params}: Props) {
   }
 
   const messages = await getMessagesByRoomId(roomId);
+  const messageListVM = toMessageListVM(messages);
 
   return (
     <div className="h-full flex flex-col bg-bg-primary text-text-primary">
@@ -43,7 +45,7 @@ export default async function RoomPage({params}: Props) {
           </Link>
         </header>
 
-        <ChatRoom roomId={roomId} user={sessionUser} messages={messages} />
+        <ChatRoom roomId={roomId} user={sessionUser} messages={messageListVM} />
       </div>
     </div>
   );

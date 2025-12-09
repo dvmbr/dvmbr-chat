@@ -15,6 +15,7 @@ model User {
   rooms     RoomMember[]
   messages  Message[]
   reads     MessageRead[]
+  hostRooms Room[]       @relation("RoomHost")
 }
 
 model Room {
@@ -23,8 +24,11 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  messages  Message[]
+  hostId   String
+  host     User     @relation("RoomHost", fields: [hostId], references: [id])
+
   members   RoomMember[]
+  messages  Message[]
 }
 
 model RoomMember {
@@ -57,8 +61,8 @@ model MessageRead {
   userId    String
   readAt    DateTime @default(now())
 
-  message   Message  @relation(fields: [messageId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
 
   @@unique([messageId, userId]) // 같은 메시지를 여러 번 읽어도 1개만 존재
   @@index([userId, messageId])

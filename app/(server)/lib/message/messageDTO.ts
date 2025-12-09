@@ -1,27 +1,26 @@
+import {Message, User} from "@prisma/client";
+
 export type MessageDTO = {
   id: string;
-  text: string;
   roomId: string;
   userId: string;
   userName: string;
+  text: string;
   createdAt: Date;
-  isPending?: boolean;
 };
 
-// Prisma 결과 -> MessageDTO 변환 헬퍼
-export function toMessageDTO(m: {
-  id: string;
-  text: string;
-  roomId: string;
-  createdAt: Date;
-  user: {id: string; name: string};
-}): MessageDTO {
+// Prisma Message(+user 정보) -> MessageDTO로 변환
+export function toMessageDTO(
+  message: Message & {
+    user: User;
+  }
+): MessageDTO {
   return {
-    id: m.id,
-    text: m.text,
-    createdAt: m.createdAt,
-    roomId: m.roomId,
-    userId: m.user.id,
-    userName: m.user.name,
+    id: message.id,
+    roomId: message.roomId,
+    userId: message.userId,
+    userName: message.user.name,
+    text: message.text,
+    createdAt: message.createdAt,
   };
 }
