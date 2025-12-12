@@ -6,17 +6,15 @@ import {MessageVM} from "../_server/MessageVM";
 import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
 
 type MessageInputProps = {
+  meId: string;
   roomId: string;
-  pendingMessages: MessageVM[];
-  setPendingMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
-  setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
+  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
 };
 
 export default function MessageInput({
+  meId,
   roomId,
-  pendingMessages,
-  setPendingMessages,
-  setIsPending,
+  setDisplayMessages,
 }: MessageInputProps) {
   const [triggerCreateMessage, {isLoading}] = useCreateMessageMutation();
   const [text, setText] = useState("");
@@ -33,20 +31,19 @@ export default function MessageInput({
     // 입력창 비우기
     setText("");
 
-    setIsPending(true);
-
     // 낙관적 UI 업데이트
+    const optimisticId = "optimistic-" + Date.now();
     const optimisticMessage: MessageVM = {
-      id: "optimistic-" + Date.now(),
+      id: optimisticId,
       roomId,
-      userId: "",
+      userId: meId || "",
       userName: "pending...",
       text: trimmed,
       createdAt,
       isPending: true,
     };
 
-    setPendingMessages([...pendingMessages, optimisticMessage]);
+    setDisplayMessages((m) => [...m, optimisticMessage]);
 
     try {
       const createdMessage = await triggerCreateMessage({
@@ -55,13 +52,12 @@ export default function MessageInput({
         text: trimmed,
       }).unwrap();
 
-      setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
-
+      setDisplayMessages((prev) =>
+        prev.map((m) => (m.id === optimisticId ? createdMessage : m))
+      );
       sendMessageCreated(createdMessage);
     } catch (e) {
       console.error(e);
-    } finally {
-      setIsPending(false);
     }
   }
 

@@ -1,6 +1,6 @@
 import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
 
-export type MessageVM = MessageDTO & {isPending?: boolean};
+export type MessageVM = MessageDTO & {isMine?: boolean; isPending?: boolean};
 
 export function toMessageVM(msg: MessageDTO): MessageVM {
   return {...msg, isPending: false};

@@ -12,33 +12,31 @@ type Props = {
   user: User;
   messages: MessageVM[];
 };
-export default function ChatRoom({roomId, messages}: Props) {
+export default function ChatRoom({roomId, user, messages}: Props) {
   const {data} = useGetMessagesByRoomIdQuery(roomId, {
     refetchOnReconnect: true,
   });
-  const [isPending, setIsPending] = useState(false);
-  const [pendingMessages, setPendingMessages] = useState<MessageVM[]>([]);
 
-  // RTK Query가 최우선, 없으면 SSR fallback
+  const [displayMessages, setDisplayMessages] = useState<MessageVM[]>([]);
+
   const baseMessages = data ?? messages;
 
   const mergedMessages = useMemo(() => {
-    return isPending ? [...baseMessages, ...pendingMessages] : baseMessages;
-  }, [baseMessages, isPending, pendingMessages]);
+    return [...baseMessages, ...displayMessages];
+  }, [baseMessages, displayMessages]);
 
   return (
     <>
       {/* 메시지 리스트 */}
-      <div className="flex-1 bg-surface border border-surface-border rounded-lg p-4 flex flex-col">
-        <MessageList messages={mergedMessages} />
+      <div className="flex-1 bg-surface border border-surface-border rounded-lg flex flex-col min-h-0">
+        <MessageList meId={user.id} messages={mergedMessages} />
       </div>
 
       {/* 메시지 인풋 */}
       <MessageInput
+        meId={user.id}
         roomId={roomId}
-        pendingMessages={pendingMessages}
-        setPendingMessages={setPendingMessages}
-        setIsPending={setIsPending}
+        setDisplayMessages={setDisplayMessages}
       />
     </>
   );

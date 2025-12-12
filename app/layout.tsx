@@ -24,7 +24,7 @@ export default async function RootLayout({
           {/* PC에서는 auto */}
           {/* PC 전용 max-height: 800px */}
           {/* PC 전용 수직 중앙 정렬 */}
-          <div className="fixed inset-0 mx-auto w-full max-w-[430px] md:h-dvh md:max-h-[768px] md:top-1/2 md:-translate-y-1/2">
+          <div className="fixed inset-0 mx-auto w-full max-w-[430px] md:h-dvh md:max-h-[768px] md:top-1/2 md:-translate-y-1/2 overflow-hidden">
             {children}
           </div>
         </ClientProviders>

@@ -32,8 +32,8 @@ export default function RoomWrapper({
     })();
   }, [triggerMarkMessagesRead, roomId]);
   return (
-    <div className="h-full flex flex-col bg-bg-primary text-text-primary">
-      <div className="max-w-3xl w-full mx-auto flex flex-col flex-1 p-6">
+    <div className="h-full flex flex-col bg-bg-primary text-text-primary min-h-0">
+      <div className="max-w-3xl w-full mx-auto flex flex-col flex-1 p-6 min-h-0">
         {/* 헤더 */}
         <header className="mb-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold">{roomName}</h1>
