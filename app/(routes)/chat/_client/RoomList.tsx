@@ -30,10 +30,7 @@ export default function RoomList({rooms, isCreatingRoom}: RoomListProps) {
           <li key={room.id}>
             <Link
               href={`/chat/${room.id}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-md
-                         bg-bg-secondary border border-surface-border
-                         hover:bg-surface-hover hover:border-brand-mint
-                         transition"
+              className="flex items-center gap-3 px-4 py-3 rounded-md bg-bg-secondary border border-surface-border hover:bg-surface-hover hover:border-brand-mint transition"
             >
               {/* avatar */}
               <div className="h-10 w-10 rounded-full bg-surface-hover flex items-center justify-center text-sm font-semibold text-text-secondary shrink-0">
