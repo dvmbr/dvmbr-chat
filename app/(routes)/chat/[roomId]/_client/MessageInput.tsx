@@ -3,14 +3,13 @@
 import {useState} from "react";
 import {useCreateMessageMutation} from "@/app/redux/features/messageApi";
 import {MessageVM} from "../_server/MessageVM";
+import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
 
 type MessageInputProps = {
   roomId: string;
   pendingMessages: MessageVM[];
   setPendingMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
   setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
-  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
-  onMessageCreated: (msg: MessageVM) => void;
 };
 
 export default function MessageInput({
@@ -18,11 +17,10 @@ export default function MessageInput({
   pendingMessages,
   setPendingMessages,
   setIsPending,
-  setDisplayMessages,
-  onMessageCreated,
 }: MessageInputProps) {
   const [triggerCreateMessage, {isLoading}] = useCreateMessageMutation();
   const [text, setText] = useState("");
+  const {sendMessageCreated} = useWebSocketClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,10 +55,9 @@ export default function MessageInput({
         text: trimmed,
       }).unwrap();
 
-      setDisplayMessages((prev) => [...prev, createdMessage]);
       setPendingMessages((prev) => prev.filter((msg) => !msg.isPending));
 
-      onMessageCreated(createdMessage);
+      sendMessageCreated(createdMessage);
     } catch (e) {
       console.error(e);
     } finally {

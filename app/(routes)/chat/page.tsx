@@ -11,11 +11,8 @@ export default async function ChatPage() {
     redirect("/login");
   }
 
-  const userId = sessionUser.id;
-  const userName = sessionUser.name;
-
-  const roomListDTO = await getRooms({userId});
+  const roomListDTO = await getRooms({userId: sessionUser.id});
   const roomListVM = toRoomListVM(roomListDTO);
 
-  return <ChatWrapper userName={userName} viewModel={roomListVM} />;
+  return <ChatWrapper user={sessionUser} viewModel={roomListVM} />;
 }

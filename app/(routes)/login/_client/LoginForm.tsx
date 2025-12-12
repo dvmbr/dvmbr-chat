@@ -5,25 +5,29 @@ import {useState, FormEvent} from "react";
 import {useLoginMutation} from "@/app/redux/features/authApi";
 import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
 import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
+import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 
 export default function LoginForm() {
   const router = useRouter();
   const {isSubmitting, startSubmit, endSubmit} = usePreventDoubleSubmit();
+  const {showGlobalLoading, hideGlobalLoading} = useGlobalLoading();
   const [triggerLogin, {isError, error}] = useLoginMutation();
   const [username, setUsername] = useState("");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     startSubmit();
+    showGlobalLoading();
 
     const trimmed = username.trim();
 
     try {
-      await triggerLogin({userName: trimmed});
+      await triggerLogin({userName: trimmed}).unwrap();
       router.push("/chat");
     } catch (e) {
       console.error(e);
       endSubmit();
+      hideGlobalLoading();
     }
   }
   return (

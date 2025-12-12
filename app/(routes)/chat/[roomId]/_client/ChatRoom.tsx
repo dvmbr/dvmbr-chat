@@ -1,59 +1,36 @@
 "use client";
 
-import {useCallback, useEffect, useState} from "react";
-import {useWebSocket} from "@/app/hooks/useWebSocket";
+import {useMemo, useState} from "react";
 import {User} from "@prisma/client";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import {MessageVM} from "../_server/MessageVM";
-import {useJoinRoomMutation} from "@/app/redux/features/roomApi";
-import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
+import {useGetMessagesByRoomIdQuery} from "@/app/redux/features/messageApi";
 
 type Props = {
   roomId: string;
   user: User;
   messages: MessageVM[];
 };
-export default function ChatRoom({roomId, user, messages}: Props) {
-  const [triggerJoinRoom] = useJoinRoomMutation();
-  const {showGlobalLoading, hideGlobalLoading} = useGlobalLoading();
-  const [displayMessages, setDisplayMessages] = useState<MessageVM[]>(messages);
+export default function ChatRoom({roomId, messages}: Props) {
+  const {data} = useGetMessagesByRoomIdQuery(roomId, {
+    refetchOnReconnect: true,
+  });
   const [isPending, setIsPending] = useState(false);
   const [pendingMessages, setPendingMessages] = useState<MessageVM[]>([]);
 
-  const mergedMessage = isPending
-    ? [...displayMessages, ...pendingMessages]
-    : displayMessages;
+  // RTK Query가 최우선, 없으면 SSR fallback
+  const baseMessages = data ?? messages;
 
-  // -> onBroadcast를 메모이제이션
-  const handleBroadcast = useCallback((incoming: MessageVM) => {
-    setDisplayMessages((prev) => [...prev, incoming]);
-  }, []);
-
-  const {sendToServer} = useWebSocket({
-    roomId,
-    user,
-    onBroadcast: handleBroadcast,
-  });
-
-  useEffect(() => {
-    (async () => {
-      showGlobalLoading();
-      try {
-        await triggerJoinRoom(roomId).unwrap();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        hideGlobalLoading();
-      }
-    })();
-  }, [triggerJoinRoom, roomId, showGlobalLoading, hideGlobalLoading]);
+  const mergedMessages = useMemo(() => {
+    return isPending ? [...baseMessages, ...pendingMessages] : baseMessages;
+  }, [baseMessages, isPending, pendingMessages]);
 
   return (
     <>
       {/* 메시지 리스트 */}
       <div className="flex-1 bg-surface border border-surface-border rounded-lg p-4 flex flex-col">
-        <MessageList messages={mergedMessage} />
+        <MessageList messages={mergedMessages} />
       </div>
 
       {/* 메시지 인풋 */}
@@ -62,8 +39,6 @@ export default function ChatRoom({roomId, user, messages}: Props) {
         pendingMessages={pendingMessages}
         setPendingMessages={setPendingMessages}
         setIsPending={setIsPending}
-        setDisplayMessages={setDisplayMessages}
-        onMessageCreated={(created) => sendToServer(created)}
       />
     </>
   );

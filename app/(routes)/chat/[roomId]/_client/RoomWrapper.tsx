@@ -4,7 +4,6 @@ import Link from "next/link";
 import ChatRoom from "./ChatRoom";
 import {User} from "@prisma/client";
 import {MessageVM} from "../_server/MessageVM";
-import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
 import {useMarkMessagesReadMutation} from "@/app/redux/features/roomApi";
 import {useEffect} from "react";
 
@@ -21,7 +20,6 @@ export default function RoomWrapper({
   messages,
 }: Props) {
   const [triggerMarkMessagesRead] = useMarkMessagesReadMutation();
-  const {showGlobalLoading} = useGlobalLoading();
 
   // -> 방 들어올 때 한 번 읽음 처리
   useEffect(() => {
@@ -42,7 +40,6 @@ export default function RoomWrapper({
           <Link
             href="/chat"
             className="text-sm text-text-secondary hover:text-brand-mint"
-            onClick={() => showGlobalLoading()}
           >
             {"<-"} 채팅방 목록으로
           </Link>

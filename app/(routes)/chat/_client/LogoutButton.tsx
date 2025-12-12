@@ -1,6 +1,6 @@
 "use client";
 
-import {useGlobalLoading} from "@/app/components/providers/GlobalLoadingProvider";
+import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
 import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
 import {useLogoutMutation} from "@/app/redux/features/authApi";
 import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
@@ -14,19 +14,19 @@ type Props = {
 export default function LogoutButton({userName}: Props) {
   const router = useRouter();
   const {isSubmitting, startSubmit, endSubmit} = usePreventDoubleSubmit();
-  const {showGlobalLoading, hideGlobalLoading} = useGlobalLoading();
   const [triggerLogout, {isError, error}] = useLogoutMutation();
 
+  const {setWebSocketUser} = useWebSocketClient();
+
   async function handleLogout() {
-    showGlobalLoading();
     startSubmit();
+    setWebSocketUser(null);
     try {
       await triggerLogout().unwrap();
       router.push("/login");
     } catch (e) {
       console.error(e);
       endSubmit();
-      hideGlobalLoading();
     }
   }
 

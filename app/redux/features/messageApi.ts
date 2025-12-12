@@ -23,7 +23,7 @@ export const messageApi = createApi({
       transformResponse: (response: ApiResponseBody<MessageDTO[]>) => {
         return toMessageListVM(response.data ?? []);
       },
-      providesTags: ["Messages"],
+      providesTags: (_r, _e, roomId) => [{type: "Messages", id: roomId}],
     }),
     createMessage: builder.mutation<MessageVM, CreateMessagePayload>({
       query: (body) => ({
@@ -34,7 +34,8 @@ export const messageApi = createApi({
       transformResponse: (response: ApiResponseBody<MessageDTO>) => {
         return toMessageVM(response.data);
       },
-      invalidatesTags: ["Messages"],
+      invalidatesTags: (_r, _e, body) =>
+        body.roomId ? [{type: "Messages", id: body.roomId}] : [],
     }),
   }),
 });

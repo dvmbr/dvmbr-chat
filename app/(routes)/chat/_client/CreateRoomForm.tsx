@@ -1,17 +1,24 @@
 "use client";
 
 import {CreateRoomPayload} from "@/app/(server)/api/room/route";
+import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
 import {useCreateRoomMutation} from "@/app/redux/features/roomApi";
 import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
 import {FormEvent, useState} from "react";
 
-export default function CreateRoomForm() {
+type Props = {
+  setIsCreatingRoom: (v: boolean) => void;
+};
+
+export default function CreateRoomForm({setIsCreatingRoom}: Props) {
   const [triggerCreateRoom, {isLoading, isError, error}] =
     useCreateRoomMutation();
 
   const [name, setName] = useState("");
   const trimmed = name.trim();
   const isSubmitDisabled = isLoading || trimmed.length === 0;
+
+  const {sendRoomCreated} = useWebSocketClient();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,9 +28,10 @@ export default function CreateRoomForm() {
     const body: CreateRoomPayload = {roomName: trimmed};
 
     try {
+      setIsCreatingRoom(true);
       // RTK Query mutation 호출
-      await triggerCreateRoom(body).unwrap();
-
+      const createdRoom = await triggerCreateRoom(body).unwrap();
+      sendRoomCreated(createdRoom);
       // 성공 -> 인풋 초기화
       setName("");
       // 방 목록 갱신은 invalidatesTags(["Rooms"]) 때문에 자동으로 됨
