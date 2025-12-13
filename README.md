@@ -1,4 +1,4 @@
-# dvmbr Chat
+# dvmbr Chat (MVP project)
 
 dvmbr Chat은 Next.js 16, PostgreSQL(Neon), WebSocket을 기반으로 만든 실시간 채팅 서비스입니다.  
 포트폴리오 목적에 맞게 실제 서비스와 유사한 구조를 유지하면서도, 빠른 개발과 무료 배포 환경을 목표로 합니다.
@@ -144,7 +144,7 @@ WS_PORT=4000
   - 작성자(`userId`)와 방(`roomId`)에 속함
   - DB에 영구 저장되어 새로고침 후에도 유지
 
-- **MessageRead** _(준비 중 또는 선택적 기능)_
+- **MessageRead**
   - 유저가 특정 메시지를 언제 읽었는지 기록하는 테이블
   - `Message`와 `User` 사이의 N:M 관계
   - 읽음 처리 / unread 카운트 기능을 위한 기반 구조
@@ -261,13 +261,6 @@ MessageRead (User ↔ Message N:M 조인 테이블)
 ### Message List UX
 
 - 메시지 목록 표시 (최신 메시지 SSR + WebSocket 실시간 추가)
-- (예정) 자동 스크롤
-- (예정) 연속 메시지 compact 렌더링
-
-### LocalStorage Tracking
-
-- (예정) 방별 lastActive 관리
-- (예정) NEW 배지 표시
 
 ### Error Handling
 
