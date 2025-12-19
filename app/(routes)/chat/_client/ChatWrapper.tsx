@@ -3,18 +3,18 @@
 import CreateRoomForm from "./CreateRoomForm";
 import LogoutButton from "./LogoutButton";
 import RoomList from "./RoomList";
-import {useGetRoomsQuery} from "@/app/redux/features/roomApi";
-import {RoomVM} from "../_server/roomVM";
-import {User} from "@prisma/client";
-import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
-import {useEffect, useState} from "react";
+import { useGetRoomsQuery } from "@/app/redux/features/roomApi";
+import { RoomVM } from "../_server/roomVM";
+import { User } from "@prisma/client";
+import { useWebSocketClient } from "@/app/components/providers/WebSocketProvider";
+import { useEffect, useState } from "react";
 
 type Props = {
   user: User;
   viewModel: RoomVM[];
 };
-export default function ChatWrapper({user, viewModel}: Props) {
-  const {data, isFetching, isError} = useGetRoomsQuery(undefined, {
+export default function ChatWrapper({ user, viewModel }: Props) {
+  const { data, isError } = useGetRoomsQuery(undefined, {
     refetchOnFocus: true,
     refetchOnReconnect: true,
   });
@@ -25,7 +25,7 @@ export default function ChatWrapper({user, viewModel}: Props) {
     setIsCreatingRoom(false);
   }, [data]);
 
-  const {setWebSocketUser} = useWebSocketClient();
+  const { setWebSocketUser } = useWebSocketClient();
 
   useEffect(() => {
     setWebSocketUser(user);
