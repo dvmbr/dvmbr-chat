@@ -1,31 +1,31 @@
 "use client";
 
-import {CreateRoomPayload} from "@/app/(server)/api/room/route";
-import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
-import {useCreateRoomMutation} from "@/app/redux/features/roomApi";
-import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
-import {FormEvent, useState} from "react";
+import { CreateRoomPayload } from "@/app/(server)/api/room/route";
+import { useWebSocketClient } from "@/app/components/providers/WebSocketProvider";
+import { useCreateRoomMutation } from "@/app/redux/features/roomApi";
+import { getRTKErrorMessage } from "@/app/redux/utils/getRTKErrorMessage";
+import { FormEvent, useState } from "react";
 
 type Props = {
   setIsCreatingRoom: (v: boolean) => void;
 };
 
-export default function CreateRoomForm({setIsCreatingRoom}: Props) {
-  const [triggerCreateRoom, {isLoading, isError, error}] =
+export default function CreateRoomForm({ setIsCreatingRoom }: Props) {
+  const [triggerCreateRoom, { isLoading, isError, error }] =
     useCreateRoomMutation();
 
   const [name, setName] = useState("");
   const trimmed = name.trim();
   const isSubmitDisabled = isLoading || trimmed.length === 0;
 
-  const {sendRoomCreated} = useWebSocketClient();
+  const { sendRoomCreated } = useWebSocketClient();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
     if (isSubmitDisabled) return;
 
-    const body: CreateRoomPayload = {roomName: trimmed};
+    const body: CreateRoomPayload = { roomName: trimmed };
 
     try {
       setIsCreatingRoom(true);
