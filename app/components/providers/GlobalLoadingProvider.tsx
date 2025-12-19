@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import FullPageLoading from "../FullPageLoading";
 
 type LoadingContextValue = {
   isGlobalLoading: boolean;
@@ -17,7 +18,7 @@ type LoadingContextValue = {
 
 const LoadingContext = createContext<LoadingContextValue | null>(null);
 
-export function GlobalLoadingProvider({children}: {children: ReactNode}) {
+export function GlobalLoadingProvider({ children }: { children: ReactNode }) {
   const [count, setCount] = useState(0);
   const isGlobalLoading = count > 0;
 
@@ -41,14 +42,7 @@ export function GlobalLoadingProvider({children}: {children: ReactNode}) {
   return (
     <LoadingContext.Provider value={value}>
       {children}
-      {isGlobalLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-12 w-12 rounded-full border-4 border-white/30 border-t-white animate-spin" />
-            <p className="text-sm text-white">Loading...</p>
-          </div>
-        </div>
-      )}
+      {isGlobalLoading && <FullPageLoading text={"dvmbr-chat is loading..."} />}
     </LoadingContext.Provider>
   );
 }

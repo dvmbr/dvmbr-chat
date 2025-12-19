@@ -1,7 +1,8 @@
-import {Message, User} from "@prisma/client";
+import { Message, User } from "@prisma/client";
 
 export type MessageDTO = {
   id: string;
+  cuid: string;
   roomId: string;
   userId: string;
   userName: string;
@@ -17,6 +18,7 @@ export function toMessageDTO(
 ): MessageDTO {
   return {
     id: message.id,
+    cuid: message.cuid,
     roomId: message.roomId,
     userId: message.userId,
     userName: message.user.name,

@@ -1,13 +1,13 @@
-import {prisma} from "../db";
-import {MessageDTO, toMessageDTO} from "./messageDTO";
+import { prisma } from "../db";
+import { MessageDTO, toMessageDTO } from "./messageDTO";
 
 // 특정 채팅방의 메시지들 조회
 export async function getMessagesByRoomId(
   roomId: string
 ): Promise<MessageDTO[]> {
   const messages = await prisma.message.findMany({
-    where: {roomId},
-    orderBy: {createdAt: "asc"},
+    where: { roomId },
+    orderBy: { createdAt: "asc" },
     include: {
       user: true,
     },
@@ -18,28 +18,30 @@ export async function getMessagesByRoomId(
 
 // 특정 방에 새 메시지 생성
 export async function createMessage(params: {
+  cuid: string;
   roomId: string;
   userId: string;
   text: string;
   createdAt?: Date;
 }): Promise<MessageDTO> {
-  const {roomId, userId, text, createdAt} = params;
+  const { cuid, roomId, userId, text, createdAt } = params;
 
   // createdAt을 넘기면 그 값 쓰고, 아니면 DB default(now()) 사용
   const [message] = await prisma.$transaction([
     prisma.message.create({
       data: {
+        cuid,
         text,
         userId,
         roomId,
-        ...(createdAt && {createdAt}), // undefined면 아예 필드를 안 보냄
+        ...(createdAt && { createdAt }), // undefined면 아예 필드를 안 보냄
       },
       include: {
         user: true, // toMessageDTO 시그니처 맞추기
       },
     }),
     prisma.room.update({
-      where: {id: roomId},
+      where: { id: roomId },
       data: {
         updatedAt: createdAt ?? new Date(), // 방 최신 활동 시간 갱신
       },
@@ -86,30 +88,26 @@ export async function getUnreadCountsByRoom(
 export type LastMessageDTOMap = Record<string, MessageDTO>;
 
 export async function getLastMessagesByRoom(): Promise<LastMessageDTOMap> {
-  // 1) 각 방의 최신 createdAt 그룹화
-  const grouped = await prisma.message.groupBy({
-    by: ["roomId"],
-    _max: {createdAt: true},
+  const rooms = await prisma.room.findMany({
+    select: { id: true },
   });
 
-  if (grouped.length === 0) return {};
+  if (rooms.length === 0) return {};
 
-  // 2) groupBy 결과로 최신 메시지 전체 조회
-  const messages = await prisma.message.findMany({
-    where: {
-      OR: grouped.map((g) => ({
-        roomId: g.roomId,
-        createdAt: g._max.createdAt!, // 해당 room의 최신 메시지 시간
-      })),
-    },
-    include: {
-      user: true,
-    },
-  });
+  const lastMessages = await Promise.all(
+    rooms.map((r) =>
+      prisma.message.findFirst({
+        where: { roomId: r.id },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        include: { user: true },
+      })
+    )
+  );
 
   const map: LastMessageDTOMap = {};
 
-  for (const m of messages) {
+  for (const m of lastMessages) {
+    if (!m) continue;
     map[m.roomId] = toMessageDTO(m);
   }
 

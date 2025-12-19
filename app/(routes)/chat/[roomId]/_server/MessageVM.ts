@@ -1,11 +1,15 @@
-import {MessageDTO} from "@/app/(server)/lib/message/messageDTO";
+import { MessageDTO } from "@/app/(server)/lib/message/messageDTO";
 
-export type MessageVM = MessageDTO & {isMine?: boolean; isPending?: boolean};
+export type MessageVM = MessageDTO & {
+  isMine?: boolean;
+  isPending?: boolean;
+  isFailed?: boolean;
+};
 
 export function toMessageVM(msg: MessageDTO): MessageVM {
-  return {...msg, isPending: false};
+  return { ...msg, isPending: false };
 }
 
 export function toMessageListVM(msg: MessageDTO[]): MessageVM[] {
-  return msg.map((m) => ({...m, isPending: false}));
+  return msg.map((m) => ({ ...m, isPending: false }));
 }

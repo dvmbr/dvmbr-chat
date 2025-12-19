@@ -48,16 +48,18 @@ export default function CreateRoomForm({ setIsCreatingRoom }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="새 채팅방 이름"
-          className="flex-1 bg-bg-secondary border border-surface-border rounded px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-brand-mint focus:ring-1 focus:ring-brand-mint"
+          className="flex-1 rounded-md border border-border bg-bg-elevate px-3 py-2 text-sm text-text-main placeholder:text-text-muted/70 outline-none transition focus:border-secondary focus:ring-1 focus:ring-secondary"
         />
+
         <button
           type="submit"
           disabled={isSubmitDisabled}
-          className="px-4 py-2 rounded bg-brand-mint text-bg-primary text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
+          className="rounded-md bg-secondary px-4 py-2 text-sm font-medium text-bg-deep transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           생성
         </button>
       </div>
+
       {isError && (
         <p className="text-sm text-error">{getRTKErrorMessage(error)}</p>
       )}

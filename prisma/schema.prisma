@@ -45,6 +45,7 @@ model RoomMember {
 
 model Message {
   id        String   @id @default(cuid())
+  cuid      String
   text      String
   userId    String
   roomId    String
@@ -53,6 +54,9 @@ model Message {
   user      User     @relation(fields: [userId], references: [id])
   room      Room     @relation(fields: [roomId], references: [id])
   reads     MessageRead[]
+
+  @@unique([roomId, cuid])
+  @@index([roomId, createdAt])
 }
 
 model MessageRead {

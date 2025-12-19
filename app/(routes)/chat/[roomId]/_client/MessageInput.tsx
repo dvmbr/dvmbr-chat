@@ -1,24 +1,25 @@
 "use client";
 
-import {useState} from "react";
-import {useCreateMessageMutation} from "@/app/redux/features/messageApi";
-import {MessageVM} from "../_server/MessageVM";
-import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
+import { useState } from "react";
+import { useCreateMessageMutation } from "@/app/redux/features/messageApi";
+import { MessageVM } from "../_server/MessageVM";
+import { useWebSocketClient } from "@/app/components/providers/WebSocketProvider";
+import { createId } from "@paralleldrive/cuid2";
 
 type MessageInputProps = {
   meId: string;
   roomId: string;
-  setDisplayMessages: React.Dispatch<React.SetStateAction<MessageVM[]>>;
+  setMessageStack: React.Dispatch<React.SetStateAction<MessageVM[]>>;
 };
 
 export default function MessageInput({
   meId,
   roomId,
-  setDisplayMessages,
+  setMessageStack,
 }: MessageInputProps) {
-  const [triggerCreateMessage, {isLoading}] = useCreateMessageMutation();
+  const [triggerCreateMessage, { isLoading }] = useCreateMessageMutation();
   const [text, setText] = useState("");
-  const {sendMessageCreated} = useWebSocketClient();
+  const { sendMessageCreated } = useWebSocketClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,51 +33,63 @@ export default function MessageInput({
     setText("");
 
     // 낙관적 UI 업데이트
-    const optimisticId = "optimistic-" + Date.now();
-    const optimisticMessage: MessageVM = {
-      id: optimisticId,
-      roomId,
-      userId: meId || "",
-      userName: "pending...",
-      text: trimmed,
-      createdAt,
-      isPending: true,
-    };
+    const cuid = createId();
+    setMessageStack((prev) => [
+      ...prev,
+      {
+        id: cuid,
+        cuid,
+        roomId,
+        userId: meId,
+        userName: "pending...",
+        text: trimmed,
+        createdAt,
+        isPending: true,
+      },
+    ]);
 
-    setDisplayMessages((m) => [...m, optimisticMessage]);
+    // setDisplayMessages((m) => [...m, optimisticMessage]);
 
     try {
       const createdMessage = await triggerCreateMessage({
+        cuid,
         roomId,
         createdAt,
         text: trimmed,
       }).unwrap();
 
-      setDisplayMessages((prev) =>
-        prev.map((m) => (m.id === optimisticId ? createdMessage : m))
-      );
       sendMessageCreated(createdMessage);
     } catch (e) {
       console.error(e);
+      setMessageStack((prev) =>
+        prev.map((m) => {
+          if (m.cuid === cuid) {
+            m.isFailed = true;
+          }
+
+          return m;
+        })
+      );
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 flex items-center gap-2 bg-bg-secondary border border-surface-border rounded-lg p-2"
+      className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-bg-surface p-2"
     >
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="메시지를 입력하세요..."
-        className="flex-1 bg-transparent text-text-primary placeholder:text-text-muted text-sm outline-none"
+        className="flex-1 bg-transparent text-sm text-text-main placeholder:text-text-muted outline-none"
       />
+
       <button
         type="submit"
         disabled={isLoading}
-        className="px-4 py-2 rounded bg-brand-mint text-bg-primary text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-accent-mintLight transition"
+        className="rounded-md bg-secondary px-4 py-2 text-sm font-medium text-bg-deep transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         전송
       </button>

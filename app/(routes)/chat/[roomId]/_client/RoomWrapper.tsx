@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import ChatRoom from "./ChatRoom";
-import {User} from "@prisma/client";
-import {MessageVM} from "../_server/MessageVM";
-import {useMarkMessagesReadMutation} from "@/app/redux/features/roomApi";
-import {useEffect} from "react";
+import { User } from "@prisma/client";
+import { MessageVM } from "../_server/MessageVM";
+import { useMarkMessagesReadMutation } from "@/app/redux/features/roomApi";
+import { useEffect } from "react";
 
 type Props = {
   roomId: string;
@@ -32,14 +32,15 @@ export default function RoomWrapper({
     })();
   }, [triggerMarkMessagesRead, roomId]);
   return (
-    <div className="h-full flex flex-col bg-bg-primary text-text-primary min-h-0">
-      <div className="max-w-3xl w-full mx-auto flex flex-col flex-1 p-6 min-h-0">
+    <div className="h-full flex flex-col min-h-0 bg-bg-deep text-text-main border border-border rounded-lg">
+      <div className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col p-6">
         {/* 헤더 */}
         <header className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">{roomName}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{roomName}</h1>
+
           <Link
             href="/chat"
-            className="text-sm text-text-secondary hover:text-brand-mint"
+            className="text-sm text-text-muted transition hover:text-secondary"
           >
             {"<-"} 채팅방 목록으로
           </Link>

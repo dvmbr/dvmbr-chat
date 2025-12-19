@@ -1,11 +1,12 @@
-import {NextRequest} from "next/server";
-import {requireUser} from "../../lib/auth/authService";
-import {createMessage} from "../../lib/message/messageService";
-import {getRoomByRoomId} from "../../lib/room/roomService";
-import {apiLogger} from "../api.utils";
+import { NextRequest } from "next/server";
+import { requireUser } from "../../lib/auth/authService";
+import { createMessage } from "../../lib/message/messageService";
+import { getRoomByRoomId } from "../../lib/room/roomService";
+import { apiLogger } from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
 
 export type CreateMessagePayload = {
+  cuid: string;
   roomId: string;
   text: string;
   createdAt: Date;
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   let userId: string;
   try {
-    const {id} = await requireUser();
+    const { id } = await requireUser();
     userId = id;
   } catch (e) {
     log("error", "Login required", e);
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const {roomId, text, createdAt} = body;
+    const { cuid, roomId, text, createdAt } = body;
 
     if (!roomId) {
       log("error", "Invalid roomId");
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     const message = await createMessage({
+      cuid,
       roomId,
       userId,
       text,

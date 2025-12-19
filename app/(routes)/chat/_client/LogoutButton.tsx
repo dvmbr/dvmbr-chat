@@ -1,22 +1,22 @@
 "use client";
 
-import {useWebSocketClient} from "@/app/components/providers/WebSocketProvider";
-import {usePreventDoubleSubmit} from "@/app/hooks/usePreventDoubleSubmit";
-import {useLogoutMutation} from "@/app/redux/features/authApi";
-import {getRTKErrorMessage} from "@/app/redux/utils/getRTKErrorMessage";
+import { useWebSocketClient } from "@/app/components/providers/WebSocketProvider";
+import { usePreventDoubleSubmit } from "@/app/hooks/usePreventDoubleSubmit";
+import { useLogoutMutation } from "@/app/redux/features/authApi";
+import { getRTKErrorMessage } from "@/app/redux/utils/getRTKErrorMessage";
 
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type Props = {
   userName: string;
 };
 
-export default function LogoutButton({userName}: Props) {
+export default function LogoutButton({ userName }: Props) {
   const router = useRouter();
-  const {isSubmitting, startSubmit, endSubmit} = usePreventDoubleSubmit();
-  const [triggerLogout, {isError, error}] = useLogoutMutation();
+  const { isSubmitting, startSubmit, endSubmit } = usePreventDoubleSubmit();
+  const [triggerLogout, { isError, error }] = useLogoutMutation();
 
-  const {setWebSocketUser} = useWebSocketClient();
+  const { setWebSocketUser } = useWebSocketClient();
 
   async function handleLogout() {
     startSubmit();
@@ -30,41 +30,43 @@ export default function LogoutButton({userName}: Props) {
     }
   }
 
-  const isLong = userName.length > 10; // 긴 닉네임 기준
+  const isLong = userName.length > 6; // 긴 닉네임 기준
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2">
-        <div className="overflow-hidden bg-bg-tertiary text-center">
-          {/* 닉네임 영역 */}
-          <div className="w-24">
+      <div className="flex items-center gap-3">
+        {/* nickname */}
+        <div className="overflow-hidden">
+          <div className="w-24 text-right">
             {isLong ? (
               <div className="marquee">
                 <div className="marquee-inner">
-                  <span className="text-brand-mint font-bold">{userName}</span>
-                  <span className="text-brand-mint font-bold">
+                  <span className="font-bold text-secondary">{userName}</span>
+                  <span className="font-bold text-secondary">
                     &nbsp;&nbsp;{userName}
                   </span>
                 </div>
               </div>
             ) : (
-              <span className="text-brand-mint font-bold block truncate">
+              <span className="block truncate font-bold text-secondary">
                 {userName}
               </span>
             )}
           </div>
         </div>
 
+        {/* logout */}
         <button
           onClick={handleLogout}
           disabled={isSubmitting}
-          className="text-red-400 hover:text-red-500 text-sm disabled:cursor-not-allowed"
+          className="text-sm text-text-muted transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           Logout
         </button>
       </div>
+
       {isError && (
-        <p className="text-sm text-error">{getRTKErrorMessage(error)}</p>
+        <p className="mt-1 text-sm text-error">{getRTKErrorMessage(error)}</p>
       )}
     </div>
   );

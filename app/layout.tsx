@@ -17,7 +17,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className="h-full">
+    <html lang="ko" className="h-full bg-bg-deep">
       <body className="h-full">
         <ClientProviders>
           {/* 모바일: 전체 화면 */}

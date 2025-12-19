@@ -8,6 +8,7 @@ import { RoomVM } from "../_server/roomVM";
 import { User } from "@prisma/client";
 import { useWebSocketClient } from "@/app/components/providers/WebSocketProvider";
 import { useEffect, useState } from "react";
+import ListItemSkeleton from "./ListItemSkeleton";
 
 type Props = {
   user: User;
@@ -37,10 +38,12 @@ export default function ChatWrapper({ user, viewModel }: Props) {
   const rooms = data ?? viewModel;
 
   return (
-    <div className="h-full flex flex-col bg-bg-secondary text-text-primary">
+    <div className="h-full flex flex-col bg-bg-deep text-text-main border border-border rounded-lg">
       {/* HEADER - 위에 고정 */}
-      <div className="flex items-center justify-between px-4 py-6 shrink-0">
-        <h1 className="text-2xl font-semibold">DVMBR CHAT APP</h1>
+      <div className="flex shrink-0 items-center justify-between px-4 py-6">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          DVMBR CHAT APP
+        </h1>
         <LogoutButton userName={user.name} />
       </div>
 
@@ -49,22 +52,22 @@ export default function ChatWrapper({ user, viewModel }: Props) {
         <CreateRoomForm setIsCreatingRoom={setIsCreatingRoom} />
       </div>
 
-      <div className="px-4 pb-4 flex-1 overflow-y-auto">
-        <div className="bg-surface border border-surface-border rounded-lg p-4">
-          {/* {isFetching ? (
-            <div className="flex items-center justify-center py-6">
-              <div className="h-8 w-8 rounded-full border-4 border-white/30 border-t-white animate-spin" />
-            </div>
-          ) :  */}
-
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="rounded-lg border border-border bg-bg-surface p-4">
           {isError ? (
-            <p className="text-error text-sm">
+            <p className="text-sm text-error">
               채팅방 목록을 불러오지 못했습니다.
             </p>
           ) : rooms.length === 0 ? (
-            <p className="text-text-secondary text-sm">
-              아직 생성된 채팅방이 없습니다.
-            </p>
+            <>
+              {isCreatingRoom ? (
+                <ListItemSkeleton />
+              ) : (
+                <p className="text-sm text-text-muted">
+                  아직 생성된 채팅방이 없습니다.
+                </p>
+              )}
+            </>
           ) : (
             <RoomList rooms={rooms} isCreatingRoom={isCreatingRoom} />
           )}
