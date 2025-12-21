@@ -1,19 +1,20 @@
-import {NextRequest} from "next/server";
-import {requireUser} from "@/app/(server)/lib/auth/authService";
+import { NextRequest } from "next/server";
+import { requireUser } from "@/app/(server)/lib/auth/authService";
 import serverApiResponse from "../../../serverApiResponse";
-import {markMessagesReadInRoom} from "@/app/(server)/lib/room/roomService";
-import {apiLogger} from "../../../api.utils";
+import { markMessagesReadInRoom } from "@/app/(server)/lib/room/roomService";
+import { apiLogger } from "../../../api.utils";
 
+// POST /api/rooms/[roomId]/read -> 방 아이디별 메시지 읽음 처리
 export async function POST(
   _req: NextRequest,
-  {params}: {params: Promise<{roomId: string}>}
+  { params }: { params: Promise<{ roomId: string }> }
 ) {
-  const {roomId} = await params;
+  const { roomId } = await params;
   const log = apiLogger("POST", `/api/rooms/${roomId}/read`);
 
   let userId: string;
   try {
-    const {id} = await requireUser();
+    const { id } = await requireUser();
     userId = id;
   } catch (e) {
     log("error", "Login required", e);
@@ -21,7 +22,7 @@ export async function POST(
   }
 
   try {
-    await markMessagesReadInRoom({userId, roomId});
+    await markMessagesReadInRoom({ userId, roomId });
 
     log("info", "mark messages read");
     return serverApiResponse(200, "mark messages read", {});

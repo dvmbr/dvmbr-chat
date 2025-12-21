@@ -1,7 +1,7 @@
-import {NextRequest} from "next/server";
-import {createSession} from "../../lib/auth/authService";
-import {getUserByName, createUserByName} from "../../lib/user/userService";
-import {apiLogger} from "../api.utils";
+import { NextRequest } from "next/server";
+import { createSession } from "../../lib/auth/authService";
+import { getUserByName, createUserByName } from "../../lib/user/userService";
+import { apiLogger } from "../api.utils";
 import serverApiResponse from "../serverApiResponse";
 
 export type AuthPayload = {
@@ -14,7 +14,7 @@ export type AuthResponseData = {
 };
 
 // POST /api/auth
-// Body: { name: string }
+// Body: { userName: string }
 export async function POST(req: NextRequest) {
   const log = apiLogger("POST", "/api/auth");
 
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
   // 4) 세션 생성
   try {
-    await createSession({id: user.id, name: user.name});
+    await createSession({ id: user.id, name: user.name });
   } catch (e) {
     log("error", "Failed to create session", e);
     return serverApiResponse(500, "Failed to create session", e);

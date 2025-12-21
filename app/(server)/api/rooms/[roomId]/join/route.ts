@@ -1,19 +1,20 @@
-import {NextRequest} from "next/server";
-import {requireUser} from "@/app/(server)/lib/auth/authService";
+import { NextRequest } from "next/server";
+import { requireUser } from "@/app/(server)/lib/auth/authService";
 import serverApiResponse from "../../../serverApiResponse";
-import {joinRoom} from "@/app/(server)/lib/room/roomService";
-import {apiLogger} from "../../../api.utils";
+import { joinRoom } from "@/app/(server)/lib/room/roomService";
+import { apiLogger } from "../../../api.utils";
 
+// POST /api/rooms/[roomId]/join -> 방에 들어온 멤버 생성
 export async function POST(
   _req: NextRequest,
-  {params}: {params: Promise<{roomId: string}>}
+  { params }: { params: Promise<{ roomId: string }> }
 ) {
-  const {roomId} = await params;
+  const { roomId } = await params;
   const log = apiLogger("POST", `/api/rooms/${roomId}/join`);
 
   let userId: string;
   try {
-    const {id} = await requireUser();
+    const { id } = await requireUser();
     userId = id;
   } catch (e) {
     log("error", "Login required", e);
@@ -21,7 +22,7 @@ export async function POST(
   }
 
   try {
-    const roomMember = await joinRoom({userId, roomId});
+    const roomMember = await joinRoom({ userId, roomId });
 
     log("info", "RoomMember joined");
     return serverApiResponse(200, "RoomMember joined", roomMember);
