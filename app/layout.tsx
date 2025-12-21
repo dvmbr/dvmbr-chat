@@ -5,10 +5,10 @@ import "./styles/animations.css";
 export const metadata = {
   title: "dvmbr Chat",
   description: "A real-time chat app built with Next.js",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
+  // icons: {
+  //   icon: "/favicon.ico",
+  //   apple: "/apple-touch-icon.png",
+  // },
 };
 
 export default async function RootLayout({
