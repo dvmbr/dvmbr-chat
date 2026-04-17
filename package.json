@@ -3,16 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ws": "tsx ws-server/server.ts",
-    "prisma": "npx prisma studio"
+    "prisma": "npx dotenv -e .env.development -- prisma studio",
+    "prisma:migrate": "npx dotenv -e .env.development -- prisma migrate dev"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "^7.7.0",
     "@reduxjs/toolkit": "^2.11.0",
     "next": "^16.2.4",
     "react": "^19.2.5",
@@ -26,10 +25,11 @@
     "@types/react-dom": "^19",
     "@types/swagger-ui-react": "^5.18.0",
     "@types/ws": "^8.18.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "postcss": "^8.5.10",
-    "prisma": "^6.19.0",
+    "prisma": "^7.7.0",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",

@@ -15,12 +15,37 @@
 
 ### 관계(ERD)
 
-```
-User   |--o<   Participant   >o--|   Room
-                   |
-                   | 1
-                   v
-                N Message
+```mermaid
+erDiagram
+   User {
+      int id PK
+      string nickname
+      datetime createdAt
+      datetime updatedAt
+   }
+   Room {
+      int id PK
+      string name
+      datetime createdAt
+      datetime updatedAt
+   }
+   Participant {
+      int id PK
+      int userId FK
+      int roomId FK
+      datetime createdAt
+      datetime updatedAt
+   }
+   Message {
+      int id PK
+      int participantId FK
+      string content
+      datetime createdAt
+      datetime updatedAt
+   }
+   User ||--o{ Participant : "has many"
+   Room ||--o{ Participant : "has many"
+   Participant ||--o{ Message : "has many"
 ```
 
 - User 1 : N Participant
