@@ -1,28 +1,16 @@
 import { NextResponse } from "next/server";
 import { getErrorMessage } from "./error";
+import type {
+  ErrorResponse,
+  OkResponse,
+  ListData,
+} from "@/lib/schema/response.schema";
 
-export type BaseResponse<T> = {
-  data: T;
-  message?: string;
-  error?: string;
-  statusCode?: number; // HTTP 상태 코드
-  timestamp?: string; // 응답 시간(ISO8601)
-};
-
-export type ListResponse<T> = {
-  data: T[];
-  message?: string;
-  error?: string;
-  total?: number;
-  statusCode?: number;
-  timestamp?: string;
-};
-
-export function successResponse<T>(
+export function sendOk<T>(
   data: T,
-  message?: string,
   statusCode = 200,
-): NextResponse<BaseResponse<T>> {
+  message?: string,
+): NextResponse<OkResponse<T>> {
   return NextResponse.json(
     {
       data,
@@ -34,10 +22,29 @@ export function successResponse<T>(
   );
 }
 
-export function errorResponse(
+export function sendList<T>(
+  items: T[],
+  statusCode = 200,
+  message?: string,
+): NextResponse<OkResponse<ListData<T>>> {
+  return NextResponse.json(
+    {
+      data: {
+        items,
+        total: items.length,
+      },
+      message,
+      statusCode,
+      timestamp: new Date().toISOString(),
+    },
+    { status: statusCode },
+  );
+}
+
+export function sendError(
   error: unknown,
   statusCode = 500,
-): NextResponse<BaseResponse<null>> {
+): NextResponse<ErrorResponse> {
   return NextResponse.json(
     {
       data: null,

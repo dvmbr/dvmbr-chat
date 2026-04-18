@@ -1,3 +1,5 @@
 export function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Internal Server Error";
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  return "Internal Server Error";
 }
