@@ -57,10 +57,16 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = CreateUserSchema.parse(body);
+    const parsed = CreateUserSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return sendError("Invalid request body: { nickname:string }", 400);
+    }
+
     const user = await prisma.user.create({
-      data: { nickname: parsed.nickname },
+      data: { nickname: parsed.data.nickname },
     });
+
     return sendOk(
       toUserDto(user),
       201,
@@ -75,12 +81,22 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = UpdateUserSchema.parse(body);
+    const parsed = UpdateUserSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return sendError(
+        "Invalid request body: { id:number, nickname:string }",
+        400,
+      );
+    }
+
+    const { id, nickname } = parsed.data;
+
     const user = await prisma.user.update({
-      where: { id: parsed.id },
-      data: { nickname: parsed.nickname },
+      where: { id },
+      data: { nickname },
     });
-    return sendOk(toUserDto(user), 200, `User updated: ${parsed.id}`);
+    return sendOk(toUserDto(user), 200, `User updated: ${id}: ${nickname}`);
   } catch (error: unknown) {
     return sendError(error, 400);
   }
@@ -90,9 +106,14 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = DeleteUserSchema.parse(body);
-    await prisma.user.delete({ where: { id: parsed.id } });
-    return sendOk(null, 200, `User deleted: ${parsed.id}`);
+    const parsed = DeleteUserSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return sendError("Invalid request body: { id:number }", 400);
+    }
+
+    await prisma.user.delete({ where: { id: parsed.data.id } });
+    return sendOk(null, 200, `User deleted: ${parsed.data.id}`);
   } catch (error: unknown) {
     return sendError(error, 400);
   }

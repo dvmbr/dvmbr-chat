@@ -34,6 +34,8 @@ model Participant {
   user     User      @relation(fields: [userId], references: [id])
   room     Room      @relation(fields: [roomId], references: [id])
   messages Message[]
+
+  @@unique([userId, roomId])
 }
 
 model Message {

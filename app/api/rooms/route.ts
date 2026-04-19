@@ -53,10 +53,16 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = CreateRoomSchema.parse(body);
+    const parsed = CreateRoomSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return sendError("Invalid request body: { name:string }", 400);
+    }
+
     const room = await prisma.room.create({
-      data: { name: parsed.name },
+      data: { name: parsed.data.name },
     });
+
     return sendOk(
       toRoomDto(room),
       201,
