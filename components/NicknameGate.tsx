@@ -11,17 +11,20 @@ import {
   DrawerTitle,
 } from "./ui/drawer";
 import { Input } from "./ui/input";
-import ky, { HTTPError } from "ky";
+import ky from "ky";
 import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { parseApiError } from "@/lib/utils/praseApiError";
+import { USER_ID_KEY } from "@/lib/constants";
 
-export default function NicknameGate() {
-  const NICKNAME_KEY = "dvmbr-chat-nickname";
+type NicknameGateProps = {
+  children: React.ReactNode;
+};
 
+export default function NicknameGate({ children }: NicknameGateProps) {
   const [open, setOpen] = useState(() => {
     if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem(NICKNAME_KEY);
+    const stored = localStorage.getItem(USER_ID_KEY);
     return !stored;
   });
   const [nickname, setNickname] = useState("");
@@ -38,11 +41,9 @@ export default function NicknameGate() {
         })
         .json(),
     onSuccess: (res) => {
-      console.log(res);
       const user = res.data;
-
+      localStorage.setItem(USER_ID_KEY, user.id.toString());
       setOpen(false);
-      localStorage.setItem(NICKNAME_KEY, user.nickname);
     },
     onError: async (error) => {
       const message = await parseApiError(error);
@@ -51,54 +52,57 @@ export default function NicknameGate() {
   });
 
   return (
-    <Drawer
-      open={open}
-      dismissible={false}
-      // Only allow closing via DrawerClose
-      onOpenChange={(nextOpen) => {
-        // Prevent closing unless explicitly via DrawerClose
-        if (!nextOpen && open) {
-          // Do nothing (block background/esc close)
-          return;
-        }
-        setOpen(nextOpen);
-      }}
-    >
-      <DrawerContent className="mx-auto max-w-3xl">
-        <DrawerHeader>
-          <DrawerTitle>Set your nickname</DrawerTitle>
-        </DrawerHeader>
-        <div className="flex justify-center p-4">
-          <Input
-            value={nickname}
-            className="h-fit! text-center text-2xl!"
-            placeholder="nickname..."
-            disabled={mutation.isPending}
-            onChange={(e) => setNickname(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !e.shiftKey &&
-                e.nativeEvent.isComposing === false
-              ) {
-                e.preventDefault();
-                if (!mutation.isPending && nickname.trim()) {
-                  mutation.mutate({ nickname });
+    <>
+      {children}
+      <Drawer
+        open={open}
+        dismissible={false}
+        // Only allow closing via DrawerClose
+        onOpenChange={(nextOpen) => {
+          // Prevent closing unless explicitly via DrawerClose
+          if (!nextOpen && open) {
+            // Do nothing (block background/esc close)
+            return;
+          }
+          setOpen(nextOpen);
+        }}
+      >
+        <DrawerContent className="mx-auto max-w-3xl">
+          <DrawerHeader>
+            <DrawerTitle>Set your nickname</DrawerTitle>
+          </DrawerHeader>
+          <div className="flex justify-center p-4">
+            <Input
+              value={nickname}
+              className="h-fit! text-center text-2xl!"
+              placeholder="nickname..."
+              disabled={mutation.isPending}
+              onChange={(e) => setNickname(e.target.value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  e.nativeEvent.isComposing === false
+                ) {
+                  e.preventDefault();
+                  if (!mutation.isPending && nickname.trim()) {
+                    mutation.mutate({ nickname });
+                  }
                 }
-              }
-            }}
-          />
-        </div>
-        <DrawerFooter>
-          <Button
-            disabled={mutation.isPending || !nickname.trim()}
-            variant="outline"
-            onClick={() => mutation.mutate({ nickname })}
-          >
-            {mutation.isPending ? "Saving..." : "Submit"}
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+              }}
+            />
+          </div>
+          <DrawerFooter>
+            <Button
+              disabled={mutation.isPending || !nickname.trim()}
+              variant="outline"
+              onClick={() => mutation.mutate({ nickname })}
+            >
+              {mutation.isPending ? "Saving..." : "Submit"}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }

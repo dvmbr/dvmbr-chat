@@ -4,11 +4,17 @@ import { useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 
-export default function ChatRoom() {
+type ChatRoomProps = {
+  roomId: number;
+  roomName: string;
+};
+
+export default function ChatRoom({ roomId, roomName }: ChatRoomProps) {
   const [messages, setMessages] = useState<string[]>([]);
   const handleSend = (msg: string) => {
     setMessages([...messages, msg]);
   };
+
   return (
     <section className="container mx-auto">
       <div className="mx-auto flex h-dvh max-w-3xl flex-col p-4">

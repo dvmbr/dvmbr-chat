@@ -61,7 +61,11 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.create({
       data: { nickname: parsed.nickname },
     });
-    return sendOk(toUserDto(user), 201, `User created: ${user.id}`);
+    return sendOk(
+      toUserDto(user),
+      201,
+      `User created: ${user.id}: ${user.nickname}`,
+    );
   } catch (error: unknown) {
     return sendError(error, 400);
   }
