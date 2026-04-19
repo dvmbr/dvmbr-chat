@@ -1,3 +1,11 @@
+import ChatRoom from "@/components/ChatRoom";
+import NicknameGate from "@/components/NicknameGate";
+
 export default function Home() {
-  return <h1>Hello, Next.js!</h1>;
+  return (
+    <div className="relative">
+      <NicknameGate />
+      <ChatRoom />
+    </div>
+  );
 }

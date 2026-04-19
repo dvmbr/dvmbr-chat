@@ -1,26 +1,47 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-/* @custom-variant dark (&:is(.dark *)); */
-@custom-variant dark (&:where(.dark, .dark *));
+@import "./styles/keyframes.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* dvmbr 브랜드 컬러 및 테마 설정 */
 @theme {
-  --color-neon-red: #ff3131;
-  --color-cyber-mint: #67fff0;
-
-  /* 미니멀한 액센트 디자인을 위한 커스텀 애니메이션 예시 */
-  --animate-vivid-glow: vivid-glow 2s infinite;
+  --color-brand-red: #ff3131;
+  --color-brand-mint: #67fff0;
+  --animate-wave: wave 1.5s infinite;
 }
 
-@keyframes vivid-glow {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+h1 {
+  @apply text-5xl font-bold tracking-tight sm:text-6xl;
+}
+
+h2 {
+  @apply text-2xl font-semibold tracking-tight sm:text-3xl;
+}
+
+h3 {
+  @apply text-xl font-semibold tracking-tight sm:text-2xl;
+}
+
+h4 {
+  @apply text-lg font-semibold sm:text-xl;
+}
+
+h5 {
+  @apply text-base font-medium sm:text-lg;
+}
+
+h6 {
+  @apply text-sm font-medium sm:text-base;
+}
+
+p {
+  @apply text-muted-foreground text-sm leading-7 sm:text-base;
+}
+
+small {
+  @apply text-muted-foreground block text-xs sm:text-sm;
 }
 
 @theme inline {
