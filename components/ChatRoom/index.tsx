@@ -5,17 +5,14 @@ import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 import Loading from "../custom/Loading";
 import { Button } from "../ui/button";
-import { is } from "zod/v4/locales";
 
 type ChatRoomProps = {
-  roomId: number | null;
   isEntryPending?: boolean;
   isEntryError?: boolean;
   onRetryEntry?: () => void;
 };
 
 export default function ChatRoom({
-  roomId,
   isEntryPending,
   isEntryError,
   onRetryEntry,
@@ -35,14 +32,12 @@ export default function ChatRoom({
     );
 
   return (
-    <section className="container mx-auto">
-      <div className="mx-auto flex h-dvh max-w-3xl flex-col p-4">
-        <div className="min-h-0 flex-1">
-          <ChatMessages messages={messages} />
-        </div>
-        <div className="bg-background sticky bottom-0 z-10">
-          <ChatInput onSend={handleSend} />
-        </div>
+    <section className="container mx-auto flex h-full max-w-3xl flex-col">
+      <div className="min-h-0 flex-1">
+        <ChatMessages messages={messages} />
+      </div>
+      <div className="bg-background sticky bottom-0 z-10">
+        <ChatInput onSend={handleSend} />
       </div>
     </section>
   );

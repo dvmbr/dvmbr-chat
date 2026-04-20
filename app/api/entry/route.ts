@@ -37,17 +37,25 @@ export async function POST(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        room: true,
+      },
     });
 
     if (participant) {
-      return sendOk(toEntryDto({ roomId: participant.roomId }));
+      return sendOk(
+        toEntryDto({
+          room: { id: participant.room.id, name: participant.room.name },
+          user: { id: user.id, nickname: user.nickname },
+        }),
+      );
     }
 
     // 3. if not, create a new room + participant
     const createdRoom = await prisma.$transaction(async (tx) => {
       const room = await tx.room.create({
         data: {
-          name: `room-${user.id}`,
+          name: `${user.nickname}'s room`,
         },
       });
 
@@ -61,7 +69,12 @@ export async function POST(req: NextRequest) {
       return room;
     });
 
-    return sendOk(toEntryDto({ roomId: createdRoom.id }));
+    return sendOk(
+      toEntryDto({
+        room: { id: createdRoom.id, name: createdRoom.name },
+        user: { id: user.id, nickname: user.nickname },
+      }),
+    );
   } catch (error) {
     console.error(error);
     return sendError("Failed to resolve entry", 500);

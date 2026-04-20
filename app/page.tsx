@@ -1,11 +1,11 @@
 import NicknameGate from "@/components/NicknameGate";
-import ParticipantEntry from "@/components/ParticipantEntry";
+import ChatEntry from "@/components/ChatEntry";
 
 export default function Home() {
   return (
-    <div className="relative">
+    <div className="relative h-full">
       <NicknameGate>
-        <ParticipantEntry />
+        <ChatEntry />
       </NicknameGate>
     </div>
   );

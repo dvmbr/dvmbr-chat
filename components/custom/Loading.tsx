@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Field, FieldLabel } from "../ui/field";
 import { Progress } from "../ui/progress";
@@ -13,7 +15,7 @@ export default function Loading({ text = "Loading..." }: LoadingProps) {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <div className="z-9999 flex h-dvh w-dvw flex-col items-center justify-center">
+    <div className="z-9 mx-auto flex h-dvh flex-col items-center justify-center overflow-hidden p-6">
       <Field className="w-full max-w-sm">
         <FieldLabel htmlFor="progress-upload">
           <span>{text}</span>

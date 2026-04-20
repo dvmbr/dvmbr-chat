@@ -8,10 +8,13 @@ import ChatRoom from "./ChatRoom";
 import { EntryDTO, EntryRequestDTO } from "@/lib/schema/entry.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { useStoredUserId } from "@/lib/hooks/useStoredUserId";
-import Loading from "./custom/Loading";
+import { useRoomStore } from "@/lib/stores/roomStore";
+import { useUserStore } from "@/lib/stores/userStore";
 
-export default function ParticipantEntry() {
+export default function ChatEntry() {
   const { userId, isValidUserId } = useStoredUserId();
+  const setRoom = useRoomStore((state) => state.setRoom);
+  const setUser = useUserStore((state) => state.setUser);
 
   const mutation = useMutation<
     OkResponse<EntryDTO>,
@@ -24,6 +27,10 @@ export default function ParticipantEntry() {
           json: payload,
         })
         .json<OkResponse<EntryDTO>>(),
+    onSuccess: (res) => {
+      setRoom(res.data.room.id, res.data.room.name);
+      setUser(res.data.user.id, res.data.user.nickname);
+    },
   });
 
   useEffect(() => {
@@ -35,7 +42,6 @@ export default function ParticipantEntry() {
 
   return (
     <ChatRoom
-      roomId={mutation.data?.data?.roomId ?? null}
       isEntryPending={mutation.isPending}
       isEntryError={mutation.isError}
       onRetryEntry={() => {

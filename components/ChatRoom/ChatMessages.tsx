@@ -15,7 +15,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
   }, [messages]);
 
   return (
-    <section className="flex h-full flex-col overflow-y-auto">
+    <section className="mx-4 flex h-full flex-col overflow-y-auto">
       {messages.length === 0 ? (
         <div className="flex h-full flex-col items-center justify-center">
           <h2 className="mb-4 text-center text-4xl! sm:text-6xl!">

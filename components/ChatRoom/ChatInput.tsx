@@ -45,7 +45,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   }, [showEmojiPicker]);
 
   return (
-    <section className="bg-background/80 supports-backdrop-filter:bg-background/60 flex items-end justify-between gap-2 rounded-4xl border p-2 backdrop-blur">
+    <section className="bg-background/80 supports-backdrop-filter:bg-background/60 mx-4 mt-4 mb-4 flex items-end justify-between gap-2 rounded-4xl border p-2 backdrop-blur">
       <div className="relative max-sm:hidden">
         <button
           ref={emojiButtonRef}
