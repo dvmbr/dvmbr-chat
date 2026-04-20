@@ -15,6 +15,11 @@ export async function POST(req: NextRequest) {
 
     const { userId } = parsed.data;
 
+    // For testing error handling in frontend
+    if (userId === -1) {
+      return sendError("Error test", 400);
+    }
+
     // 1. check user exists
     const user = await prisma.user.findUnique({
       where: { id: userId },
