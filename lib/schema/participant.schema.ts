@@ -1,4 +1,4 @@
-import { z } from "@/lib/openapi/zod";
+import { z } from "../openapi/zod";
 import type { Participant } from "@prisma/client";
 
 export const ParticipantSchema = z

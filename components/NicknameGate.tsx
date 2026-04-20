@@ -53,7 +53,6 @@ export default function NicknameGate({ children }: NicknameGateProps) {
 
   return (
     <>
-      {children}
       <Drawer
         open={open}
         dismissible={false}
@@ -103,6 +102,7 @@ export default function NicknameGate({ children }: NicknameGateProps) {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+      {children}
     </>
   );
 }

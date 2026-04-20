@@ -5,11 +5,10 @@ import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 
 type ChatRoomProps = {
-  roomId: number;
-  roomName: string;
+  roomId: number | null;
 };
 
-export default function ChatRoom({ roomId, roomName }: ChatRoomProps) {
+export default function ChatRoom({ roomId }: ChatRoomProps) {
   const [messages, setMessages] = useState<string[]>([]);
   const handleSend = (msg: string) => {
     setMessages([...messages, msg]);
