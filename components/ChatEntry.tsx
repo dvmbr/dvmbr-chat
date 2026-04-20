@@ -9,12 +9,10 @@ import { EntryDTO, EntryRequestDTO } from "@/lib/schema/entry.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { useStoredUserId } from "@/lib/hooks/useStoredUserId";
 import { useRoomStore } from "@/lib/stores/roomStore";
-import { useUserStore } from "@/lib/stores/userStore";
 
 export default function ChatEntry() {
   const { userId, isValidUserId } = useStoredUserId();
   const setRoom = useRoomStore((state) => state.setRoom);
-  const setUser = useUserStore((state) => state.setUser);
 
   const mutation = useMutation<
     OkResponse<EntryDTO>,
@@ -29,7 +27,6 @@ export default function ChatEntry() {
         .json<OkResponse<EntryDTO>>(),
     onSuccess: (res) => {
       setRoom(res.data.room.id, res.data.room.name);
-      setUser(res.data.user.id, res.data.user.nickname);
     },
   });
 

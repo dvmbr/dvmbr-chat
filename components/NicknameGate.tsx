@@ -16,12 +16,14 @@ import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { parseApiError } from "@/lib/utils/praseApiError";
 import { USER_ID_KEY } from "@/lib/constants";
+import { useUserStore } from "@/lib/stores/userStore";
 
-type NicknameGateProps = {
+export default function NicknameGate({
+  children,
+}: {
   children: React.ReactNode;
-};
-
-export default function NicknameGate({ children }: NicknameGateProps) {
+}) {
+  const setUser = useUserStore((state) => state.setUser);
   const [open, setOpen] = useState(() => {
     if (typeof window === "undefined") return true;
     const stored = localStorage.getItem(USER_ID_KEY);
@@ -43,6 +45,7 @@ export default function NicknameGate({ children }: NicknameGateProps) {
     onSuccess: (res) => {
       const user = res.data;
       localStorage.setItem(USER_ID_KEY, user.id.toString());
+      setUser(user.id, user.nickname);
       setOpen(false);
     },
     onError: async (error) => {

@@ -10,6 +10,7 @@
   --color-brand-red: #ff3131;
   --color-brand-mint: #67fff0;
   --animate-wave: wave 1.5s infinite;
+  --animate-rotate-border: rotate-border 4s linear infinite;
 }
 
 h1 {
