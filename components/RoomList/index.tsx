@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CircleAlert, Plus } from "lucide-react";
 import { useUserStore } from "@/lib/stores/userStore";
 import type { RoomDTO } from "@/lib/schema/room.schema";
@@ -23,8 +23,17 @@ type RoomListProps = {
 };
 
 export default function RoomList({ rooms }: RoomListProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [roomName, setRoomName] = useState("");
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  }, [open]);
 
   const userId = useUserStore((state) => state.userId);
 
@@ -95,9 +104,14 @@ export default function RoomList({ rooms }: RoomListProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground bg-muted/30 rounded-lg p-8 text-center">
-                You don&apos;t have a room yet.
-              </p>
+              <DrawerTrigger asChild>
+                <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
+                  <Button className="flex" variant="outline">
+                    <span>Create your first room</span>
+                    <Plus />
+                  </Button>
+                </div>
+              </DrawerTrigger>
             )}
           </section>
 
@@ -125,6 +139,7 @@ export default function RoomList({ rooms }: RoomListProps) {
                 className="text-center text-lg! font-semibold!"
                 placeholder="Room name..."
                 value={roomName}
+                ref={inputRef}
                 onChange={(e) => setRoomName(e.target.value)}
                 onKeyDown={(e) => {
                   if (

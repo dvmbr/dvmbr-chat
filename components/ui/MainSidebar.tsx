@@ -1,7 +1,6 @@
 "use client";
 
 import { useUserStore } from "@/lib/stores/userStore";
-import { useRoomStore } from "@/lib/stores/roomStore";
 
 import {
   Sidebar,
@@ -9,6 +8,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  useSidebar,
 } from "./sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import Link from "next/link";
@@ -16,7 +16,12 @@ import { Button } from "./button";
 
 export default function MainSidebar() {
   const nickname = useUserStore((state) => state.nickname);
+  const safeNickname = nickname || "Unknown User";
+  const { setOpenMobile } = useSidebar();
+
   const avatarUrl = `https://api.dicebear.com/6.x/initials/svg?seed=${encodeURIComponent(nickname!)}&backgroundColor=#000000&color=ffffff`;
+
+  const handleNavigate = () => setOpenMobile(false);
 
   return (
     <Sidebar>
@@ -28,22 +33,21 @@ export default function MainSidebar() {
       <SidebarContent className="mt-4">
         <SidebarGroup>
           <nav className="flex flex-col gap-2">
-            <Button
-              className="hover:text-brand-mint box-border min-h-fit transition-colors duration-500"
-              variant="ghost"
-              size="lg"
-            >
-              <Link href="/rooms" className="w-full text-start text-lg">
+            <Link href="/rooms" onClick={handleNavigate}>
+              <Button
+                className="hover:text-brand-mint w-full justify-start text-lg transition-colors duration-500"
+                variant={"ghost"}
+                size="lg"
+              >
                 Room List
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </nav>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="bg-background relative flex items-center justify-center rounded-full p-px">
-            {/* 회전하는 그라데이션 테두리 */}
             <div
               className="animate-rotate-border absolute inset-0 rounded-full"
               style={{
@@ -60,11 +64,15 @@ export default function MainSidebar() {
                   alt="Default avatar"
                   className="object-cover"
                 />
-                <AvatarFallback>DA</AvatarFallback>
+                <AvatarFallback>
+                  {safeNickname.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
-          <p className="max-w-25 truncate text-sm font-semibold">{nickname}</p>
+          <span className="max-w-25 truncate text-sm font-semibold">
+            {safeNickname}
+          </span>
         </div>
       </SidebarFooter>
     </Sidebar>

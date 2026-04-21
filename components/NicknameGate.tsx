@@ -1,58 +1,71 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "../ui/button";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "./ui/button";
 import {
   Drawer,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "../ui/drawer";
-import { Input } from "../ui/input";
-import ky from "ky";
-import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
-import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
-import { parseApiError } from "@/lib/utils/praseApiError";
+} from "./ui/drawer";
+import { Input } from "./ui/input";
 import { useUserStore } from "@/lib/stores/userStore";
+import { useCreateUser } from "@/hooks/useCreateUser";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { CircleAlert } from "lucide-react";
 
 export default function NicknameGate({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { userId, setUser } = useUserStore((state) => state);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const open = userId === null;
+  const { userId, setUser } = useUserStore((state) => state);
   const [nickname, setNickname] = useState("");
 
-  const mutation = useMutation<
-    OkResponse<UserDTO>,
-    ErrorResponse,
-    CreateUserDTO
-  >({
-    mutationFn: async (payload) =>
-      await ky
-        .post("/api/users", {
-          json: payload,
-        })
-        .json(),
+  const open = userId === null;
 
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  }, [open]);
+
+  const createUserMutation = useCreateUser({
     onSuccess: (res) => {
       const user = res.data;
-
       setUser(user.id, user.nickname);
-    },
-
-    onError: async (error) => {
-      const message = await parseApiError(error);
-      console.error(message);
     },
   });
 
+  const handleSubmit = () => {
+    const trimmedNickname = nickname.trim();
+
+    if (!trimmedNickname || createUserMutation.isPending) return;
+
+    createUserMutation.mutate({
+      nickname: trimmedNickname,
+    });
+  };
+
   return (
     <>
+      {createUserMutation.error && (
+        <Alert
+          className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
+          variant="destructive"
+        >
+          <CircleAlert className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {createUserMutation.error.message}
+          </AlertDescription>
+        </Alert>
+      )}
       <Drawer
         open={open}
         dismissible={false}
@@ -68,10 +81,11 @@ export default function NicknameGate({
 
             <section className="mb-4 w-full px-4">
               <Input
-                className="text-center text-lg! font-semibold!"
+                ref={inputRef}
+                className="text-center text-lg font-semibold"
                 value={nickname}
                 placeholder="nickname..."
-                disabled={mutation.isPending}
+                disabled={createUserMutation.isPending}
                 onChange={(e) => setNickname(e.target.value)}
                 onKeyDown={(e) => {
                   if (
@@ -80,21 +94,20 @@ export default function NicknameGate({
                     e.nativeEvent.isComposing === false
                   ) {
                     e.preventDefault();
-                    if (!mutation.isPending && nickname.trim()) {
-                      mutation.mutate({ nickname });
-                    }
+                    handleSubmit();
                   }
                 }}
               />
             </section>
+
             <DrawerFooter className="w-full">
               <Button
-                disabled={mutation.isPending || !nickname.trim()}
+                disabled={createUserMutation.isPending || !nickname.trim()}
                 variant="default"
                 className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
-                onClick={() => mutation.mutate({ nickname })}
+                onClick={handleSubmit}
               >
-                {mutation.isPending ? "Saving..." : "Submit"}
+                {createUserMutation.isPending ? "Saving..." : "Submit"}
               </Button>
             </DrawerFooter>
           </div>

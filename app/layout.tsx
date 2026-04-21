@@ -1,7 +1,7 @@
 import "./global.css";
 import { Ubuntu_Sans } from "next/font/google";
 
-import ReactQueryProvider from "@/components/Home/ReactQueryProvider";
+import ReactQueryProvider from "@/components/ReactQueryProvider";
 
 import {
   SidebarInset,
@@ -9,7 +9,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/ui/MainSidebar";
-import NicknameGate from "@/components/Home/NicknameGate";
+import NicknameGate from "@/components/NicknameGate";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import MainBreadCrumb from "@/components/ui/MainBreadCrumb";
 
 const ubuntuSans = Ubuntu_Sans({
   subsets: ["latin"],
@@ -30,6 +32,9 @@ export default function RootLayout({
               <MainSidebar />
               <SidebarInset className="relative flex h-dvh flex-col">
                 <SidebarTrigger className="sticky top-4 left-4 z-50" />
+                <div className="mx-auto mt-4 w-full max-w-3xl px-4">
+                  <MainBreadCrumb />
+                </div>
                 <div className="grow">{children}</div>
               </SidebarInset>
             </SidebarProvider>
