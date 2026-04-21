@@ -37,11 +37,9 @@ export default function MainBreadCrumb() {
                     {isLast ? (
                       <BreadcrumbPage>{getLabel(segment)}</BreadcrumbPage>
                     ) : (
-                      <>
-                        <BreadcrumbLink asChild>
-                          <Link href={href}>{getLabel(segment)}</Link>
-                        </BreadcrumbLink>
-                      </>
+                      <BreadcrumbLink asChild>
+                        <Link href={href}>{getLabel(segment)}</Link>
+                      </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
                   {!isLast && <BreadcrumbSeparator key={"sep-" + href} />}

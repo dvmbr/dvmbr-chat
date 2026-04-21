@@ -74,10 +74,10 @@ export default function RoomList({ rooms }: RoomListProps) {
       )}
 
       <Drawer open={open} onOpenChange={setOpen}>
-        <div className="container mx-auto flex h-full max-w-3xl flex-col gap-4 p-4">
+        <div className="container mx-auto flex h-full max-w-3xl flex-col gap-6 p-4">
           <section className="mt-4">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-x-8">
-              <h2>MyRooms</h2>
+            <div className="flex flex-wrap items-center justify-between gap-x-8">
+              <h2>My Rooms</h2>
 
               <DrawerTrigger asChild>
                 <Button size="icon-sm" variant="default">
@@ -86,28 +86,29 @@ export default function RoomList({ rooms }: RoomListProps) {
               </DrawerTrigger>
             </div>
 
-            <div className="text-muted-foreground mb-4 text-sm">
+            <p className="mb-2">
               {myRooms.length > 0
                 ? "These are your rooms. You can edit or delete them."
                 : "You don't have a room yet. Create one to start chatting!"}
-            </div>
+            </p>
 
             {myRooms.length > 0 ? (
-              <div className="flex flex-col gap-4">
+              <ul className="mt-2 flex flex-col gap-4">
                 {myRooms.map((room) => (
-                  <RoomLink
-                    key={room.id}
-                    to={`/rooms/${room.id}`}
-                    room={room}
-                    editable={true}
-                  />
+                  <li key={room.id}>
+                    <RoomLink
+                      to={`/rooms/${room.id}`}
+                      room={room}
+                      editable={true}
+                    />
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
               <DrawerTrigger asChild>
                 <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
                   <Button className="flex" variant="outline">
-                    <span>Create your first room</span>
+                    <span>Create your first room!</span>
                     <Plus />
                   </Button>
                 </div>
@@ -116,15 +117,21 @@ export default function RoomList({ rooms }: RoomListProps) {
           </section>
 
           <section>
-            <h2 className="mb-2">Rooms</h2>
-
-            <ul className="mt-4 flex flex-col gap-4">
-              {otherRooms.map((room) => (
-                <li key={room.id}>
-                  <RoomLink to={`/rooms/${room.id}`} room={room} />
-                </li>
-              ))}
-            </ul>
+            <h2>Rooms</h2>
+            <p>These are the rooms created by other users.</p>
+            {otherRooms.length > 0 ? (
+              <ul className="mt-2 flex flex-col gap-4">
+                {otherRooms.map((room) => (
+                  <li key={room.id}>
+                    <RoomLink to={`/rooms/${room.id}`} room={room} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
+                There are no rooms created by other users.
+              </div>
+            )}
           </section>
         </div>
 

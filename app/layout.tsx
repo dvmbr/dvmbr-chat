@@ -30,12 +30,17 @@ export default function RootLayout({
           <NicknameGate>
             <SidebarProvider defaultOpen={false}>
               <MainSidebar />
-              <SidebarInset className="relative flex h-dvh flex-col">
-                <SidebarTrigger className="sticky top-4 left-4 z-50" />
-                <div className="mx-auto mt-4 w-full max-w-3xl px-4">
-                  <MainBreadCrumb />
+              <SidebarInset className="relative flex min-h-dvh flex-col">
+                <div className="sticky top-0 z-50 backdrop-blur">
+                  <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
+                    <SidebarTrigger />
+                    <MainBreadCrumb />
+                  </div>
                 </div>
-                <div className="grow">{children}</div>
+
+                <div className="mx-auto w-full max-w-3xl flex-1 px-4">
+                  {children}
+                </div>
               </SidebarInset>
             </SidebarProvider>
           </NicknameGate>
