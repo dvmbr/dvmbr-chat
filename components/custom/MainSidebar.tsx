@@ -12,35 +12,35 @@ import {
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
+import { Button } from "../ui/button";
 
 export default function MainSidebar() {
-  const roomName = useRoomStore((state) => state.roomName);
   const nickname = useUserStore((state) => state.nickname);
   const avatarUrl = `https://api.dicebear.com/6.x/initials/svg?seed=${encodeURIComponent(nickname!)}&backgroundColor=#000000&color=ffffff`;
 
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-white/10 px-4 py-6">
-        <h1 className="text-brand-red/80 text-2xl tracking-tight drop-shadow-lg select-none">
+        <h1 className="text-brand-red text-2xl tracking-tight drop-shadow-lg select-none">
           DVMBR CHAT
         </h1>
-        <p className="text-brand-mint/60! mt-1 text-xs! tracking-wide uppercase select-none">
-          {roomName}
-        </p>
       </SidebarHeader>
-      <SidebarContent className="px-4 py-6">
+      <SidebarContent className="mt-4">
         <SidebarGroup>
-          <nav className="mt-2 flex flex-col gap-2">
-            <Link
-              href="/rooms"
-              className="cursor-pointer rounded-lg px-3 py-2 font-medium text-white/90 uppercase transition-colors hover:bg-white/10"
+          <nav className="flex flex-col gap-2">
+            <Button
+              className="hover:text-brand-mint box-border min-h-fit transition-colors duration-500"
+              variant="ghost"
+              size="lg"
             >
-              Room List
-            </Link>
+              <Link href="/rooms" className="w-full text-start text-lg">
+                Room List
+              </Link>
+            </Button>
           </nav>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-white/10 px-4 py-4">
+      <SidebarFooter className="border-t px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="bg-background relative flex items-center justify-center rounded-full p-px">
             {/* 회전하는 그라데이션 테두리 */}
@@ -64,9 +64,7 @@ export default function MainSidebar() {
               </Avatar>
             </div>
           </div>
-          <p className="max-w-25 truncate text-sm font-semibold text-white/90">
-            {nickname}
-          </p>
+          <p className="max-w-25 truncate text-sm font-semibold">{nickname}</p>
         </div>
       </SidebarFooter>
     </Sidebar>

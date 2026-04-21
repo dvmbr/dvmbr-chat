@@ -34,7 +34,7 @@ export const DeleteRoomSchema = z
 export const RoomQuerySchema = z
   .object({
     id: z.coerce.number().optional(),
-    name: z.string().optional(),
+    name: z.string().min(1).optional(),
   })
   .openapi("RoomQuery");
 

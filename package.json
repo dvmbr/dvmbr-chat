@@ -12,7 +12,8 @@
     "lint": "eslint",
     "prisma:studio": "npx dotenv -e .env.development -- prisma studio",
     "prisma:migrate": "npx dotenv -e .env.development -- prisma migrate dev",
-    "prisma:generate": "npx dotenv -e .env.development -- prisma generate"
+    "prisma:generate": "npx dotenv -e .env.development -- prisma generate",
+    "prisma:reset": "npx prisma migrate reset"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",

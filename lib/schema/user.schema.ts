@@ -4,7 +4,7 @@ import type { User } from "@prisma/client";
 export const UserSchema = z
   .object({
     id: z.number(),
-    nickname: z.string(),
+    nickname: z.string().min(1),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -12,14 +12,14 @@ export const UserSchema = z
 
 export const CreateUserSchema = z
   .object({
-    nickname: z.string(),
+    nickname: z.string().min(1),
   })
   .openapi("CreateUser");
 
 export const UpdateUserSchema = z
   .object({
     id: z.number(),
-    nickname: z.string().optional(),
+    nickname: z.string().min(1),
   })
   .openapi("UpdateUser");
 
@@ -32,7 +32,7 @@ export const DeleteUserSchema = z
 export const UserQuerySchema = z
   .object({
     id: z.coerce.number().optional(),
-    nickname: z.string().optional(),
+    nickname: z.string().min(1).optional(),
   })
   .openapi("UserQuery");
 
