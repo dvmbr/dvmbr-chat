@@ -37,7 +37,10 @@ export default function RoomList({ rooms }: RoomListProps) {
     mutationFn: async (payload) =>
       await apiClient.post("rooms", { json: payload }).json(),
     onSuccess: () => setOpen(false),
-    onSettled: () => router.refresh(),
+    onSettled: () => {
+      setRoomName("");
+      router.refresh();
+    },
   });
 
   return (

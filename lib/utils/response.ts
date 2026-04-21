@@ -11,6 +11,9 @@ export function sendOk<T>(
   statusCode = 200,
   message?: string,
 ): NextResponse<OkResponse<T>> {
+  if (statusCode === 204) {
+    return new NextResponse(null, { status: statusCode });
+  }
   return NextResponse.json(
     {
       data,
@@ -27,6 +30,9 @@ export function sendList<T>(
   statusCode = 200,
   message?: string,
 ): NextResponse<OkResponse<ListData<T>>> {
+  if (statusCode === 204) {
+    return new NextResponse(null, { status: statusCode });
+  }
   return NextResponse.json(
     {
       data: {

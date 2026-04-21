@@ -39,49 +39,45 @@ export async function DELETE(
       return sendError("Invalid roomId", 400);
     }
 
-    await prisma.room.delete({
+    const room = await prisma.room.findUnique({
       where: { id: roomId },
+
+      include: {
+        participants: {
+          select: { id: true },
+        },
+      },
     });
 
-    // const room = await prisma.room.findUnique({
-    //   where: { id: roomId },
+    if (!room) {
+      return sendError("Room not found", 404);
+    }
 
-    //   include: {
-    //     participants: {
-    //       select: { id: true },
-    //     },
-    //   },
-    // });
+    const participantIds = room.participants.map(
+      (participant) => participant.id,
+    );
 
-    // if (!room) {
-    //   return sendError("Room not found", 404);
-    // }
+    await prisma.$transaction(async (tx) => {
+      if (participantIds.length > 0) {
+        await tx.message.deleteMany({
+          where: {
+            participantId: {
+              in: participantIds,
+            },
+          },
+        });
 
-    // const participantIds = room.participants.map(
-    //   (participant) => participant.id,
-    // );
+        await tx.participant.deleteMany({
+          where: {
+            roomId: roomId,
+          },
+        });
+      }
 
-    // await prisma.$transaction(async (tx) => {
-    //   if (participantIds.length > 0) {
-    //     await tx.message.deleteMany({
-    //       where: {
-    //         participantId: {
-    //           in: participantIds,
-    //         },
-    //       },
-    //     });
-
-    //     await tx.participant.deleteMany({
-    //       where: {
-    //         roomId: roomId,
-    //       },
-    //     });
-    //   }
-
-    //   await tx.room.delete({
-    //     where: { id: roomId },
-    //   });
-    // });
+      await tx.room.delete({
+        where: { id: roomId },
+      });
+    });
 
     return sendOk(null, 204, "Room deleted");
   } catch (error: unknown) {

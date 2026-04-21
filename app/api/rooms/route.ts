@@ -6,7 +6,6 @@ import {
   toRoomDto,
 } from "@/lib/schema/room.schema";
 import { sendError, sendList, sendOk } from "@/lib/utils/response";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -76,12 +75,6 @@ export async function POST(req: NextRequest) {
       `Room created: ${room.id}: ${room.name}`,
     );
   } catch (error) {
-    if (
-      error instanceof PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return sendError("Room name already exists", 409);
-    }
     return sendError(error, 500);
   }
 }
