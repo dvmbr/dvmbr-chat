@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../ui/drawer";
 import { Input } from "../ui/input";
 import ky from "ky";
 import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
@@ -54,41 +60,43 @@ export default function NicknameGate({
           if (!nextOpen && open) return;
         }}
       >
-        <DrawerContent className="mx-auto max-w-md rounded-2xl p-0">
-          <DrawerHeader className="pt-8 pb-0 text-center">
-            <DrawerTitle className="text-2xl font-extrabold tracking-tight drop-shadow-lg select-none">
-              Set your nickname
-            </DrawerTitle>
-          </DrawerHeader>
+        <DrawerContent>
+          <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
+            <DrawerHeader className="mb-2">
+              <DrawerTitle>Set your nickname</DrawerTitle>
+            </DrawerHeader>
 
-          <div className="flex flex-col items-center gap-4 px-8 py-6">
-            <Input
-              value={nickname}
-              className="bg-foreground/5 rounded-xl border text-center text-2xl font-bold shadow-inner"
-              placeholder="nickname..."
-              disabled={mutation.isPending}
-              onChange={(e) => setNickname(e.target.value)}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  !e.shiftKey &&
-                  e.nativeEvent.isComposing === false
-                ) {
-                  e.preventDefault();
-                  if (!mutation.isPending && nickname.trim()) {
-                    mutation.mutate({ nickname });
+            <section className="mb-4 w-full px-4">
+              <Input
+                className="text-center text-lg! font-semibold!"
+                value={nickname}
+                placeholder="nickname..."
+                disabled={mutation.isPending}
+                onChange={(e) => setNickname(e.target.value)}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey &&
+                    e.nativeEvent.isComposing === false
+                  ) {
+                    e.preventDefault();
+                    if (!mutation.isPending && nickname.trim()) {
+                      mutation.mutate({ nickname });
+                    }
                   }
-                }
-              }}
-            />
-            <Button
-              disabled={mutation.isPending || !nickname.trim()}
-              variant="outline"
-              className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
-              onClick={() => mutation.mutate({ nickname })}
-            >
-              {mutation.isPending ? "Saving..." : "Submit"}
-            </Button>
+                }}
+              />
+            </section>
+            <DrawerFooter className="w-full">
+              <Button
+                disabled={mutation.isPending || !nickname.trim()}
+                variant="default"
+                className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
+                onClick={() => mutation.mutate({ nickname })}
+              >
+                {mutation.isPending ? "Saving..." : "Submit"}
+              </Button>
+            </DrawerFooter>
           </div>
         </DrawerContent>
       </Drawer>
