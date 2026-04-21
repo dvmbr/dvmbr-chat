@@ -5,12 +5,18 @@ import ChatRoom from "../ChatRoom";
 import { useRoomStore } from "@/lib/stores/roomStore";
 import { useUserStore } from "@/lib/stores/userStore";
 import { useEntry } from "@/hooks/useEntry";
+import { Button } from "../ui/button";
 
 export default function HomeEntry() {
   const { userId, setUser } = useUserStore((state) => state);
-  const setRoom = useRoomStore((state) => state.setRoom);
+  const { roomId, setRoom } = useRoomStore((state) => state);
 
   const canEntry = userId !== null;
+
+  const retryEntry = () => {
+    if (!canEntry || userId === null || entryMutation.isPending) return;
+    entryMutation.mutate({ userId });
+  };
 
   const entryMutation = useEntry({
     onSuccess: (res) => {
@@ -26,14 +32,25 @@ export default function HomeEntry() {
     entryMutation.mutate({ userId });
   }, [canEntry, userId, entryMutation]);
 
-  return (
-    <ChatRoom
-      isEntryPending={entryMutation.isPending}
-      isEntryError={entryMutation.isError}
-      onRetryEntry={() => {
-        if (!canEntry || userId === null || entryMutation.isPending) return;
-        entryMutation.mutate({ userId });
-      }}
-    />
-  );
+  if (entryMutation.isError) {
+    return (
+      <div className="flex h-dvh flex-col items-center justify-center gap-4">
+        <div>Failed to enter room</div>
+
+        <Button onClick={retryEntry}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (roomId === null) {
+    return (
+      <div className="flex h-dvh flex-col items-center justify-center gap-4">
+        <div>Room is not ready</div>
+
+        <Button onClick={retryEntry}>Retry</Button>
+      </div>
+    );
+  }
+
+  return <ChatRoom roomId={roomId} />;
 }

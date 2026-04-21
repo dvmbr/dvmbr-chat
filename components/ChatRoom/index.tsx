@@ -7,12 +7,14 @@ import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
 
 type ChatRoomProps = {
+  roomId: number;
   isEntryPending?: boolean;
   isEntryError?: boolean;
   onRetryEntry?: () => void;
 };
 
 export default function ChatRoom({
+  roomId,
   isEntryPending,
   isEntryError,
   onRetryEntry,
