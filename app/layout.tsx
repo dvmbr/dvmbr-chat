@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/custom/MainSidebar";
+import NicknameGate from "@/components/NicknameGate";
 
 const ubuntuSans = Ubuntu_Sans({
   subsets: ["latin"],
@@ -24,13 +25,15 @@ export default function RootLayout({
     <html lang="en" className={`dark ${ubuntuSans.variable}`}>
       <body>
         <ReactQueryProvider>
-          <SidebarProvider defaultOpen={false}>
-            <MainSidebar />
-            <SidebarInset className="relative flex h-dvh flex-col">
-              <SidebarTrigger className="sticky top-4 left-4 z-50" />
-              <div className="grow">{children}</div>
-            </SidebarInset>
-          </SidebarProvider>
+          <NicknameGate>
+            <SidebarProvider defaultOpen={false}>
+              <MainSidebar />
+              <SidebarInset className="relative flex h-dvh flex-col">
+                <SidebarTrigger className="sticky top-4 left-4 z-50" />
+                <div className="grow">{children}</div>
+              </SidebarInset>
+            </SidebarProvider>
+          </NicknameGate>
         </ReactQueryProvider>
       </body>
     </html>

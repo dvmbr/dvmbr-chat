@@ -11,11 +11,13 @@ import {
   SidebarHeader,
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import Link from "next/link";
 
 export default function MainSidebar() {
   const roomName = useRoomStore((state) => state.roomName);
-  const { nickname } = useUserStore((state) => state);
+  const nickname = useUserStore((state) => state.nickname);
   const avatarUrl = `https://api.dicebear.com/6.x/initials/svg?seed=${encodeURIComponent(nickname!)}&backgroundColor=#000000&color=ffffff`;
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-white/10 px-4 py-6">
@@ -29,15 +31,12 @@ export default function MainSidebar() {
       <SidebarContent className="px-4 py-6">
         <SidebarGroup>
           <nav className="mt-2 flex flex-col gap-2">
-            <div className="cursor-pointer rounded-lg px-3 py-2 font-medium text-white/90 transition-colors hover:bg-white/10">
-              item 1
-            </div>
-            <div className="cursor-pointer rounded-lg px-3 py-2 font-medium text-white/90 transition-colors hover:bg-white/10">
-              item 2
-            </div>
-            <div className="cursor-pointer rounded-lg px-3 py-2 font-medium text-white/90 transition-colors hover:bg-white/10">
-              item 3
-            </div>
+            <Link
+              href="/rooms"
+              className="cursor-pointer rounded-lg px-3 py-2 font-medium text-white/90 uppercase transition-colors hover:bg-white/10"
+            >
+              Room List
+            </Link>
           </nav>
         </SidebarGroup>
       </SidebarContent>

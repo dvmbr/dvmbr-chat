@@ -3,19 +3,12 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "./ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "./ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
 import { Input } from "./ui/input";
 import ky from "ky";
 import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { parseApiError } from "@/lib/utils/praseApiError";
-import { USER_ID_KEY } from "@/lib/constants";
 import { useUserStore } from "@/lib/stores/userStore";
 
 export default function NicknameGate({
@@ -23,12 +16,9 @@ export default function NicknameGate({
 }: {
   children: React.ReactNode;
 }) {
-  const setUser = useUserStore((state) => state.setUser);
-  const [open, setOpen] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem(USER_ID_KEY);
-    return !stored;
-  });
+  const { userId, setUser } = useUserStore((state) => state);
+
+  const open = userId === null;
   const [nickname, setNickname] = useState("");
 
   const mutation = useMutation<
@@ -42,12 +32,13 @@ export default function NicknameGate({
           json: payload,
         })
         .json(),
+
     onSuccess: (res) => {
       const user = res.data;
-      localStorage.setItem(USER_ID_KEY, user.id.toString());
+
       setUser(user.id, user.nickname);
-      setOpen(false);
     },
+
     onError: async (error) => {
       const message = await parseApiError(error);
       console.error(message);
@@ -59,24 +50,21 @@ export default function NicknameGate({
       <Drawer
         open={open}
         dismissible={false}
-        // Only allow closing via DrawerClose
         onOpenChange={(nextOpen) => {
-          // Prevent closing unless explicitly via DrawerClose
-          if (!nextOpen && open) {
-            // Do nothing (block background/esc close)
-            return;
-          }
-          setOpen(nextOpen);
+          if (!nextOpen && open) return;
         }}
       >
-        <DrawerContent className="mx-auto max-w-3xl">
-          <DrawerHeader>
-            <DrawerTitle>Set your nickname</DrawerTitle>
+        <DrawerContent className="mx-auto max-w-md rounded-2xl p-0">
+          <DrawerHeader className="pt-8 pb-0 text-center">
+            <DrawerTitle className="text-2xl font-extrabold tracking-tight drop-shadow-lg select-none">
+              Set your nickname
+            </DrawerTitle>
           </DrawerHeader>
-          <div className="flex justify-center p-4">
+
+          <div className="flex flex-col items-center gap-4 px-8 py-6">
             <Input
               value={nickname}
-              className="h-fit! text-center text-2xl!"
+              className="bg-foreground/5 rounded-xl border text-center text-2xl font-bold shadow-inner"
               placeholder="nickname..."
               disabled={mutation.isPending}
               onChange={(e) => setNickname(e.target.value)}
@@ -93,18 +81,18 @@ export default function NicknameGate({
                 }
               }}
             />
-          </div>
-          <DrawerFooter>
             <Button
               disabled={mutation.isPending || !nickname.trim()}
               variant="outline"
+              className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
               onClick={() => mutation.mutate({ nickname })}
             >
               {mutation.isPending ? "Saving..." : "Submit"}
             </Button>
-          </DrawerFooter>
+          </div>
         </DrawerContent>
       </Drawer>
+
       {children}
     </>
   );
