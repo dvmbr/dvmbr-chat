@@ -9,10 +9,10 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-} from "../ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+} from "./sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { Button } from "./button";
 
 export default function MainSidebar() {
   const nickname = useUserStore((state) => state.nickname);

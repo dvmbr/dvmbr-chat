@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import ky from "ky";
 
-import ChatRoom from "./ChatRoom";
+import ChatRoom from "../ChatRoom";
 import { EntryDTO, EntryRequestDTO } from "@/lib/schema/entry.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
 import { useRoomStore } from "@/lib/stores/roomStore";

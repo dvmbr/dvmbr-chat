@@ -1,5 +1,5 @@
 import prisma from "@/lib/db";
-import { toRoomDto } from "@/lib/schema/room.schema";
+import { toRoomDto, UpdateRoomSchema } from "@/lib/schema/room.schema";
 import { sendError, sendOk } from "@/lib/utils/response";
 import { NextRequest } from "next/server";
 
@@ -23,6 +23,37 @@ export async function GET(
     }
 
     return sendOk(toRoomDto(room));
+  } catch (error: unknown) {
+    return sendError(error, 500);
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ roomId: string }> },
+) {
+  try {
+    const roomId = await params.then((p) => parseInt(p.roomId, 10));
+
+    const body = await req.json();
+    const parsed = UpdateRoomSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return sendError("Invalid request body: { name:string }", 400);
+    }
+
+    if (Number.isNaN(roomId)) {
+      return sendError("Invalid roomId", 400);
+    }
+
+    const updatedRoom = await prisma.room.update({
+      where: { id: roomId },
+      data: {
+        name: parsed.data.name,
+      },
+    });
+
+    return sendOk(toRoomDto(updatedRoom));
   } catch (error: unknown) {
     return sendError(error, 500);
   }

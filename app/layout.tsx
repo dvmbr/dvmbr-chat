@@ -1,15 +1,15 @@
 import "./global.css";
 import { Ubuntu_Sans } from "next/font/google";
 
-import ReactQueryProvider from "@/components/ReactQueryProvider";
+import ReactQueryProvider from "@/components/Home/ReactQueryProvider";
 
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import MainSidebar from "@/components/custom/MainSidebar";
-import NicknameGate from "@/components/NicknameGate";
+import MainSidebar from "@/components/ui/MainSidebar";
+import NicknameGate from "@/components/Home/NicknameGate";
 
 const ubuntuSans = Ubuntu_Sans({
   subsets: ["latin"],

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Field, FieldLabel } from "../ui/field";
-import { Progress } from "../ui/progress";
+import { Field, FieldLabel } from "./field";
+import { Progress } from "./progress";
 import { Loader } from "lucide-react";
 export type LoadingProps = {
   text?: string;

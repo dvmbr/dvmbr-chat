@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
-import Loading from "../custom/Loading";
+import Loading from "../ui/Loading";
 import { Button } from "../ui/button";
 
 type ChatRoomProps = {

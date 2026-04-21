@@ -30,7 +30,7 @@ export default function RoomList({ rooms }: RoomListProps) {
   const [open, setOpen] = useState(false);
   const userId = useUserStore((state) => state.userId);
 
-  const myRoom = rooms.find((r) => r.creatorId === userId);
+  const myRooms = rooms.filter((r) => r.creatorId === userId);
   const otherRooms = rooms.filter((r) => r.creatorId !== userId);
 
   const mutation = useMutation<OkResponse<RoomDTO>, Error, CreateRoomDTO>({
@@ -61,7 +61,7 @@ export default function RoomList({ rooms }: RoomListProps) {
         <div className="container mx-auto flex h-full max-w-3xl flex-col gap-4 p-4">
           <section className="mt-4">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-x-8">
-              <h2 className="">MyRoom</h2>
+              <h2 className="">MyRooms</h2>
               <DrawerTrigger asChild>
                 <Button size="icon-sm" variant="default">
                   <Plus />
@@ -69,16 +69,19 @@ export default function RoomList({ rooms }: RoomListProps) {
               </DrawerTrigger>
             </div>
             <div className="text-muted-foreground mb-4 text-sm">
-              {myRoom
-                ? "This is your room. You can edit or delete it."
+              {myRooms.length > 0
+                ? "These are your rooms. You can edit or delete them."
                 : "You don't have a room yet. Create one to start chatting!"}
             </div>
-            {myRoom ? (
-              <RoomLink
-                to={`/rooms/${myRoom.id}`}
-                room={myRoom}
-                editable={true}
-              />
+            {myRooms.length > 0 ? (
+              myRooms.map((room) => (
+                <RoomLink
+                  key={room.id}
+                  to={`/rooms/${room.id}`}
+                  room={room}
+                  editable={true}
+                />
+              ))
             ) : (
               <p className="text-muted-foreground bg-muted/30 rounded-lg p-8 text-center">
                 You don&apos;t have a room yet.

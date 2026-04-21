@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Button } from "./ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
+import { Input } from "../ui/input";
 import ky from "ky";
 import { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
