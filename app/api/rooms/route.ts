@@ -60,7 +60,13 @@ export async function POST(req: NextRequest) {
     }
 
     const room = await prisma.room.create({
-      data: { name: parsed.data.name },
+      data: {
+        name: parsed.data.name,
+        creatorId: parsed.data.creatorId,
+        participants: {
+          create: { userId: parsed.data.creatorId },
+        },
+      },
     });
 
     return sendOk(

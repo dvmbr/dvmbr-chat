@@ -6,6 +6,7 @@ export default async function RoomsPage() {
       createdAt: "desc",
     },
   });
+
   return (
     <div className="h-full">
       <section className="container mx-auto flex h-full max-w-3xl flex-col">

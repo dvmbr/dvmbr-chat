@@ -52,21 +52,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. if not, create a new room + participant
-    const createdRoom = await prisma.$transaction(async (tx) => {
-      const room = await tx.room.create({
-        data: {
-          name: `${user.nickname}'s room`,
+    const createdRoom = await prisma.room.create({
+      data: {
+        name: `${user.nickname}'s room`,
+        creatorId: user.id,
+        participants: {
+          create: { userId: user.id },
         },
-      });
-
-      await tx.participant.create({
-        data: {
-          userId: user.id,
-          roomId: room.id,
-        },
-      });
-
-      return room;
+      },
     });
 
     return sendOk(

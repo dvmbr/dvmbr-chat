@@ -5,6 +5,7 @@ export const RoomSchema = z
   .object({
     id: z.number(),
     name: z.string(),
+    creatorId: z.number(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -12,14 +13,15 @@ export const RoomSchema = z
 
 export const CreateRoomSchema = z
   .object({
-    name: z.string(),
+    name: z.string().min(1),
+    creatorId: z.number(),
   })
   .openapi("CreateRoom");
 
 export const UpdateRoomSchema = z
   .object({
     id: z.number(),
-    name: z.string(),
+    name: z.string().min(1),
   })
   .openapi("UpdateRoom");
 
@@ -44,8 +46,10 @@ export type RoomQueryDTO = z.infer<typeof RoomQuerySchema>;
 
 export function toRoomDto(room: Room): RoomDTO {
   return {
-    ...room,
-    createdAt: new Date(room.createdAt).toISOString(),
-    updatedAt: new Date(room.updatedAt).toISOString(),
+    id: room.id,
+    name: room.name,
+    creatorId: room.creatorId,
+    createdAt: room.createdAt.toISOString(),
+    updatedAt: room.updatedAt.toISOString(),
   };
 }

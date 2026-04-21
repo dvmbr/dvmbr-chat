@@ -13,14 +13,17 @@ model User {
   updatedAt DateTime @updatedAt
 
   participants Participant[]
+  createdRooms Room[]        @relation("RoomCreator")
 }
 
 model Room {
   id        Int      @id @default(autoincrement())
   name      String
+  creatorId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  creator      User          @relation("RoomCreator", fields: [creatorId], references: [id])
   participants Participant[]
 }
 
