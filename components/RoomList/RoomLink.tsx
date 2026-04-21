@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { RoomDTO } from "@/lib/schema/room.schema";
+import type { RoomWithCreatorDTO } from "@/lib/schema/room.schema";
 import RoomActions from "./RoomAction";
 
 type RoomLinkProps = {
   to: string;
-  room: RoomDTO;
+  room: RoomWithCreatorDTO;
   editable?: boolean;
 };
 
@@ -30,11 +30,22 @@ export default function RoomLink({
       }}
       className="bg-muted hover:bg-muted/80 rounded-lg border p-4 transition-colors duration-150"
     >
-      <h3 className="pb-4">{room.name}</h3>
+      <div className="flex justify-between gap-4">
+        <div className="flex-1">
+          <h3 className="pb-4">{room.name}</h3>
+          <small>{new Date(room.createdAt).toLocaleString()}</small>
+        </div>
 
-      <div className="flex justify-between">
-        <small>{new Date(room.createdAt).toLocaleString()}</small>
-        {editable && <RoomActions room={room} />}
+        <div className="flex flex-col justify-end gap-2">
+          {editable && (
+            <div className="flex flex-1 flex-col justify-end">
+              <RoomActions room={room} />
+            </div>
+          )}
+          <small className="text-right">
+            by <span className="text-brand-mint">{room.creator.nickname}</span>
+          </small>
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./breadcrumb";
+import { Fragment } from "react/jsx-runtime";
 
 export default function MainBreadCrumb() {
   const pathname = usePathname();
@@ -32,8 +33,8 @@ export default function MainBreadCrumb() {
               const isLast = index === segments.length - 1;
 
               return (
-                <>
-                  <BreadcrumbItem key={"item-" + href}>
+                <Fragment key={href}>
+                  <BreadcrumbItem>
                     {isLast ? (
                       <BreadcrumbPage>{getLabel(segment)}</BreadcrumbPage>
                     ) : (
@@ -42,8 +43,8 @@ export default function MainBreadCrumb() {
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator key={"sep-" + href} />}
-                </>
+                  {!isLast && <BreadcrumbSeparator />}
+                </Fragment>
               );
             })}
           </BreadcrumbList>

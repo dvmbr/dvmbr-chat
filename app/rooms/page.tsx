@@ -1,14 +1,17 @@
 import RoomList from "@/components/RoomList";
 import prisma from "@/lib/db";
-import { toRoomDto } from "@/lib/schema/room.schema";
+import { toRoomWithCreatorDto } from "@/lib/schema/room.schema";
 
 export default async function RoomsPage() {
   const result = await prisma.room.findMany({
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      creator: true,
+    },
   });
-  const rooms = result.map(toRoomDto);
+  const rooms = result.map(toRoomWithCreatorDto);
 
   return (
     <div className="h-full">

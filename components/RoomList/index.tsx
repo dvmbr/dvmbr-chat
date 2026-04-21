@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CircleAlert, Plus } from "lucide-react";
 import { useUserStore } from "@/lib/stores/userStore";
-import type { RoomDTO } from "@/lib/schema/room.schema";
+import type { RoomDTO, RoomWithCreatorDTO } from "@/lib/schema/room.schema";
 import { Button } from "../ui/button";
 import RoomLink from "./RoomLink";
 import {
@@ -19,21 +19,13 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { useCreateRoom } from "@/hooks/useCreateRoom";
 
 type RoomListProps = {
-  rooms: RoomDTO[];
+  rooms: RoomWithCreatorDTO[];
 };
 
 export default function RoomList({ rooms }: RoomListProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [roomName, setRoomName] = useState("");
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
-  }, [open]);
 
   const userId = useUserStore((state) => state.userId);
 
@@ -49,6 +41,16 @@ export default function RoomList({ rooms }: RoomListProps) {
     },
   });
 
+  useEffect(() => {
+    if (!open) return;
+
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [open]);
+
   const handleCreateRoom = () => {
     if (!userId || !roomName.trim() || createRoomMutation.isPending) return;
 
@@ -57,6 +59,39 @@ export default function RoomList({ rooms }: RoomListProps) {
       creatorId: userId,
     });
   };
+
+  const handleCloseDrawer = () => {
+    createRoomMutation.reset();
+    setRoomName("");
+    setOpen(false);
+  };
+
+  const renderCreateTrigger = (item = false) => (
+    <DrawerTrigger asChild>
+      {item ? (
+        <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
+          <Button className="flex" variant="outline">
+            <span>Create your first room!</span>
+            <Plus />
+          </Button>
+        </div>
+      ) : (
+        <Button size="icon-sm" variant="default">
+          <Plus />
+        </Button>
+      )}
+    </DrawerTrigger>
+  );
+
+  const renderRoomList = (list: RoomWithCreatorDTO[], editable = false) => (
+    <ul className="mt-2 flex flex-col gap-4">
+      {list.map((room) => (
+        <li key={room.id}>
+          <RoomLink to={`/rooms/${room.id}`} room={room} editable={editable} />
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
     <>
@@ -78,12 +113,7 @@ export default function RoomList({ rooms }: RoomListProps) {
           <section className="mt-4">
             <div className="flex flex-wrap items-center justify-between gap-x-8">
               <h2>My Rooms</h2>
-
-              <DrawerTrigger asChild>
-                <Button size="icon-sm" variant="default">
-                  <Plus />
-                </Button>
-              </DrawerTrigger>
+              {renderCreateTrigger()}
             </div>
 
             <p className="mb-2">
@@ -92,41 +122,17 @@ export default function RoomList({ rooms }: RoomListProps) {
                 : "You don't have a room yet. Create one to start chatting!"}
             </p>
 
-            {myRooms.length > 0 ? (
-              <ul className="mt-2 flex flex-col gap-4">
-                {myRooms.map((room) => (
-                  <li key={room.id}>
-                    <RoomLink
-                      to={`/rooms/${room.id}`}
-                      room={room}
-                      editable={true}
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <DrawerTrigger asChild>
-                <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
-                  <Button className="flex" variant="outline">
-                    <span>Create your first room!</span>
-                    <Plus />
-                  </Button>
-                </div>
-              </DrawerTrigger>
-            )}
+            {myRooms.length > 0
+              ? renderRoomList(myRooms, true)
+              : renderCreateTrigger(true)}
           </section>
 
           <section>
             <h2>Rooms</h2>
             <p>These are the rooms created by other users.</p>
+
             {otherRooms.length > 0 ? (
-              <ul className="mt-2 flex flex-col gap-4">
-                {otherRooms.map((room) => (
-                  <li key={room.id}>
-                    <RoomLink to={`/rooms/${room.id}`} room={room} />
-                  </li>
-                ))}
-              </ul>
+              renderRoomList(otherRooms)
             ) : (
               <div className="bg-muted/40 flex items-center justify-center gap-2 rounded-lg p-8">
                 There are no rooms created by other users.
@@ -143,10 +149,10 @@ export default function RoomList({ rooms }: RoomListProps) {
 
             <section className="mb-4 w-full px-4">
               <Input
-                className="text-center text-lg! font-semibold!"
+                ref={inputRef}
+                className="text-center text-lg font-semibold"
                 placeholder="Room name..."
                 value={roomName}
-                ref={inputRef}
                 onChange={(e) => setRoomName(e.target.value)}
                 onKeyDown={(e) => {
                   if (
@@ -165,15 +171,12 @@ export default function RoomList({ rooms }: RoomListProps) {
               <Button
                 className="flex-1"
                 variant="outline"
-                onClick={() => {
-                  createRoomMutation.reset();
-                  setRoomName("");
-                  setOpen(false);
-                }}
+                onClick={handleCloseDrawer}
                 disabled={createRoomMutation.isPending}
               >
                 Cancel
               </Button>
+
               <Button
                 className="flex-1"
                 variant="default"
