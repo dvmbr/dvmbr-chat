@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     if (!parsed.success) {
       return sendError(
-        "Invalid query parameters: { id:number, nickname:string }",
+        "Invalid query parameters: { id?:number, nickname?:string }",
         400,
       );
     }

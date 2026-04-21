@@ -25,6 +25,7 @@ model Room {
 
   creator      User          @relation("RoomCreator", fields: [creatorId], references: [id])
   participants Participant[]
+  messages     Message[]
 }
 
 model Participant {
@@ -42,11 +43,27 @@ model Participant {
 }
 
 model Message {
-  id            Int      @id @default(autoincrement())
+  id            Int @id @default(autoincrement())
   participantId Int
-  content       String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  roomId        Int
+
+  content String
+
+  type      MessageType @default(TEXT)
+  isDeleted Boolean     @default(false)
+  isEdited  Boolean     @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   participant Participant @relation(fields: [participantId], references: [id])
+  room        Room        @relation(fields: [roomId], references: [id])
+
+  @@index([roomId, createdAt])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  SYSTEM
 }
