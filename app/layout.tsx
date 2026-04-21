@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/ui/MainSidebar";
 import NicknameGate from "@/components/NicknameGate";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import MainBreadCrumb from "@/components/ui/MainBreadCrumb";
 import { MantineProviders } from "@/components/MantineProviders";
 

@@ -6,6 +6,8 @@ import { useRoomStore } from "@/lib/stores/roomStore";
 import { useUserStore } from "@/lib/stores/userStore";
 import { useEntry } from "@/hooks/useEntry";
 import { Button } from "../ui/button";
+import Loading from "../ui/Loading";
+import ChatRoomScaffold from "../ChatRoom/ChatRoomScaffold";
 
 export default function HomeEntry() {
   const { userId, setUser } = useUserStore((state) => state);
@@ -32,6 +34,10 @@ export default function HomeEntry() {
     entryMutation.mutate({ userId });
   }, [canEntry, userId, entryMutation]);
 
+  if (entryMutation.isPending) {
+    return <Loading />;
+  }
+
   if (entryMutation.isError) {
     return (
       <div className="flex h-dvh flex-col items-center justify-center gap-4">
@@ -43,13 +49,7 @@ export default function HomeEntry() {
   }
 
   if (roomId === null) {
-    return (
-      <div className="flex h-dvh flex-col items-center justify-center gap-4">
-        <div>Room is not ready</div>
-
-        <Button onClick={retryEntry}>Retry</Button>
-      </div>
-    );
+    return <ChatRoomScaffold />;
   }
 
   return <ChatRoom roomId={roomId} />;
