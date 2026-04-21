@@ -1,39 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Button } from "./ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "./ui/drawer";
-import { Input } from "./ui/input";
+import { useEffect, useState } from "react";
+import { Button, Modal, TextInput, Title } from "@mantine/core";
 import { useUserStore } from "@/lib/stores/userStore";
 import { useCreateUser } from "@/hooks/useCreateUser";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { CircleAlert } from "lucide-react";
+import { notifications } from "@mantine/notifications";
 
 export default function NicknameGate({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const { userId, setUser } = useUserStore((state) => state);
   const [nickname, setNickname] = useState("");
 
   const open = userId === null;
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
-  }, [open]);
 
   const createUserMutation = useCreateUser({
     onSuccess: (res) => {
@@ -52,67 +34,64 @@ export default function NicknameGate({
     });
   };
 
+  useEffect(() => {
+    if (createUserMutation.error) {
+      notifications.show({
+        title: "Error",
+        message: createUserMutation.error.message,
+        color: "red",
+        icon: <CircleAlert />,
+      });
+    }
+  }, [createUserMutation.error]);
+
   return (
     <>
-      {createUserMutation.error && (
-        <Alert
-          className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
-          variant="destructive"
-        >
-          <CircleAlert className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {createUserMutation.error.message}
-          </AlertDescription>
-        </Alert>
-      )}
-      <Drawer
-        open={open}
-        dismissible={false}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen && open) return;
-        }}
+      <Modal
+        opened={open}
+        onClose={() => {}}
+        withCloseButton={false}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        centered
       >
-        <DrawerContent>
-          <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
-            <DrawerHeader className="mb-2">
-              <DrawerTitle>Set your nickname</DrawerTitle>
-            </DrawerHeader>
+        <div className="flex flex-col gap-4">
+          <Title order={2} ta="center">
+            Set your nickname
+          </Title>
 
-            <section className="mb-4 w-full px-4">
-              <Input
-                ref={inputRef}
-                className="text-center text-lg font-semibold"
-                value={nickname}
-                placeholder="nickname..."
-                disabled={createUserMutation.isPending}
-                onChange={(e) => setNickname(e.target.value)}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !e.shiftKey &&
-                    e.nativeEvent.isComposing === false
-                  ) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-              />
-            </section>
+          <TextInput
+            required
+            data-autofocus
+            label="Nickname"
+            placeholder="nickname..."
+            value={nickname}
+            disabled={createUserMutation.isPending}
+            onChange={(e) => setNickname(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                e.nativeEvent.isComposing === false
+              ) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+          />
 
-            <DrawerFooter className="w-full">
-              <Button
-                disabled={createUserMutation.isPending || !nickname.trim()}
-                variant="default"
-                className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
-                onClick={handleSubmit}
-              >
-                {createUserMutation.isPending ? "Saving..." : "Submit"}
-              </Button>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </Drawer>
+          <Button
+            fullWidth
+            type="button"
+            variant="default"
+            loading={createUserMutation.isPending}
+            disabled={!nickname.trim()}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </div>
+      </Modal>
 
       {children}
     </>

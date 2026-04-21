@@ -18,6 +18,9 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
     "@headlessui/react": "^2.2.10",
+    "@mantine/core": "^9.1.0",
+    "@mantine/hooks": "^9.1.0",
+    "@mantine/notifications": "^9.1.0",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "@reduxjs/toolkit": "^2.11.0",
