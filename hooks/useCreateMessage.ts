@@ -3,10 +3,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import type { OkResponse } from "@/lib/schema/response.schema";
-import type { CreateMessageDTO, MessageDTO } from "@/lib/schema/message.schema";
+import type { MessageDto, CreateMessageDto } from "@/lib/schema/message.schema";
 
 type UseCreateMessageOptions = {
-  onSuccess?: (data: OkResponse<MessageDTO>) => void;
+  onSuccess?: (data: OkResponse<MessageDto>) => void;
   onSettled?: () => void;
 };
 
@@ -16,13 +16,13 @@ export function useCreateMessage(
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<OkResponse<MessageDTO>, Error, CreateMessageDTO>({
+  return useMutation<OkResponse<MessageDto>, Error, CreateMessageDto>({
     mutationFn: async (payload) =>
       await apiClient
         .post(`rooms/${roomId}/messages`, {
           json: payload,
         })
-        .json<OkResponse<MessageDTO>>(),
+        .json<OkResponse<MessageDto>>(),
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({

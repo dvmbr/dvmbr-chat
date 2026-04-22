@@ -3,24 +3,24 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
-import type { RoomDTO, UpdateRoomDTO } from "@/lib/schema/room.schema";
+import type { RoomDto, UpdateRoomDto } from "@/lib/schema/room.schema";
 
 type UseUpdateRoomOptions = {
-  onSuccess?: (data: RoomDTO) => void;
+  onSuccess?: () => void;
 };
 
-export function useUpdateRoom(options?: UseUpdateRoomOptions) {
+export function useUpdateRoom(roomId: number, options?: UseUpdateRoomOptions) {
   const router = useRouter();
 
-  return useMutation<RoomDTO, Error, UpdateRoomDTO>({
+  return useMutation<RoomDto, Error, UpdateRoomDto>({
     mutationFn: async (payload) =>
       await apiClient
-        .put(`rooms/${payload.id}`, {
+        .put(`rooms/${roomId}`, {
           json: payload,
         })
-        .json<RoomDTO>(),
-    onSuccess: (data) => {
-      options?.onSuccess?.(data);
+        .json<RoomDto>(),
+    onSuccess: () => {
+      options?.onSuccess?.();
       router.refresh();
     },
   });

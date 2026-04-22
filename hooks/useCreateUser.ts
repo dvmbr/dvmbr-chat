@@ -2,21 +2,21 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import type { CreateUserDTO, UserDTO } from "@/lib/schema/user.schema";
+import type { UserDto, UserParamDto } from "@/lib/schema/user.schema";
 import type { OkResponse } from "@/lib/schema/response.schema";
 
 type UseCreateUserOptions = {
-  onSuccess?: (data: OkResponse<UserDTO>) => void;
+  onSuccess?: (data: OkResponse<UserDto>) => void;
 };
 
 export function useCreateUser(options?: UseCreateUserOptions) {
-  return useMutation<OkResponse<UserDTO>, Error, CreateUserDTO>({
+  return useMutation<OkResponse<UserDto>, Error, UserParamDto>({
     mutationFn: async (payload) =>
       await apiClient
         .post("users", {
           json: payload,
         })
-        .json<OkResponse<UserDTO>>(),
+        .json<OkResponse<UserDto>>(),
 
     onSuccess: (data) => {
       options?.onSuccess?.(data);

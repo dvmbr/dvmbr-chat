@@ -2,16 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import type { OkResponse } from "@/lib/schema/response.schema";
-import type { MessageDTO } from "@/lib/schema/message.schema";
+import type { ListResponse } from "@/lib/schema/response.schema";
+import type { MessageDto } from "@/lib/schema/message.schema";
 
 export function useGetMessages(roomId: number) {
-  return useQuery<OkResponse<MessageDTO[]>, Error>({
+  return useQuery<ListResponse<MessageDto>, Error>({
     queryKey: ["messages", roomId],
     queryFn: async () =>
       await apiClient
         .get(`rooms/${roomId}/messages`)
-        .json<OkResponse<MessageDTO[]>>(),
+        .json<ListResponse<MessageDto>>(),
     enabled: Number.isFinite(roomId) && roomId > 0,
   });
 }

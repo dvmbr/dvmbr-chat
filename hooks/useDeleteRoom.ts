@@ -3,7 +3,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
-import type { DeleteRoomDTO } from "@/lib/schema/room.schema";
 
 type UseDeleteRoomOptions = {
   onSuccess?: () => void;
@@ -12,9 +11,9 @@ type UseDeleteRoomOptions = {
 export function useDeleteRoom(options?: UseDeleteRoomOptions) {
   const router = useRouter();
 
-  return useMutation<void, Error, DeleteRoomDTO>({
+  return useMutation<void, Error, { roomId: number }>({
     mutationFn: async (payload) => {
-      await apiClient.delete(`rooms/${payload.id}`);
+      await apiClient.delete(`rooms/${payload.roomId}`);
     },
     onSuccess: () => {
       options?.onSuccess?.();
