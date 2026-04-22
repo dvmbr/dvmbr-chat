@@ -5,8 +5,8 @@ import ChatRoom from "../ChatRoom";
 import { useRoomStore } from "@/lib/stores/roomStore";
 import { useUserStore } from "@/lib/stores/userStore";
 import { useEntry } from "@/hooks/useEntry";
-import { Button } from "../ui/button";
-import Loading from "../ui/Loading";
+import { Button } from "../ui-old/button";
+import Loading from "../ui-old/Loading";
 import ChatRoomScaffold from "../ChatRoom/ChatRoomScaffold";
 
 export default function HomeEntry() {

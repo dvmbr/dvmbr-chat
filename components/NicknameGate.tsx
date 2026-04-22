@@ -53,7 +53,6 @@ export default function NicknameGate({
         withCloseButton={false}
         closeOnClickOutside={false}
         closeOnEscape={false}
-        centered
       >
         <div className="flex flex-col gap-4">
           <Title order={2} ta="center">

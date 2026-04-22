@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CircleAlert, Plus } from "lucide-react";
 import { useUserStore } from "@/lib/stores/userStore";
 import type { RoomDTO, RoomWithCreatorDTO } from "@/lib/schema/room.schema";
-import { Button } from "../ui/button";
+import { Button } from "../ui-old/button";
 import RoomLink from "./RoomLink";
 import {
   Drawer,
@@ -13,9 +13,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "../ui/drawer";
-import { Input } from "../ui/input";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+} from "../ui-old/drawer";
+import { Input } from "../ui-old/input";
+import { Alert, AlertDescription, AlertTitle } from "../ui-old/alert";
 import { useCreateRoom } from "@/hooks/useCreateRoom";
 
 type RoomListProps = {

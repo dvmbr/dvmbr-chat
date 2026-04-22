@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Pen, Trash, CircleAlert } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../ui-old/button";
+import { Input } from "../ui-old/input";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "../ui-old/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,7 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "../ui-old/alert-dialog";
 import type { RoomDTO } from "@/lib/schema/room.schema";
 import { useUpdateRoom } from "@/hooks/useUpdateRoomHook";
 import { useDeleteRoom } from "@/hooks/useDeleteRoomHook";
