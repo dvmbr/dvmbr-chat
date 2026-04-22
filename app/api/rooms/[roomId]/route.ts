@@ -39,11 +39,11 @@ export async function PUT(
     const parsed = UpdateRoomSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid request body: { name:string }", 400);
+      return sendError("Invalid route parameter: { name:string }", 400);
     }
 
     if (Number.isNaN(roomId)) {
-      return sendError("Invalid roomId", 400);
+      return sendError("Invalid route parameter: { roomId:number }", 400);
     }
 
     const updatedRoom = await prisma.room.update({

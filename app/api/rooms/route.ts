@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     const parsed = CreateRoomSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid request body: { name:string }", 400);
+      return sendError("Invalid route parameter: { name:string }", 400);
     }
 
     const room = await prisma.room.create({

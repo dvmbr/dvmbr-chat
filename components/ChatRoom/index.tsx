@@ -1,37 +1,30 @@
 "use client";
 
-import { useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
-import Loading from "../ui/Loading";
-import { Button } from "../ui/button";
+import { useGetMessages } from "@/hooks/useGetMessages";
+import { useCreateMessage } from "@/hooks/useCreateMessage";
 
 type ChatRoomProps = {
   roomId: number;
-  isEntryPending?: boolean;
-  isEntryError?: boolean;
-  onRetryEntry?: () => void;
+  participantId: number;
 };
 
-export default function ChatRoom({
-  roomId,
-  isEntryPending,
-  isEntryError,
-  onRetryEntry,
-}: ChatRoomProps) {
-  const [messages, setMessages] = useState<string[]>([]);
-  const handleSend = (msg: string) => {
-    setMessages([...messages, msg]);
-  };
+export default function ChatRoom({ roomId, participantId }: ChatRoomProps) {
+  console.log("roomId", roomId, "participantId", participantId);
+  const { data } = useGetMessages(roomId);
+  const { mutate: createMessage, isPending: isSending } =
+    useCreateMessage(roomId);
 
-  if (isEntryPending) return <Loading />;
-  if (isEntryError)
-    return (
-      <div className="flex h-dvh flex-col items-center justify-center gap-4">
-        <div>Failed to enter room</div>
-        <Button onClick={onRetryEntry}>Retry</Button>
-      </div>
-    );
+  const messages = data?.data ?? [];
+
+  const handleSend = (content: string) => {
+    createMessage({
+      participantId,
+      content,
+      type: "TEXT",
+    });
+  };
 
   return (
     <section className="container mx-auto flex h-full max-w-3xl flex-col">
@@ -39,7 +32,7 @@ export default function ChatRoom({
         <ChatMessages messages={messages} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
-        <ChatInput onSend={handleSend} />
+        <ChatInput onSend={handleSend} disabled={isSending} />
       </div>
     </section>
   );

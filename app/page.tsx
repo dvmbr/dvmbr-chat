@@ -1,9 +1,9 @@
-import HomeEntry from "@/components/Home/HomeEntry";
+import ChatGate from "@/components/ChatGate";
 
 export default function Home() {
   return (
     <div className="relative h-full">
-      <HomeEntry />
+      <ChatGate />
     </div>
   );
 }

@@ -6,13 +6,10 @@ export const MessageSchema = z
     id: z.number(),
     participantId: z.number(),
     roomId: z.number(),
-
     content: z.string(),
-
     type: z.enum(["TEXT", "IMAGE", "SYSTEM"]),
     isDeleted: z.boolean(),
     isEdited: z.boolean(),
-
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -21,7 +18,6 @@ export const MessageSchema = z
 export const CreateMessageSchema = z
   .object({
     participantId: z.number(),
-    roomId: z.number(),
     content: z.string().min(1),
     type: z.enum(["TEXT", "IMAGE", "SYSTEM"]).optional(),
   })
@@ -40,19 +36,17 @@ export const DeleteMessageSchema = z
   })
   .openapi("DeleteMessage");
 
-export const MessageQuerySchema = z
+export const RoomParamSchema = z
   .object({
-    id: z.coerce.number().optional(),
-    participantId: z.coerce.number().optional(),
-    roomId: z.coerce.number().optional(),
+    roomId: z.coerce.number().int().positive(),
   })
-  .openapi("MessageQuery");
+  .openapi("RoomParam");
 
 export type MessageDTO = z.infer<typeof MessageSchema>;
 export type CreateMessageDTO = z.infer<typeof CreateMessageSchema>;
 export type UpdateMessageDTO = z.infer<typeof UpdateMessageSchema>;
 export type DeleteMessageDTO = z.infer<typeof DeleteMessageSchema>;
-export type MessageQueryDTO = z.infer<typeof MessageQuerySchema>;
+export type RoomParamDTO = z.infer<typeof RoomParamSchema>;
 
 export function toMessageDto(message: Message): MessageDTO {
   return {

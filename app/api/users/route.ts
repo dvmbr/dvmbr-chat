@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const parsed = CreateUserSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid request body: { nickname:string }", 400);
+      return sendError("Invalid route parameter: { nickname:string }", 400);
     }
 
     const user = await prisma.user.create({
@@ -85,7 +85,7 @@ export async function PUT(req: NextRequest) {
 
     if (!parsed.success) {
       return sendError(
-        "Invalid request body: { id:number, nickname:string }",
+        "Invalid route parameter: { id:number, nickname:string }",
         400,
       );
     }
@@ -109,7 +109,7 @@ export async function DELETE(req: NextRequest) {
     const parsed = DeleteUserSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid request body: { id:number }", 400);
+      return sendError("Invalid route parameter: { id:number }", 400);
     }
 
     await prisma.user.delete({ where: { id: parsed.data.id } });

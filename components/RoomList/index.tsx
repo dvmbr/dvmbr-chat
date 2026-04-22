@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CircleAlert, Plus } from "lucide-react";
 import { useUserStore } from "@/lib/stores/userStore";
-import type { RoomDTO, RoomWithCreatorDTO } from "@/lib/schema/room.schema";
+import type { RoomWithCreatorDTO } from "@/lib/schema/room.schema";
 import { Button } from "../ui/button";
 import RoomLink from "./RoomLink";
 import {

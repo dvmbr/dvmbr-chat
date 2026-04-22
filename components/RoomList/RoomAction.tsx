@@ -25,8 +25,8 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import type { RoomDTO } from "@/lib/schema/room.schema";
-import { useUpdateRoom } from "@/hooks/useUpdateRoomHook";
-import { useDeleteRoom } from "@/hooks/useDeleteRoomHook";
+import { useUpdateRoom } from "@/hooks/useUpdateRoom";
+import { useDeleteRoom } from "@/hooks/useDeleteRoom";
 
 type RoomActionsProps = {
   room: RoomDTO;

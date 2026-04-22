@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return sendError(
-        "Invalid request body: { userId:number, roomId:number }",
+        "Invalid route parameter: { userId:number, roomId:number }",
         400,
       );
     }

@@ -9,6 +9,11 @@ export const EntrySchema = z.object({
     id: z.number(),
     nickname: z.string(),
   }),
+  participant: z.object({
+    id: z.number(),
+    userId: z.number(),
+    roomId: z.number(),
+  }),
 });
 
 export const EntryRequestSchema = z
@@ -25,6 +30,11 @@ export type Entry = {
   user: {
     id: number;
     nickname: string;
+  };
+  participant: {
+    id: number;
+    userId: number;
+    roomId: number;
   };
 };
 export type EntryDTO = z.infer<typeof EntrySchema>;

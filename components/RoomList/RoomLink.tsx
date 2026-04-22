@@ -23,7 +23,11 @@ export default function RoomLink({
       tabIndex={0}
       onClick={() => router.push(to)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (
+          e.key === "Enter" &&
+          !e.shiftKey &&
+          e.nativeEvent.isComposing === false
+        ) {
           e.preventDefault();
           router.push(to);
         }

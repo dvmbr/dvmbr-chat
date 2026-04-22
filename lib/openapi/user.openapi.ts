@@ -79,7 +79,7 @@ export function registerUserOpenApi(registry: OpenAPIRegistry) {
         },
       },
       400: {
-        description: "Invalid request body",
+        description: "Invalid route parameter",
         content: {
           "application/json": {
             schema: errorOpenApi(),
@@ -112,7 +112,7 @@ export function registerUserOpenApi(registry: OpenAPIRegistry) {
         },
       },
       400: {
-        description: "Invalid request body",
+        description: "Invalid route parameter",
         content: {
           "application/json": {
             schema: errorOpenApi(),
@@ -145,7 +145,7 @@ export function registerUserOpenApi(registry: OpenAPIRegistry) {
         },
       },
       400: {
-        description: "Invalid request body",
+        description: "Invalid route parameter",
         content: {
           "application/json": {
             schema: errorOpenApi(),

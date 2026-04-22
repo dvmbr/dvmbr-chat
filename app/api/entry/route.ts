@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const parsed = EntryRequestSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid request body: { userId:number }", 400);
+      return sendError("Invalid route parameter: { userId:number }", 400);
     }
 
     const { userId } = parsed.data;
@@ -47,6 +47,11 @@ export async function POST(req: NextRequest) {
         toEntryDto({
           room: { id: participant.room.id, name: participant.room.name },
           user: { id: user.id, nickname: user.nickname },
+          participant: {
+            id: participant.id,
+            userId: participant.userId,
+            roomId: participant.roomId,
+          },
         }),
       );
     }
@@ -60,12 +65,20 @@ export async function POST(req: NextRequest) {
           create: { userId: user.id },
         },
       },
+      include: {
+        participants: true,
+      },
     });
 
     return sendOk(
       toEntryDto({
         room: { id: createdRoom.id, name: createdRoom.name },
         user: { id: user.id, nickname: user.nickname },
+        participant: {
+          id: createdRoom.participants[0].id,
+          userId: createdRoom.participants[0].userId,
+          roomId: createdRoom.participants[0].roomId,
+        },
       }),
     );
   } catch (error) {

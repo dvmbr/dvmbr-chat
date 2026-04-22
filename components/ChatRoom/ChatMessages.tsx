@@ -1,9 +1,10 @@
 "use client";
 
+import { MessageDTO } from "@/lib/schema/message.schema";
 import { useRef, useEffect } from "react";
 
 type ChatMessagesProps = {
-  messages: string[];
+  messages: MessageDTO[];
 };
 
 export default function ChatMessages({ messages }: ChatMessagesProps) {
@@ -36,7 +37,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
               key={idx}
               className="bg-muted max-w-[80%] self-end rounded-2xl rounded-br-sm px-4 py-2 wrap-break-word shadow-md"
             >
-              {msg}
+              {msg.content}
             </li>
           ))}
         </ul>
