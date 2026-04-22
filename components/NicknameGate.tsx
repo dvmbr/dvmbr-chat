@@ -28,11 +28,11 @@ export default function NicknameGate({
   const open = userId === null;
 
   useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
+    if (!open) return;
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+    return () => window.clearTimeout(timer);
   }, [open]);
 
   const createUserMutation = useCreateUser({

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { RoomWithCreatorDTO } from "@/lib/schema/room.schema";
+import type { RoomWithCreatorDto } from "@/lib/schema/room.schema";
 import RoomActions from "./RoomAction";
 
 type RoomLinkProps = {
   to: string;
-  room: RoomWithCreatorDTO;
+  room: RoomWithCreatorDto;
   editable?: boolean;
 };
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { MessageDTO } from "@/lib/schema/message.schema";
+import { MessageDto } from "@/lib/schema/message.schema";
 import { useRef, useEffect } from "react";
 
 type ChatMessagesProps = {
-  messages: MessageDTO[];
+  messages: MessageDto[];
 };
 
 export default function ChatMessages({ messages }: ChatMessagesProps) {

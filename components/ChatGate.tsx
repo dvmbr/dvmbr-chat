@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ChatRoom from "./ChatRoom";
 import { useRoomStore } from "@/lib/stores/roomStore";
 import { useUserStore } from "@/lib/stores/userStore";
-import { useEntry } from "@/hooks/useEntry";
+import { useChatEntry } from "@/hooks/useChatEntry";
 import { Button } from "./ui/button";
 import ChatRoomScaffold from "./ui/ChatRoomScaffold";
 
@@ -30,7 +30,7 @@ export default function ChatGate({ roomId }: ChatGateProps) {
     return roomId ?? storedRoomId;
   }, [roomId, storedRoomId]);
 
-  const entryMutation = useEntry({
+  const chatEntryMutation = useChatEntry({
     onSuccess: (res) => {
       setRoom(res.data.room.id, res.data.room.name, res.data.participant.id);
       setUser(res.data.user.id, res.data.user.nickname);
@@ -43,25 +43,19 @@ export default function ChatGate({ roomId }: ChatGateProps) {
   });
 
   const retryEntry = () => {
-    if (!canEntry || userId === null || entryMutation.isPending) return;
+    if (!canEntry || userId === null || chatEntryMutation.isPending) return;
 
-    entryMutation.mutate({
-      userId,
-      ...(roomId !== undefined ? { roomId } : {}),
-    });
+    chatEntryMutation.mutate();
   };
 
   useEffect(() => {
     if (!canEntry || userId === null) return;
-    if (entryMutation.isPending || entryMutation.isSuccess) return;
+    if (chatEntryMutation.isPending || chatEntryMutation.isSuccess) return;
 
-    entryMutation.mutate({
-      userId,
-      ...(roomId !== undefined ? { roomId } : {}),
-    });
-  }, [canEntry, userId, roomId, entryMutation]);
+    chatEntryMutation.mutate();
+  }, [canEntry, userId, roomId, chatEntryMutation]);
 
-  if (entryMutation.isError) {
+  if (chatEntryMutation.isError) {
     return (
       <div className="flex h-dvh flex-col items-center justify-center gap-4">
         <div>Failed to enter room</div>

@@ -24,12 +24,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import type { RoomDTO } from "@/lib/schema/room.schema";
+import type { RoomDto } from "@/lib/schema/room.schema";
 import { useUpdateRoom } from "@/hooks/useUpdateRoom";
 import { useDeleteRoom } from "@/hooks/useDeleteRoom";
 
 type RoomActionsProps = {
-  room: RoomDTO;
+  room: RoomDto;
 };
 
 export default function RoomActions({ room }: RoomActionsProps) {
@@ -37,7 +37,7 @@ export default function RoomActions({ room }: RoomActionsProps) {
   const [openDelete, setOpenDelete] = useState(false);
   const [name, setName] = useState(room.name);
 
-  const updateMutation = useUpdateRoom({
+  const updateMutation = useUpdateRoom(room.id, {
     onSuccess: () => {
       setOpenEdit(false);
     },
@@ -98,7 +98,6 @@ export default function RoomActions({ room }: RoomActionsProps) {
               disabled={updateMutation.isPending || !name.trim()}
               onClick={() => {
                 updateMutation.mutate({
-                  id: room.id,
                   name: name.trim(),
                 });
               }}
@@ -150,7 +149,7 @@ export default function RoomActions({ room }: RoomActionsProps) {
               disabled={deleteMutation.isPending}
               onClick={(e) => {
                 e.preventDefault();
-                deleteMutation.mutate({ id: room.id });
+                deleteMutation.mutate({ roomId: room.id });
               }}
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete"}

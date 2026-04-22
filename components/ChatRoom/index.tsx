@@ -16,11 +16,10 @@ export default function ChatRoom({ roomId, participantId }: ChatRoomProps) {
   const { mutate: createMessage, isPending: isSending } =
     useCreateMessage(roomId);
 
-  const messages = data?.data ?? [];
+  const messages = data?.data.items ?? [];
 
   const handleSend = (content: string) => {
     createMessage({
-      participantId,
       content,
       type: "TEXT",
     });
