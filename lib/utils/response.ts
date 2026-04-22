@@ -50,6 +50,7 @@ export function sendList<T>(
 export function sendError(
   error: unknown,
   statusCode = 500,
+  meta?: Record<string, unknown>,
 ): NextResponse<ErrorResponse> {
   return NextResponse.json(
     {
@@ -57,6 +58,7 @@ export function sendError(
       error: getErrorMessage(error),
       statusCode,
       timestamp: new Date().toISOString(),
+      meta: meta,
     },
     { status: statusCode },
   );

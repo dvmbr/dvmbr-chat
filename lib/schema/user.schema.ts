@@ -3,8 +3,8 @@ import type { User } from "@prisma/client";
 
 export const UserSchema = z
   .object({
-    id: z.number(),
-    nickname: z.string().min(1),
+    id: z.coerce.number().int().positive(),
+    nickname: z.string().trim().min(1),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -12,40 +12,31 @@ export const UserSchema = z
 
 export const CreateUserSchema = z
   .object({
-    nickname: z.string().min(1),
+    nickname: z.string().trim().min(1),
   })
   .openapi("CreateUser");
 
 export const UpdateUserSchema = z
   .object({
-    id: z.number(),
-    nickname: z.string().min(1),
+    nickname: z.string().trim().min(1),
   })
   .openapi("UpdateUser");
 
-export const DeleteUserSchema = z
+export const UserParamSchema = z
   .object({
-    id: z.number(),
+    userId: z.coerce.number().int().positive(),
   })
-  .openapi("DeleteUser");
+  .openapi("UserParam");
 
-export const UserQuerySchema = z
-  .object({
-    id: z.coerce.number().optional(),
-    nickname: z.string().min(1).optional(),
-  })
-  .openapi("UserQuery");
+export type UserDto = z.infer<typeof UserSchema>;
+export type CreateUserDto = z.infer<typeof CreateUserSchema>;
+export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
+export type UserParamDto = z.infer<typeof UserParamSchema>;
 
-export type UserDTO = z.infer<typeof UserSchema>;
-export type CreateUserDTO = z.infer<typeof CreateUserSchema>;
-export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;
-export type DeleteUserDTO = z.infer<typeof DeleteUserSchema>;
-export type UserQueryDTO = z.infer<typeof UserQuerySchema>;
-
-export function toUserDto(user: User): UserDTO {
+export function toUserDto(user: User): UserDto {
   return {
     ...user,
-    createdAt: new Date(user.createdAt).toISOString(),
-    updatedAt: new Date(user.updatedAt).toISOString(),
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
   };
 }

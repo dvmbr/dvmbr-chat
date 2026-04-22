@@ -3,10 +3,10 @@ import type { Message } from "@prisma/client";
 
 export const MessageSchema = z
   .object({
-    id: z.number(),
-    participantId: z.number(),
-    roomId: z.number(),
-    content: z.string(),
+    id: z.coerce.number().int().positive(),
+    participantId: z.coerce.number().int().positive(),
+    roomId: z.coerce.number().int().positive(),
+    content: z.string().trim().min(1),
     type: z.enum(["TEXT", "IMAGE", "SYSTEM"]),
     isDeleted: z.boolean(),
     isEdited: z.boolean(),
@@ -17,41 +17,33 @@ export const MessageSchema = z
 
 export const CreateMessageSchema = z
   .object({
-    participantId: z.number(),
-    content: z.string().min(1),
+    participantId: z.coerce.number().int().positive(),
+    content: z.string().trim().min(1),
     type: z.enum(["TEXT", "IMAGE", "SYSTEM"]).optional(),
   })
   .openapi("CreateMessage");
 
 export const UpdateMessageSchema = z
   .object({
-    id: z.number(),
-    content: z.string().min(1),
+    content: z.string().trim().min(1),
   })
   .openapi("UpdateMessage");
 
-export const DeleteMessageSchema = z
-  .object({
-    id: z.number(),
-  })
-  .openapi("DeleteMessage");
-
-export const RoomParamSchema = z
+export const RoomMessageParamSchema = z
   .object({
     roomId: z.coerce.number().int().positive(),
   })
-  .openapi("RoomParam");
+  .openapi("RoomMessageParam");
 
-export type MessageDTO = z.infer<typeof MessageSchema>;
-export type CreateMessageDTO = z.infer<typeof CreateMessageSchema>;
-export type UpdateMessageDTO = z.infer<typeof UpdateMessageSchema>;
-export type DeleteMessageDTO = z.infer<typeof DeleteMessageSchema>;
-export type RoomParamDTO = z.infer<typeof RoomParamSchema>;
+export type MessageDto = z.infer<typeof MessageSchema>;
+export type CreateMessageDto = z.infer<typeof CreateMessageSchema>;
+export type UpdateMessageDto = z.infer<typeof UpdateMessageSchema>;
+export type RoomMessageParamDto = z.infer<typeof RoomMessageParamSchema>;
 
-export function toMessageDto(message: Message): MessageDTO {
+export function toMessageDto(message: Message): MessageDto {
   return {
     ...message,
-    createdAt: new Date(message.createdAt).toISOString(),
-    updatedAt: new Date(message.updatedAt).toISOString(),
+    createdAt: message.createdAt.toISOString(),
+    updatedAt: message.updatedAt.toISOString(),
   };
 }

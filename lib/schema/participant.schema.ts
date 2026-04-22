@@ -3,9 +3,9 @@ import type { Participant } from "@prisma/client";
 
 export const ParticipantSchema = z
   .object({
-    id: z.number(),
-    userId: z.number(),
-    roomId: z.number(),
+    id: z.coerce.number().int().positive(),
+    userId: z.coerce.number().int().positive(),
+    roomId: z.coerce.number().int().positive(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -13,27 +13,27 @@ export const ParticipantSchema = z
 
 export const CreateParticipantSchema = z
   .object({
-    userId: z.number(),
-    roomId: z.number(),
+    userId: z.coerce.number().int().positive(),
+    roomId: z.coerce.number().int().positive(),
   })
   .openapi("CreateParticipant");
 
 export const ParticipantQuerySchema = z
   .object({
-    id: z.coerce.number().optional(),
-    userId: z.coerce.number().optional(),
-    roomId: z.coerce.number().optional(),
+    id: z.coerce.number().int().positive().optional(),
+    userId: z.coerce.number().int().positive().optional(),
+    roomId: z.coerce.number().int().positive().optional(),
   })
   .openapi("ParticipantQuery");
 
-export type ParticipantDTO = z.infer<typeof ParticipantSchema>;
-export type CreateParticipantDTO = z.infer<typeof CreateParticipantSchema>;
-export type ParticipantQueryDTO = z.infer<typeof ParticipantQuerySchema>;
+export type ParticipantDto = z.infer<typeof ParticipantSchema>;
+export type CreateParticipantDto = z.infer<typeof CreateParticipantSchema>;
+export type ParticipantQueryDto = z.infer<typeof ParticipantQuerySchema>;
 
-export function toParticipantDto(participant: Participant): ParticipantDTO {
+export function toParticipantDto(participant: Participant): ParticipantDto {
   return {
     ...participant,
-    createdAt: new Date(participant.createdAt).toISOString(),
-    updatedAt: new Date(participant.updatedAt).toISOString(),
+    createdAt: participant.createdAt.toISOString(),
+    updatedAt: participant.updatedAt.toISOString(),
   };
 }
