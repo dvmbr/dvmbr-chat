@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import {
   CreateMessageSchema,
@@ -7,19 +8,16 @@ import {
 import { sendList, sendOk } from "@/lib/utils/response";
 import {
   badRequest,
-  notFound,
-  serverError,
   unauthorized,
+  serverError,
 } from "@/lib/utils/error-response";
-import { NextRequest } from "next/server";
 
 export async function GET(
   _req: NextRequest,
   { params }: RouteContext<"/api/rooms/[roomId]/messages">,
 ) {
   try {
-    const routeParams = await params;
-    const parsedParams = RoomMessageParamSchema.safeParse(routeParams);
+    const parsedParams = RoomMessageParamSchema.safeParse(await params);
 
     if (!parsedParams.success) {
       return badRequest("Invalid route parameter", {
@@ -87,7 +85,7 @@ export async function POST(
 
     if (!participant) {
       return badRequest("User is not a participant of this room", {
-        expected: `{ userId: number (must belong to roomId ${parsedParams.data.roomId}) }`,
+        expected: `{ userId: number (must enter roomId ${parsedParams.data.roomId} first) }`,
       });
     }
 
