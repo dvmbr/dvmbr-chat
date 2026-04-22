@@ -9,7 +9,7 @@ type UseChatEntryOptions = {
   onSuccess?: (data: OkResponse<ChatEntryDto>) => void;
 };
 
-export function useEntry(options?: UseChatEntryOptions) {
+export function useChatEntry(options?: UseChatEntryOptions) {
   return useMutation<OkResponse<ChatEntryDto>, Error, void>({
     mutationFn: async () =>
       await apiClient.post("chat/entry").json<OkResponse<ChatEntryDto>>(),
