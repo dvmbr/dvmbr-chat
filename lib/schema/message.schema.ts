@@ -17,7 +17,6 @@ export const MessageSchema = z
 
 export const CreateMessageSchema = z
   .object({
-    participantId: z.coerce.number().int().positive(),
     content: z.string().trim().min(1),
     type: z.enum(["TEXT", "IMAGE", "SYSTEM"]).optional(),
   })

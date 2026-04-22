@@ -18,12 +18,6 @@ export const ChatEntrySchema = z
   })
   .openapi("ChatEntry");
 
-export const ChatEntryParamSchema = z
-  .object({
-    userId: z.coerce.number().int().positive(),
-  })
-  .openapi("ChatEntryParam");
-
 export type ChatEntry = {
   room: {
     id: number;
@@ -40,7 +34,6 @@ export type ChatEntry = {
   };
 };
 export type ChatEntryDto = z.infer<typeof ChatEntrySchema>;
-export type ChatEntryParamDto = z.infer<typeof ChatEntryParamSchema>;
 
 export function toChatEntryDto(chatEntry: ChatEntry): ChatEntryDto {
   return {
