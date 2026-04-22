@@ -1,120 +1,61 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
-import { sendOk, sendList, sendError } from "@/lib/utils/response";
-import {
-  UserQuerySchema,
-  CreateUserSchema,
-  UpdateUserSchema,
-  DeleteUserSchema,
-  toUserDto,
-} from "@/lib/schema/user.schema";
 
-// GET /api/users?id=1
-export async function GET(req: NextRequest) {
+import { sendList, sendOk } from "@/lib/utils/response";
+import { badRequest, serverError } from "@/lib/utils/error-response";
+
+import { CreateUserSchema, toUserDto } from "@/lib/schema/user.schema";
+
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-
-    const parsed = UserQuerySchema.safeParse({
-      id: searchParams.get("id") ?? undefined,
-      nickname: searchParams.get("nickname") ?? undefined,
-    });
-
-    if (!parsed.success) {
-      return sendError(
-        "Invalid query parameters: { id?:number, nickname?:string }",
-        400,
-      );
-    }
-
-    if (parsed.data.id !== undefined) {
-      const user = await prisma.user.findUnique({
-        where: { id: parsed.data.id },
-      });
-
-      return !user ? sendError("User not found", 404) : sendOk(toUserDto(user));
-    }
-
-    if (parsed.data.nickname !== undefined) {
-      const users = await prisma.user.findMany({
-        where: {
-          nickname: {
-            contains: parsed.data.nickname,
-            mode: "insensitive" as const,
-          },
-        },
-      });
-      return sendList(users.map(toUserDto));
-    }
-
     const users = await prisma.user.findMany();
+
     return sendList(users.map(toUserDto));
-  } catch (error: unknown) {
-    return sendError(error, 500);
+  } catch {
+    return serverError();
   }
 }
 
-// POST /api/users
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = CreateUserSchema.safeParse(body);
+    const parsedBody = CreateUserSchema.safeParse(await req.json());
 
-    if (!parsed.success) {
-      return sendError("Invalid route parameter: { nickname:string }", 400);
+    if (!parsedBody.success) {
+      return badRequest("Invalid request body", {
+        expected: "{ nickname: string }",
+      });
     }
 
-    const user = await prisma.user.create({
-      data: { nickname: parsed.data.nickname },
+    let user = await prisma.user.findUnique({
+      where: { nickname: parsedBody.data.nickname },
     });
 
-    return sendOk(
+    const isNewUser = !user;
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { nickname: parsedBody.data.nickname },
+      });
+    }
+
+    const response = sendOk(
       toUserDto(user),
-      201,
-      `User created: ${user.id}: ${user.nickname}`,
+      isNewUser ? 201 : 200,
+      isNewUser
+        ? `User created: ${user.id}: ${user.nickname}`
+        : `User retrieved: ${user.id}: ${user.nickname}`,
     );
-  } catch (error: unknown) {
-    return sendError(error, 400);
-  }
-}
 
-// PUT /api/users
-export async function PUT(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const parsed = UpdateUserSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return sendError(
-        "Invalid route parameter: { id:number, nickname:string }",
-        400,
-      );
-    }
-
-    const { id, nickname } = parsed.data;
-
-    const user = await prisma.user.update({
-      where: { id },
-      data: { nickname },
+    response.cookies.set("userId", String(user.id), {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      secure: process.env.NODE_ENV === "production",
     });
-    return sendOk(toUserDto(user), 200, `User updated: ${id}: ${nickname}`);
-  } catch (error: unknown) {
-    return sendError(error, 400);
-  }
-}
 
-// DELETE /api/users
-export async function DELETE(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const parsed = DeleteUserSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return sendError("Invalid route parameter: { id:number }", 400);
-    }
-
-    await prisma.user.delete({ where: { id: parsed.data.id } });
-    return sendOk(null, 200, `User deleted: ${parsed.data.id}`);
-  } catch (error: unknown) {
-    return sendError(error, 400);
+    return response;
+  } catch {
+    return serverError();
   }
 }

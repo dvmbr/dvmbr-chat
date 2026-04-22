@@ -1,80 +1,71 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
+import { CreateRoomSchema, toRoomDto } from "@/lib/schema/room.schema";
+import { sendList, sendOk } from "@/lib/utils/response";
 import {
-  CreateRoomSchema,
-  RoomQuerySchema,
-  toRoomDto,
-} from "@/lib/schema/room.schema";
-import { sendError, sendList, sendOk } from "@/lib/utils/response";
+  badRequest,
+  unauthorized,
+  notFound,
+  serverError,
+} from "@/lib/utils/error-response";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-
-    const parsed = RoomQuerySchema.safeParse({
-      id: searchParams.get("id") ?? undefined,
-      name: searchParams.get("name") ?? undefined,
-    });
-
-    if (!parsed.success) {
-      return sendError(
-        "Invalid query parameters: { id?:number, name?:string }",
-        400,
-      );
-    }
-
-    if (parsed.data.id !== undefined) {
-      const room = await prisma.room.findUnique({
-        where: { id: parsed.data.id },
-      });
-
-      return !room ? sendError("Room not found", 404) : sendOk(toRoomDto(room));
-    }
-
-    if (parsed.data.name !== undefined) {
-      const rooms = await prisma.room.findMany({
-        where: {
-          name: {
-            contains: parsed.data.name,
-            mode: "insensitive" as const,
-          },
-        },
-      });
-      return sendList(rooms.map(toRoomDto));
-    }
-
     const rooms = await prisma.room.findMany();
     return sendList(rooms.map(toRoomDto));
-  } catch (error: unknown) {
-    return sendError(error, 500);
+  } catch {
+    return serverError();
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = CreateRoomSchema.safeParse(body);
+    const parsedBody = CreateRoomSchema.safeParse(await req.json());
 
-    if (!parsed.success) {
-      return sendError("Invalid route parameter: { name:string }", 400);
+    if (!parsedBody.success) {
+      return badRequest("Invalid request body", {
+        expected: "{ name: string }",
+      });
+    }
+
+    const userIdValue = req.cookies.get("userId")?.value;
+
+    if (!userIdValue) {
+      return unauthorized();
+    }
+
+    const userId = Number(userIdValue);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return unauthorized({
+        reason: "Invalid userId cookie",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return notFound("User", {
+        expected: "{ userId: number }",
+      });
     }
 
     const room = await prisma.room.create({
       data: {
-        name: parsed.data.name,
-        creatorId: parsed.data.creatorId,
+        name: parsedBody.data.name,
+        creatorId: user.id,
         participants: {
-          create: { userId: parsed.data.creatorId },
+          create: {
+            userId: user.id,
+          },
         },
       },
     });
 
-    return sendOk(
-      toRoomDto(room),
-      201,
-      `Room created: ${room.id}: ${room.name}`,
-    );
-  } catch (error) {
-    return sendError(error, 500);
+    return sendOk(toRoomDto(room), 201, "Room created");
+  } catch {
+    return serverError();
   }
 }

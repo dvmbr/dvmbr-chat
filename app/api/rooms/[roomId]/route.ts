@@ -1,78 +1,98 @@
-import prisma from "@/lib/db";
-import { toRoomDto, UpdateRoomSchema } from "@/lib/schema/room.schema";
-import { sendError, sendOk } from "@/lib/utils/response";
 import { NextRequest } from "next/server";
+import prisma from "@/lib/db";
+import {
+  RoomParamSchema,
+  toRoomDto,
+  UpdateRoomSchema,
+} from "@/lib/schema/room.schema";
+import { sendOk } from "@/lib/utils/response";
+import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> },
+  { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
-    const roomId = await params.then((p) => parseInt(p.roomId, 10));
+    const parsedParams = RoomParamSchema.safeParse(await params);
 
-    if (Number.isNaN(roomId)) {
-      return sendError("Invalid roomId", 400);
+    if (!parsedParams.success) {
+      return badRequest("Invalid route parameter", {
+        expected: "{ roomId:number }",
+      });
     }
 
     const room = await prisma.room.findUnique({
-      where: { id: roomId },
+      where: { id: parsedParams.data.roomId },
     });
 
     if (!room) {
-      return sendError("Room not found", 404);
+      return notFound("Room");
     }
 
     return sendOk(toRoomDto(room));
-  } catch (error: unknown) {
-    return sendError(error, 500);
+  } catch {
+    return serverError();
   }
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> },
+  { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
-    const roomId = await params.then((p) => parseInt(p.roomId, 10));
+    const parsedParams = RoomParamSchema.safeParse(await params);
+
+    if (!parsedParams.success) {
+      return badRequest("Invalid route parameter", {
+        expected: "{ roomId:number }",
+      });
+    }
 
     const body = await req.json();
     const parsed = UpdateRoomSchema.safeParse(body);
 
     if (!parsed.success) {
-      return sendError("Invalid route parameter: { name:string }", 400);
+      return badRequest("Invalid request body", {
+        expected: "{ name:string }",
+      });
     }
 
-    if (Number.isNaN(roomId)) {
-      return sendError("Invalid route parameter: { roomId:number }", 400);
+    const room = await prisma.room.findUnique({
+      where: { id: parsedParams.data.roomId },
+    });
+
+    if (!room) {
+      return notFound("Room");
     }
 
     const updatedRoom = await prisma.room.update({
-      where: { id: roomId },
+      where: { id: parsedParams.data.roomId },
       data: {
         name: parsed.data.name,
       },
     });
 
     return sendOk(toRoomDto(updatedRoom));
-  } catch (error: unknown) {
-    return sendError(error, 500);
+  } catch {
+    return serverError();
   }
 }
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ roomId: string }> },
+  { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
-    const roomId = await params.then((p) => parseInt(p.roomId, 10));
+    const parsedParams = RoomParamSchema.safeParse(await params);
 
-    if (Number.isNaN(roomId)) {
-      return sendError("Invalid roomId", 400);
+    if (!parsedParams.success) {
+      return badRequest("Invalid route parameter", {
+        expected: "{ roomId: number }",
+      });
     }
 
     const room = await prisma.room.findUnique({
-      where: { id: roomId },
-
+      where: { id: parsedParams.data.roomId },
       include: {
         participants: {
           select: { id: true },
@@ -81,7 +101,7 @@ export async function DELETE(
     });
 
     if (!room) {
-      return sendError("Room not found", 404);
+      return notFound("Room");
     }
 
     const participantIds = room.participants.map(
@@ -100,18 +120,18 @@ export async function DELETE(
 
         await tx.participant.deleteMany({
           where: {
-            roomId: roomId,
+            roomId: parsedParams.data.roomId,
           },
         });
       }
 
       await tx.room.delete({
-        where: { id: roomId },
+        where: { id: parsedParams.data.roomId },
       });
     });
 
-    return sendOk(null, 204, "Room deleted");
-  } catch (error: unknown) {
-    return sendError(error, 500);
+    return sendOk(null, 200, "Room deleted");
+  } catch {
+    return serverError();
   }
 }

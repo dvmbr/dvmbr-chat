@@ -1,26 +1,30 @@
 import prisma from "@/lib/db";
 import {
   CreateMessageSchema,
-  RoomParamSchema,
+  RoomMessageParamSchema,
   toMessageDto,
 } from "@/lib/schema/message.schema";
-import { sendError, sendOk } from "@/lib/utils/response";
+import { sendList, sendOk } from "@/lib/utils/response";
+import {
+  badRequest,
+  notFound,
+  serverError,
+  unauthorized,
+} from "@/lib/utils/error-response";
 import { NextRequest } from "next/server";
 
-type RouteContext = {
-  params: Promise<{
-    roomId: string;
-  }>;
-};
-
-export async function GET(_: NextRequest, context: RouteContext) {
+export async function GET(
+  _req: NextRequest,
+  { params }: RouteContext<"/api/rooms/[roomId]/messages">,
+) {
   try {
-    const params = await context.params;
-
-    const parsedParams = RoomParamSchema.safeParse(params);
+    const routeParams = await params;
+    const parsedParams = RoomMessageParamSchema.safeParse(routeParams);
 
     if (!parsedParams.success) {
-      return sendError("Invalid route parameter: { roomId:number }", 400);
+      return badRequest("Invalid route parameter", {
+        expected: "{ roomId: number }",
+      });
     }
 
     const messages = await prisma.message.findMany({
@@ -28,42 +32,63 @@ export async function GET(_: NextRequest, context: RouteContext) {
       orderBy: { createdAt: "asc" },
     });
 
-    return sendOk(messages.map(toMessageDto));
-  } catch (error) {
-    return sendError(error, 500);
+    return sendList(messages.map(toMessageDto));
+  } catch {
+    return serverError();
   }
 }
 
-export async function POST(req: NextRequest, context: RouteContext) {
+export async function POST(
+  req: NextRequest,
+  { params }: RouteContext<"/api/rooms/[roomId]/messages">,
+) {
   try {
-    const params = await context.params;
-
-    const parsedParams = RoomParamSchema.safeParse(params);
+    const parsedParams = RoomMessageParamSchema.safeParse(await params);
 
     if (!parsedParams.success) {
-      return sendError("Invalid route parameter: { roomId:number }", 400);
+      return badRequest("Invalid route parameter", {
+        expected: "{ roomId: number }",
+      });
     }
 
-    const body = await req.json();
-    const parsedBody = CreateMessageSchema.safeParse(body);
+    const parsedBody = CreateMessageSchema.safeParse(await req.json());
 
     if (!parsedBody.success) {
-      return sendError(
-        "Invalid route parameter: { participantId:number, content:string, type?:'TEXT'|'IMAGE'|'SYSTEM' }",
-        400,
-      );
+      return badRequest("Invalid request body", {
+        expected: "{ content: string, type?: 'TEXT' | 'IMAGE' | 'SYSTEM' }",
+      });
+    }
+
+    const userIdValue = req.cookies.get("userId")?.value;
+
+    if (!userIdValue) {
+      return unauthorized({
+        reason: "Missing userId cookie",
+      });
+    }
+
+    const userId = Number(userIdValue);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return unauthorized({
+        reason: "Invalid userId cookie",
+        expected: "{ userId: number (positive integer) }",
+      });
     }
 
     const participant = await prisma.participant.findUnique({
-      where: { id: parsedBody.data.participantId },
+      where: {
+        userId_roomId: {
+          userId,
+          roomId: parsedParams.data.roomId,
+        },
+      },
     });
 
     if (!participant) {
-      return sendError("Participant not found", 404);
-    }
-
-    if (participant.roomId !== parsedParams.data.roomId) {
-      return sendError("Participant does not belong to this room", 400);
+      return badRequest("User is not a participant of this room", {
+        expected: `{ userId: number (must belong to roomId ${parsedParams.data.roomId}) }`,
+      });
     }
 
     const message = await prisma.message.create({
@@ -75,8 +100,8 @@ export async function POST(req: NextRequest, context: RouteContext) {
       },
     });
 
-    return sendOk(toMessageDto(message));
-  } catch (error) {
-    return sendError(error, 500);
+    return sendOk(toMessageDto(message), 201, "Message created");
+  } catch {
+    return serverError();
   }
 }

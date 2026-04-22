@@ -1,52 +1,57 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import {
-  CreateParticipantSchema,
   ParticipantQuerySchema,
   toParticipantDto,
 } from "@/lib/schema/participant.schema";
-import { sendError, sendList, sendOk } from "@/lib/utils/response";
+import { sendList, sendOk } from "@/lib/utils/response";
+import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const parsed = ParticipantQuerySchema.safeParse({
+    const parsedQuery = ParticipantQuerySchema.safeParse({
       id: searchParams.get("id") ?? undefined,
       userId: searchParams.get("userId") ?? undefined,
       roomId: searchParams.get("roomId") ?? undefined,
     });
 
-    if (!parsed.success) {
-      return sendError(
-        "Invalid query parameters: { id?:number, userId?:number, roomId?:number }",
-        400,
-      );
+    if (!parsedQuery.success) {
+      return badRequest("Invalid query parameters", {
+        expected: "{ id?: number, userId?: number, roomId?: number }",
+      });
     }
 
-    const { id, userId, roomId } = parsed.data;
+    const { id, userId, roomId } = parsedQuery.data;
 
     if (id !== undefined) {
       const participant = await prisma.participant.findUnique({
         where: { id },
       });
 
-      return !participant
-        ? sendError("Participant not found", 404)
-        : sendOk(toParticipantDto(participant));
+      if (!participant) {
+        return notFound("Participant");
+      }
+
+      return sendOk(toParticipantDto(participant));
     }
 
     if (userId !== undefined && roomId !== undefined) {
-      const participant = await prisma.participant.findFirst({
+      const participant = await prisma.participant.findUnique({
         where: {
-          userId,
-          roomId,
+          userId_roomId: {
+            userId,
+            roomId,
+          },
         },
       });
 
-      return !participant
-        ? sendError("Participant not found", 404)
-        : sendOk(toParticipantDto(participant));
+      if (!participant) {
+        return notFound("Participant");
+      }
+
+      return sendOk(toParticipantDto(participant));
     }
 
     if (userId !== undefined) {
@@ -72,53 +77,7 @@ export async function GET(req: NextRequest) {
     });
 
     return sendList(participants.map(toParticipantDto));
-  } catch (error) {
-    console.error(error);
-    return sendError("Failed to fetch participants", 500);
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-
-    const parsed = CreateParticipantSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return sendError(
-        "Invalid route parameter: { userId:number, roomId:number }",
-        400,
-      );
-    }
-
-    const { userId, roomId } = parsed.data;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      return sendError("User not found", 404);
-    }
-
-    const room = await prisma.room.findUnique({
-      where: { id: roomId },
-    });
-
-    if (!room) {
-      return sendError("Room not found", 404);
-    }
-
-    const participant = await prisma.participant.create({
-      data: {
-        userId,
-        roomId,
-      },
-    });
-
-    return sendOk(toParticipantDto(participant));
-  } catch (error) {
-    console.error(error);
-    return sendError("Failed to create participant", 500);
+  } catch {
+    return serverError();
   }
 }
