@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import ChatRoom from "./ChatRoom";
 import { useRoomStore } from "@/lib/stores/roomStore";
 import { useUserStore } from "@/lib/stores/userStore";
 import { useEntry } from "@/hooks/useEntry";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
 import ChatRoomScaffold from "./ui/ChatRoomScaffold";
 
-type ChatEntryProps = {
+type ChatGateProps = {
   roomId?: number;
 };
 
-export default function ChatGate({ roomId }: ChatEntryProps) {
+export default function ChatGate({ roomId }: ChatGateProps) {
   const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { userId, setUser } = useUserStore((state) => state);
   const {
@@ -25,12 +26,17 @@ export default function ChatGate({ roomId }: ChatEntryProps) {
 
   const canEntry = userId !== null;
 
+  const resolvedRoomId = useMemo(() => {
+    return roomId ?? storedRoomId;
+  }, [roomId, storedRoomId]);
+
   const entryMutation = useEntry({
     onSuccess: (res) => {
       setRoom(res.data.room.id, res.data.room.name, res.data.participant.id);
       setUser(res.data.user.id, res.data.user.nickname);
 
       if (roomId === undefined) {
+        setIsRedirecting(true);
         router.replace(`/rooms/${res.data.room.id}`);
       }
     },
@@ -41,7 +47,7 @@ export default function ChatGate({ roomId }: ChatEntryProps) {
 
     entryMutation.mutate({
       userId,
-      ...(roomId ? { roomId } : {}),
+      ...(roomId !== undefined ? { roomId } : {}),
     });
   };
 
@@ -51,7 +57,7 @@ export default function ChatGate({ roomId }: ChatEntryProps) {
 
     entryMutation.mutate({
       userId,
-      ...(roomId ? { roomId } : {}),
+      ...(roomId !== undefined ? { roomId } : {}),
     });
   }, [canEntry, userId, roomId, entryMutation]);
 
@@ -64,14 +70,17 @@ export default function ChatGate({ roomId }: ChatEntryProps) {
     );
   }
 
-  if (storedRoomId === null || participantId === null) {
-    // return (
-    //   <div className="flex h-dvh flex-col items-center justify-center gap-4">
-    //     <div>Entering room...</div>
-    //   </div>
-    // );
+  if (isRedirecting) {
+    return (
+      <div className="flex h-dvh flex-col items-center justify-center gap-4">
+        <div>Moving to room...</div>
+      </div>
+    );
+  }
+
+  if (resolvedRoomId === null || participantId === null) {
     return <ChatRoomScaffold />;
   }
 
-  return <ChatRoom roomId={storedRoomId} participantId={participantId} />;
+  return <ChatRoom roomId={resolvedRoomId} participantId={participantId} />;
 }
