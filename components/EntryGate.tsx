@@ -2,26 +2,19 @@
 
 import useEntry from "@/hooks/useEntry";
 import { CircleAlert } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
-import { Button } from "./ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerFooter,
-} from "./ui/drawer";
-import { Input } from "./ui/input";
-import ChatRoomScaffold from "./ui/ChatRoomScaffold";
+import { useEffect, useState } from "react";
+
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import ChatRoom from "./ChatRoom";
+import ChatRoomScaffold from "./ui/ChatRoomScaffold";
+import EntryNicknameDrawer from "./EntryNicknameDrawer";
 
 export default function EntryGate() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [nickname, setNickname] = useState<string>("");
+  const [nickname, setNickname] = useState("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isNicknameDrawerOpen, setIsNicknameDrawerOpen] = useState(false);
   const [isCheckingEntry, setIsCheckingEntry] = useState(true);
+
   const {
     mutate: entryMutate,
     error: entryError,
@@ -29,7 +22,7 @@ export default function EntryGate() {
     isPending: entryIsPending,
   } = useEntry();
 
-  // Returning flow (initial entry check)
+  // Check initial entry (Returning flow)
   useEffect(() => {
     entryMutate(undefined, {
       onSuccess: () => setIsNicknameDrawerOpen(false),
@@ -38,17 +31,12 @@ export default function EntryGate() {
     });
   }, []);
 
-  useEffect(() => {
-    if (isNicknameDrawerOpen) {
-      inputRef.current?.focus();
-    }
-  }, [isNicknameDrawerOpen]);
-
-  // Creation flow
+  // Create user (Creation flow)
   const handleSubmit = () => {
-    if (!nickname?.trim()) return;
+    if (!nickname.trim()) return;
 
     setIsFirstLoad(false);
+
     entryMutate(
       { nickname },
       {
@@ -74,47 +62,13 @@ export default function EntryGate() {
         </Alert>
       )}
 
-      <Drawer open={isNicknameDrawerOpen} dismissible={false}>
-        <DrawerContent>
-          <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
-            <DrawerHeader className="mb-2">
-              <DrawerTitle>Set your nickname</DrawerTitle>
-            </DrawerHeader>
-
-            <section className="mb-4 w-full px-4">
-              <Input
-                ref={inputRef}
-                className="text-center text-lg font-semibold"
-                value={nickname}
-                placeholder="nickname..."
-                disabled={entryIsPending}
-                onChange={(e) => setNickname(e.target.value)}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !e.shiftKey &&
-                    e.nativeEvent.isComposing === false
-                  ) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-              />
-            </section>
-
-            <DrawerFooter className="w-full">
-              <Button
-                disabled={entryIsPending || !nickname?.trim()}
-                variant="default"
-                className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
-                onClick={handleSubmit}
-              >
-                {entryIsPending ? "Saving..." : "Submit"}
-              </Button>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <EntryNicknameDrawer
+        open={isNicknameDrawerOpen}
+        nickname={nickname}
+        isPending={entryIsPending}
+        onChange={setNickname}
+        onSubmit={handleSubmit}
+      />
 
       {!isCheckingEntry && !isNicknameDrawerOpen ? (
         <ChatRoom />
