@@ -29,18 +29,16 @@ export default function RootLayout({
           <SidebarProvider defaultOpen={false}>
             <MainSidebar />
             <SidebarInset className="relative flex min-h-dvh flex-col">
-              <EntryGate>
-                <div className="sticky top-0 z-50 backdrop-blur">
-                  <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
-                    <SidebarTrigger />
-                    <MainBreadCrumb />
-                  </div>
+              <div className="sticky top-0 z-50 backdrop-blur">
+                <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
+                  <SidebarTrigger />
+                  <MainBreadCrumb />
                 </div>
+              </div>
 
-                <div className="mx-auto w-full max-w-3xl flex-1 px-4">
-                  {children}
-                </div>
-              </EntryGate>
+              <div className="mx-auto w-full max-w-3xl flex-1 px-4">
+                <EntryGate />
+              </div>
             </SidebarInset>
           </SidebarProvider>
         </ReactQueryProvider>

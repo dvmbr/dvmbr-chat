@@ -13,11 +13,15 @@ import {
   DrawerFooter,
 } from "./ui/drawer";
 import { Input } from "./ui/input";
+import ChatRoomScaffold from "./ui/ChatRoomScaffold";
+import ChatRoom from "./ChatRoom";
 
-export default function EntryGate({ children }: { children: React.ReactNode }) {
+export default function EntryGate() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [nickname, setNickname] = useState<string>("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isNicknameDrawerOpen, setIsNicknameDrawerOpen] = useState(false);
+  const [isCheckingEntry, setIsCheckingEntry] = useState(true);
   const {
     mutate: entryMutate,
     error: entryError,
@@ -25,26 +29,41 @@ export default function EntryGate({ children }: { children: React.ReactNode }) {
     isPending: entryIsPending,
   } = useEntry();
 
+  // Returning flow (initial entry check)
   useEffect(() => {
     entryMutate(undefined, {
-      onSettled: (data, error) => {
-        console.dir("settled", { data, error });
-      },
-      onError: (error) => {
-        console.dir("error", error);
-      },
+      onSuccess: () => setIsNicknameDrawerOpen(false),
+      onError: () => setIsNicknameDrawerOpen(true),
+      onSettled: () => setIsCheckingEntry(false),
     });
   }, []);
 
+  useEffect(() => {
+    if (isNicknameDrawerOpen) {
+      inputRef.current?.focus();
+    }
+  }, [isNicknameDrawerOpen]);
+
+  // Creation flow
   const handleSubmit = () => {
     if (!nickname?.trim()) return;
-    entryMutate({ nickname });
+
     setIsFirstLoad(false);
+    entryMutate(
+      { nickname },
+      {
+        onSuccess: () => {
+          setIsNicknameDrawerOpen(false);
+          setNickname("");
+        },
+        onError: () => setIsNicknameDrawerOpen(true),
+      },
+    );
   };
 
   return (
     <>
-      {entryIsError && !isFirstLoad && (
+      {entryIsError && !isFirstLoad && entryError.statusCode !== 400 && (
         <Alert
           className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
           variant="destructive"
@@ -55,7 +74,7 @@ export default function EntryGate({ children }: { children: React.ReactNode }) {
         </Alert>
       )}
 
-      <Drawer open dismissible={false}>
+      <Drawer open={isNicknameDrawerOpen} dismissible={false}>
         <DrawerContent>
           <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
             <DrawerHeader className="mb-2">
@@ -96,7 +115,12 @@ export default function EntryGate({ children }: { children: React.ReactNode }) {
           </div>
         </DrawerContent>
       </Drawer>
-      {children}
+
+      {!isCheckingEntry && !isNicknameDrawerOpen ? (
+        <ChatRoom />
+      ) : (
+        <ChatRoomScaffold />
+      )}
     </>
   );
 }

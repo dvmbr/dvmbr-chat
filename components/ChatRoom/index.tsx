@@ -6,8 +6,8 @@ import ChatMessages from "../ChatRoom/ChatMessages";
 import ChatInput from "../ChatRoom/ChatInput";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ChatRoom({ entry }: { entry: any }) {
-  const { roomId } = entry;
+export default function ChatRoom() {
+  // const { roomId } = entry;
 
   // const { data, isLoading } = useMessages(roomId);
   // const { mutate: createMessage, isPending } = useCreateMessage(roomId);
