@@ -1,86 +1,75 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
-
-import {
-  RoomEntryParamSchema,
-  toRoomEntryDto,
-} from "@/lib/schema/room-entry.schema";
+import { EnterCookieSchema } from "@/lib/schema/entry.schema";
+import { RoomParamSchema } from "@/lib/schema/room.schema";
+import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
 import { sendOk } from "@/lib/utils/response";
-import {
-  badRequest,
-  unauthorized,
-  notFound,
-  serverError,
-} from "@/lib/utils/error-response";
 
 export async function POST(
   req: NextRequest,
   { params }: RouteContext<"/api/rooms/[roomId]/entry">,
 ) {
   try {
-    const parsedParams = RoomEntryParamSchema.safeParse(await params);
+    // 1. user 확인
+    const cookieParsed = EnterCookieSchema.safeParse({
+      userId: req.cookies.get("userId")?.value,
+    });
 
-    if (!parsedParams.success) {
-      return badRequest("Invalid route parameter", {
-        expected: "{ roomId: number }",
-      });
+    if (!cookieParsed.success || !cookieParsed.data.userId) {
+      return badRequest("User cookie not found");
     }
 
+    const userId = cookieParsed.data.userId;
+
+    // 2. roomId 파싱
+    const parsedParams = RoomParamSchema.safeParse(await params);
+
+    if (!parsedParams.success) {
+      return badRequest("Invalid roomId");
+    }
+
+    const roomId = parsedParams.data.roomId;
+
+    // 3. 방 존재 확인
     const room = await prisma.room.findUnique({
-      where: { id: parsedParams.data.roomId },
+      where: { id: roomId },
     });
 
     if (!room) {
       return notFound("Room");
     }
 
-    const userIdValue = req.cookies.get("userId")?.value;
-
-    if (!userIdValue) {
-      return unauthorized({
-        reason: "Missing userId cookie",
-      });
-    }
-
-    const userId = Number(userIdValue);
-
-    if (!Number.isInteger(userId) || userId <= 0) {
-      return unauthorized({
-        reason: "Invalid userId cookie",
-        expected: "{ userId: number (positive integer) }",
-      });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      return notFound("User");
-    }
-
-    const participant = await prisma.participant.upsert({
+    // 4. participant 확인
+    let participant = await prisma.participant.findUnique({
       where: {
         userId_roomId: {
-          userId: user.id,
-          roomId: parsedParams.data.roomId,
+          userId,
+          roomId,
         },
-      },
-      update: {},
-      create: {
-        userId: user.id,
-        roomId: parsedParams.data.roomId,
       },
     });
 
-    return sendOk(
-      toRoomEntryDto({
-        roomId: parsedParams.data.roomId,
-        participantId: participant.id,
-      }),
-      200,
-      "Room entered successfully",
-    );
+    // 5. 없으면 생성
+    if (!participant) {
+      participant = await prisma.participant.create({
+        data: {
+          userId,
+          roomId,
+        },
+      });
+    }
+
+    // 6. lastRoomId 업데이트
+    await prisma.user.update({
+      where: { id: userId },
+      data: { lastRoomId: roomId },
+    });
+
+    return sendOk({
+      userId,
+      roomId,
+      participantId: participant.id,
+    });
   } catch {
     return serverError();
   }

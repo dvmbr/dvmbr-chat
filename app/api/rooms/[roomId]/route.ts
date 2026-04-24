@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
+import { EnterCookieSchema } from "@/lib/schema/entry.schema";
 import {
+  RoomUpdateBodySchema,
   RoomParamSchema,
-  toRoomDto,
-  UpdateRoomSchema,
+  toRoomDTO,
 } from "@/lib/schema/room.schema";
 import { sendOk } from "@/lib/utils/response";
 import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
@@ -13,7 +14,8 @@ export async function GET(
   { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
-    const parsedParams = RoomParamSchema.safeParse(await params);
+    const body = await params;
+    const parsedParams = RoomParamSchema.safeParse(body);
 
     if (!parsedParams.success) {
       return badRequest("Invalid route parameter", {
@@ -29,7 +31,7 @@ export async function GET(
       return notFound("Room");
     }
 
-    return sendOk(toRoomDto(room));
+    return sendOk(toRoomDTO(room));
   } catch {
     return serverError();
   }
@@ -40,6 +42,16 @@ export async function PUT(
   { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
+    const cookieParsed = EnterCookieSchema.safeParse({
+      userId: req.cookies.get("userId")?.value,
+    });
+
+    if (!cookieParsed.success || !cookieParsed.data.userId) {
+      return badRequest("User cookie not found");
+    }
+
+    const userId = cookieParsed.data.userId;
+
     const parsedParams = RoomParamSchema.safeParse(await params);
 
     if (!parsedParams.success) {
@@ -49,7 +61,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const parsed = UpdateRoomSchema.safeParse(body);
+    const parsed = RoomUpdateBodySchema.safeParse(body);
 
     if (!parsed.success) {
       return badRequest("Invalid request body", {
@@ -65,6 +77,10 @@ export async function PUT(
       return notFound("Room");
     }
 
+    if (room.creatorId !== userId) {
+      return badRequest("Not allowed");
+    }
+
     const updatedRoom = await prisma.room.update({
       where: { id: parsedParams.data.roomId },
       data: {
@@ -72,17 +88,27 @@ export async function PUT(
       },
     });
 
-    return sendOk(toRoomDto(updatedRoom));
+    return sendOk(toRoomDTO(updatedRoom));
   } catch {
     return serverError();
   }
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: RouteContext<"/api/rooms/[roomId]">,
 ) {
   try {
+    const cookieParsed = EnterCookieSchema.safeParse({
+      userId: req.cookies.get("userId")?.value,
+    });
+
+    if (!cookieParsed.success || !cookieParsed.data.userId) {
+      return badRequest("User cookie not found");
+    }
+
+    const userId = cookieParsed.data.userId;
+
     const parsedParams = RoomParamSchema.safeParse(await params);
 
     if (!parsedParams.success) {
@@ -102,6 +128,10 @@ export async function DELETE(
 
     if (!room) {
       return notFound("Room");
+    }
+
+    if (room.creatorId !== userId) {
+      return badRequest("Not allowed");
     }
 
     const participantIds = room.participants.map(

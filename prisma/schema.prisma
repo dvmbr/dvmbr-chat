@@ -7,18 +7,20 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  nickname  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  nickname   String   @unique
+  lastRoomId Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   participants Participant[]
   createdRooms Room[]        @relation("RoomCreator")
+  lastRoom     Room?         @relation("UserLastRoom", fields: [lastRoomId], references: [id])
 }
 
 model Room {
   id        Int      @id @default(autoincrement())
-  name      String   @unique
+  name      String
   creatorId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -26,6 +28,7 @@ model Room {
   creator      User          @relation("RoomCreator", fields: [creatorId], references: [id])
   participants Participant[]
   messages     Message[]
+  lastViewedBy User[]        @relation("UserLastRoom")
 }
 
 model Participant {
@@ -40,26 +43,26 @@ model Participant {
   messages Message[]
 
   @@unique([userId, roomId])
+  @@index([userId])
+  @@index([roomId])
 }
 
 model Message {
-  id            Int @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   participantId Int
   roomId        Int
-
-  content String
-
-  type      MessageType @default(TEXT)
-  isDeleted Boolean     @default(false)
-  isEdited  Boolean     @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  content       String
+  type          MessageType @default(TEXT)
+  isDeleted     Boolean     @default(false)
+  isEdited      Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   participant Participant @relation(fields: [participantId], references: [id])
   room        Room        @relation(fields: [roomId], references: [id])
 
   @@index([roomId, createdAt])
+  @@index([participantId])
 }
 
 enum MessageType {

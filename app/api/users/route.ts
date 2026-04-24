@@ -3,14 +3,13 @@ import prisma from "@/lib/db";
 
 import { sendList, sendOk } from "@/lib/utils/response";
 import { badRequest, serverError } from "@/lib/utils/error-response";
-
-import { CreateUserSchema, toUserDto } from "@/lib/schema/user.schema";
+import { toUserDTO, UserCreateBodySchema } from "@/lib/schema/user.schema";
 
 export async function GET() {
   try {
     const users = await prisma.user.findMany();
 
-    return sendList(users.map(toUserDto));
+    return sendList(users.map(toUserDTO));
   } catch {
     return serverError();
   }
@@ -18,7 +17,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const parsedBody = CreateUserSchema.safeParse(await req.json());
+    const body = await req.json();
+    const parsedBody = UserCreateBodySchema.safeParse(body);
 
     if (!parsedBody.success) {
       return badRequest("Invalid request body", {
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     const response = sendOk(
-      toUserDto(user),
+      toUserDTO(user),
       isNewUser ? 201 : 200,
       isNewUser
         ? `User created: ${user.id}: ${user.nickname}`

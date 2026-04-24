@@ -1,74 +1,84 @@
 import { z } from "../openapi/zod";
 import type { Room, User } from "@prisma/client";
 
-const BaseRoomSchema = z.object({
-  id: z.coerce.number().int().positive(),
-  name: z.string().trim().min(1),
-  creatorId: z.coerce.number().int().positive(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+export const RoomSchema = z
+  .object({
+    id: z.number(),
+    name: z.string().trim().min(1),
+    creatorId: z.number().int().positive(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .openapi("Room");
+
+export const RoomCreateBodySchema = z
+  .object({
+    name: z.string().trim().min(1),
+  })
+  .openapi("RoomCreateBody");
+
+export const RoomUpdateBodySchema = z
+  .object({
+    name: z.string().trim().min(1).optional(),
+  })
+  .openapi("RoomUpdateBody");
+
+export const RoomQuerySchema = z
+  .object({
+    name: z.string().trim().optional(),
+    cursor: z.coerce.number().int().optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+  })
+  .openapi("RoomQuery");
+
+export const RoomParamSchema = z.object({
+  roomId: z.coerce.number().int().positive(),
 });
 
-export const RoomSchema = BaseRoomSchema.openapi("Room");
-
-export const RoomWithCreatorSchema = BaseRoomSchema.extend({
-  creator: z.object({
-    id: z.coerce.number().int().positive(),
-    nickname: z.string().trim().min(1),
-  }),
-}).openapi("RoomWithCreator");
-
-export const CreateRoomSchema = z
+export const RoomWithCreatorSchema = z
   .object({
-    name: z.string().trim().min(1),
+    id: z.number(),
+    name: z.string(),
+    creatorId: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    creator: z.object({
+      id: z.number(),
+      nickname: z.string(),
+    }),
   })
-  .openapi("CreateRoom");
+  .openapi("RoomWithCreator");
 
-export const UpdateRoomSchema = z
-  .object({
-    name: z.string().trim().min(1),
-  })
-  .openapi("UpdateRoom");
+export type RoomDTO = z.infer<typeof RoomSchema>;
+export type RoomCreateBodyDTO = z.infer<typeof RoomCreateBodySchema>;
+export type RoomUpdateBodyDTO = z.infer<typeof RoomUpdateBodySchema>;
+export type RoomQueryDTO = z.infer<typeof RoomQuerySchema>;
+export type RoomParamDTO = z.infer<typeof RoomParamSchema>;
+export type RoomWithCreatorDTO = z.infer<typeof RoomWithCreatorSchema>;
 
-export const RoomParamSchema = z
-  .object({
-    roomId: z.coerce.number().int().positive(),
-  })
-  .openapi("RoomParam");
-
-export type RoomDto = z.infer<typeof RoomSchema>;
-export type RoomWithCreatorDto = z.infer<typeof RoomWithCreatorSchema>;
-export type CreateRoomDto = z.infer<typeof CreateRoomSchema>;
-export type UpdateRoomDto = z.infer<typeof UpdateRoomSchema>;
-export type RoomParamDto = z.infer<typeof RoomParamSchema>;
-
-export function toRoomDto(room: Room): RoomDto {
-  return {
+export function toRoomDTO(room: Room): RoomDTO {
+  return RoomSchema.parse({
     id: room.id,
     name: room.name,
     creatorId: room.creatorId,
     createdAt: room.createdAt.toISOString(),
     updatedAt: room.updatedAt.toISOString(),
-  };
+  });
 }
 
-type RoomWithCreator = Room & {
-  creator: Pick<User, "id" | "nickname">;
-};
-
-export function toRoomWithCreatorDto(
-  room: RoomWithCreator,
-): RoomWithCreatorDto {
-  return {
+export function toRoomWithCreatorDTO(
+  room: Room & { creator: User },
+): RoomWithCreatorDTO {
+  return RoomWithCreatorSchema.parse({
     id: room.id,
     name: room.name,
     creatorId: room.creatorId,
+    createdAt: room.createdAt.toISOString(),
+    updatedAt: room.updatedAt.toISOString(),
+
     creator: {
       id: room.creator.id,
       nickname: room.creator.nickname,
     },
-
-    createdAt: room.createdAt.toISOString(),
-    updatedAt: room.updatedAt.toISOString(),
-  };
+  });
 }

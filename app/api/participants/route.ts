@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import {
   ParticipantQuerySchema,
-  toParticipantDto,
+  toParticipantDTO,
 } from "@/lib/schema/participant.schema";
 import { sendList, sendOk } from "@/lib/utils/response";
 import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
         return notFound("Participant");
       }
 
-      return sendOk(toParticipantDto(participant));
+      return sendOk(toParticipantDTO(participant));
     }
 
     if (userId !== undefined && roomId !== undefined) {
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
         return notFound("Participant");
       }
 
-      return sendOk(toParticipantDto(participant));
+      return sendOk(toParticipantDTO(participant));
     }
 
     if (userId !== undefined) {
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
       });
 
-      return sendList(participants.map(toParticipantDto));
+      return sendList(participants.map(toParticipantDTO));
     }
 
     if (roomId !== undefined) {
@@ -69,14 +69,14 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
       });
 
-      return sendList(participants.map(toParticipantDto));
+      return sendList(participants.map(toParticipantDTO));
     }
 
     const participants = await prisma.participant.findMany({
       orderBy: { createdAt: "desc" },
     });
 
-    return sendList(participants.map(toParticipantDto));
+    return sendList(participants.map(toParticipantDTO));
   } catch {
     return serverError();
   }

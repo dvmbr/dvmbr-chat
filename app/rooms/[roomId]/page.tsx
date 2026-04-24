@@ -1,4 +1,4 @@
-import ChatGate from "@/components/ChatGate";
+import EntryGate from "@/components/EntryGate";
 import { notFound } from "next/navigation";
 
 export default async function RoomPage({
@@ -13,5 +13,5 @@ export default async function RoomPage({
     notFound();
   }
 
-  return <ChatGate roomId={roomId} />;
+  return <EntryGate roomId={roomId} />;
 }

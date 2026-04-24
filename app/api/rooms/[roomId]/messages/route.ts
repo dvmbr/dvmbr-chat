@@ -1,36 +1,48 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import {
-  CreateMessageSchema,
-  RoomMessageParamSchema,
-  toMessageDto,
+  MessageQuerySchema,
+  MessageCreateBodySchema,
+  toMessageDTO,
 } from "@/lib/schema/message.schema";
+import { EnterCookieSchema } from "@/lib/schema/entry.schema";
+import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
 import { sendList, sendOk } from "@/lib/utils/response";
-import {
-  badRequest,
-  unauthorized,
-  serverError,
-} from "@/lib/utils/error-response";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: RouteContext<"/api/rooms/[roomId]/messages">,
 ) {
   try {
-    const parsedParams = RoomMessageParamSchema.safeParse(await params);
+    const { roomId: roomIdParam } = await params;
+    const { searchParams } = new URL(req.url);
 
-    if (!parsedParams.success) {
-      return badRequest("Invalid route parameter", {
-        expected: "{ roomId: number }",
+    const parsed = MessageQuerySchema.safeParse({
+      roomId: roomIdParam,
+      cursor: searchParams.get("cursor"),
+      limit: searchParams.get("limit"),
+    });
+
+    if (!parsed.success) {
+      return badRequest("Invalid query parameters", {
+        expected: "{ roomId: number, cursor?: number, limit?: number }",
       });
     }
 
+    const { roomId, cursor, limit } = parsed.data;
+
     const messages = await prisma.message.findMany({
-      where: { roomId: parsedParams.data.roomId },
-      orderBy: { createdAt: "asc" },
+      where: {
+        roomId,
+        ...(cursor ? { id: { lt: cursor } } : {}),
+      },
+      orderBy: {
+        id: "desc",
+      },
+      take: limit,
     });
 
-    return sendList(messages.map(toMessageDto));
+    return sendList(messages.map(toMessageDTO));
   } catch {
     return serverError();
   }
@@ -41,64 +53,73 @@ export async function POST(
   { params }: RouteContext<"/api/rooms/[roomId]/messages">,
 ) {
   try {
-    const parsedParams = RoomMessageParamSchema.safeParse(await params);
+    const { roomId: roomIdParam } = await params;
 
-    if (!parsedParams.success) {
-      return badRequest("Invalid route parameter", {
+    const parsedRoomId = MessageQuerySchema.shape.roomId.safeParse(roomIdParam);
+
+    if (!parsedRoomId.success) {
+      return badRequest("Invalid roomId parameter", {
         expected: "{ roomId: number }",
       });
     }
 
-    const parsedBody = CreateMessageSchema.safeParse(await req.json());
+    const cookieParsed = EnterCookieSchema.safeParse({
+      userId: req.cookies.get("userId")?.value,
+    });
+
+    if (!cookieParsed.success || !cookieParsed.data.userId) {
+      return badRequest("User cookie not found", {
+        expected: "{ userId: number }",
+      });
+    }
+
+    const body = await req.json();
+
+    const parsedBody = MessageCreateBodySchema.safeParse(body);
 
     if (!parsedBody.success) {
       return badRequest("Invalid request body", {
-        expected: "{ content: string, type?: 'TEXT' | 'IMAGE' | 'SYSTEM' }",
+        expected: "{ content: string, type?: TEXT | IMAGE | SYSTEM }",
       });
     }
 
-    const userIdValue = req.cookies.get("userId")?.value;
-
-    if (!userIdValue) {
-      return unauthorized({
-        reason: "Missing userId cookie",
-      });
-    }
-
-    const userId = Number(userIdValue);
-
-    if (!Number.isInteger(userId) || userId <= 0) {
-      return unauthorized({
-        reason: "Invalid userId cookie",
-        expected: "{ userId: number (positive integer) }",
-      });
-    }
+    const roomId = parsedRoomId.data;
+    const { content, type } = parsedBody.data;
+    const userId = cookieParsed.data.userId;
 
     const participant = await prisma.participant.findUnique({
       where: {
         userId_roomId: {
           userId,
-          roomId: parsedParams.data.roomId,
+          roomId,
         },
+      },
+      select: {
+        id: true,
       },
     });
 
     if (!participant) {
-      return badRequest("User is not a participant of this room", {
-        expected: `{ userId: number (must enter roomId ${parsedParams.data.roomId} first) }`,
-      });
+      return notFound("Participant not found");
     }
 
     const message = await prisma.message.create({
       data: {
         participantId: participant.id,
-        roomId: parsedParams.data.roomId,
-        content: parsedBody.data.content,
-        type: parsedBody.data.type ?? "TEXT",
+        roomId,
+        content,
+        type,
       },
     });
 
-    return sendOk(toMessageDto(message), 201, "Message created");
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        lastRoomId: roomId,
+      },
+    });
+
+    return sendOk(toMessageDTO(message));
   } catch {
     return serverError();
   }

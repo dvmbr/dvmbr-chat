@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "./ui/button";
 import {
   Drawer,
@@ -10,69 +10,35 @@ import {
   DrawerTitle,
 } from "./ui/drawer";
 import { Input } from "./ui/input";
-import { useUserStore } from "@/lib/stores/userStore";
-import { useCreateUser } from "@/hooks/useCreateUser";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { CircleAlert } from "lucide-react";
+import { useCreateEntry } from "@/hooks/useEntry";
 
-export default function NicknameGate({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function EntryNickname() {
+  const [nickname, setNickname] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { userId, setUser } = useUserStore((state) => state);
-  const [nickname, setNickname] = useState("");
-
-  const open = userId === null;
-
-  useEffect(() => {
-    if (!open) return;
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 50);
-    return () => window.clearTimeout(timer);
-  }, [open]);
-
-  const createUserMutation = useCreateUser({
-    onSuccess: (res) => {
-      const user = res.data;
-      setUser(user.id, user.nickname);
-    },
-  });
+  const enterMutation = useCreateEntry();
 
   const handleSubmit = () => {
-    const trimmedNickname = nickname.trim();
-
-    if (!trimmedNickname || createUserMutation.isPending) return;
-
-    createUserMutation.mutate({
-      nickname: trimmedNickname,
-    });
+    if (!nickname.trim()) return;
+    enterMutation.mutate({ nickname });
   };
 
   return (
     <>
-      {createUserMutation.error && (
+      {enterMutation.error && (
         <Alert
           className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
           variant="destructive"
         >
           <CircleAlert className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {createUserMutation.error.message}
-          </AlertDescription>
+          <AlertDescription>{enterMutation.error.message}</AlertDescription>
         </Alert>
       )}
-      <Drawer
-        open={open}
-        dismissible={false}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen && open) return;
-        }}
-      >
+
+      <Drawer open dismissible={false}>
         <DrawerContent>
           <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
             <DrawerHeader className="mb-2">
@@ -85,7 +51,7 @@ export default function NicknameGate({
                 className="text-center text-lg font-semibold"
                 value={nickname}
                 placeholder="nickname..."
-                disabled={createUserMutation.isPending}
+                disabled={enterMutation.isPending}
                 onChange={(e) => setNickname(e.target.value)}
                 onKeyDown={(e) => {
                   if (
@@ -102,19 +68,17 @@ export default function NicknameGate({
 
             <DrawerFooter className="w-full">
               <Button
-                disabled={createUserMutation.isPending || !nickname.trim()}
+                disabled={enterMutation.isPending || !nickname.trim()}
                 variant="default"
                 className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
                 onClick={handleSubmit}
               >
-                {createUserMutation.isPending ? "Saving..." : "Submit"}
+                {enterMutation.isPending ? "Saving..." : "Submit"}
               </Button>
             </DrawerFooter>
           </div>
         </DrawerContent>
       </Drawer>
-
-      {children}
     </>
   );
 }

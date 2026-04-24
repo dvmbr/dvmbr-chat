@@ -3,40 +3,29 @@ import type { User } from "@prisma/client";
 
 export const UserSchema = z
   .object({
-    id: z.coerce.number().int().positive(),
+    id: z.number(),
     nickname: z.string().trim().min(1),
+    lastRoomId: z.number().int().positive().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
   .openapi("User");
 
-export const CreateUserSchema = z
+export const UserCreateBodySchema = z
   .object({
     nickname: z.string().trim().min(1),
   })
-  .openapi("CreateUser");
+  .openapi("UserCreateBody");
 
-export const UpdateUserSchema = z
-  .object({
-    nickname: z.string().trim().min(1),
-  })
-  .openapi("UpdateUser");
+export type UserDTO = z.infer<typeof UserSchema>;
+export type UserCreateBodyDTO = z.infer<typeof UserCreateBodySchema>;
 
-export const UserParamSchema = z
-  .object({
-    userId: z.coerce.number().int().positive(),
-  })
-  .openapi("UserParam");
-
-export type UserDto = z.infer<typeof UserSchema>;
-export type CreateUserDto = z.infer<typeof CreateUserSchema>;
-export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
-export type UserParamDto = z.infer<typeof UserParamSchema>;
-
-export function toUserDto(user: User): UserDto {
-  return {
-    ...user,
+export function toUserDTO(user: User): UserDTO {
+  return UserSchema.parse({
+    id: user.id,
+    nickname: user.nickname,
+    lastRoomId: user.lastRoomId,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
-  };
+  });
 }

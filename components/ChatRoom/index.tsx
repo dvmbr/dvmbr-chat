@@ -1,37 +1,37 @@
 "use client";
 
-import ChatInput from "./ChatInput";
-import ChatMessages from "./ChatMessages";
-import { useGetMessages } from "@/hooks/useGetMessages";
-import { useCreateMessage } from "@/hooks/useCreateMessage";
+import { useState } from "react";
+import type { EnterChatDTO } from "@/lib/schema/entry.schema";
+import { useMessages, useCreateMessage } from "@/hooks/useMessages";
+import ChatMessages from "../ChatRoom/ChatMessages";
+import ChatInput from "../ChatRoom/ChatInput";
 
-type ChatRoomProps = {
-  roomId: number;
-  participantId: number;
-};
+export default function ChatRoom({ entry }: { entry: EnterChatDTO }) {
+  const { roomId } = entry;
 
-export default function ChatRoom({ roomId, participantId }: ChatRoomProps) {
-  console.log("roomId", roomId, "participantId", participantId);
-  const { data } = useGetMessages(roomId);
-  const { mutate: createMessage, isPending: isSending } =
-    useCreateMessage(roomId);
+  const { data, isLoading } = useMessages(roomId);
+  const { mutate: createMessage, isPending } = useCreateMessage(roomId);
 
-  const messages = data?.data.items ?? [];
+  const [input, setInput] = useState("");
 
-  const handleSend = (content: string) => {
-    createMessage({
-      content,
-      type: "TEXT",
-    });
+  const handleSend = () => {
+    // if (!input.trim()) return;
+
+    createMessage({ content: input });
+    setInput("");
   };
+
+  if (isLoading) {
+    return <div>Loading messages...</div>;
+  }
 
   return (
     <section className="container mx-auto flex h-full max-w-3xl flex-col">
       <div className="min-h-0 flex-1">
-        <ChatMessages messages={messages} />
+        <ChatMessages messages={data?.data.items || []} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
-        <ChatInput onSend={handleSend} disabled={isSending} />
+        <ChatInput onSend={handleSend} disabled={isPending} />
       </div>
     </section>
   );

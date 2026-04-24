@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CircleAlert, Plus } from "lucide-react";
 import { useUserStore } from "@/lib/stores/userStore";
-import type { RoomWithCreatorDto } from "@/lib/schema/room.schema";
 import { Button } from "../ui/button";
 import RoomLink from "./RoomLink";
 import {
@@ -16,10 +15,11 @@ import {
 } from "../ui/drawer";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { useCreateRoom } from "@/hooks/useCreateRoom";
+import { RoomWithCreatorDTO } from "@/lib/schema/room.schema";
+import { useCreateRoom } from "@/hooks/useRoom";
 
 type RoomListProps = {
-  rooms: RoomWithCreatorDto[];
+  rooms: RoomWithCreatorDTO[];
 };
 
 export default function RoomList({ rooms }: RoomListProps) {
@@ -82,7 +82,7 @@ export default function RoomList({ rooms }: RoomListProps) {
     </DrawerTrigger>
   );
 
-  const renderRoomList = (list: RoomWithCreatorDto[], editable = false) => (
+  const renderRoomList = (list: RoomWithCreatorDTO[], editable = false) => (
     <ul className="mt-2 flex flex-col gap-4">
       {list.map((room) => (
         <li key={room.id}>
