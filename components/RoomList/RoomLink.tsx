@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { RoomWithCreatorDto } from "@/lib/schema/room.schema";
 import RoomActions from "./RoomAction";
 
 type RoomLinkProps = {
   to: string;
-  room: RoomWithCreatorDto;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  room: any;
   editable?: boolean;
 };
 

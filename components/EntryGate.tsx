@@ -1,29 +1,102 @@
 "use client";
-import { useEffect } from "react";
-import EntryNickname from "./EntryNickname";
-import ChatRoom from "./ChatRoom";
-import { useRestoreEntry } from "@/hooks/useEntry";
-import { useJoinRoom } from "@/hooks/useRoom";
 
-export default function EntryGate({ roomId }: { roomId?: number }) {
-  const { data, isLoading, isError } = useRestoreEntry();
-  const { mutate, data: entered } = useJoinRoom();
+import useEntry from "@/hooks/useEntry";
+import { CircleAlert } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
+import { Button } from "./ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "./ui/drawer";
+import { Input } from "./ui/input";
+
+export default function EntryGate({ children }: { children: React.ReactNode }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [nickname, setNickname] = useState<string>("");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const {
+    mutate: entryMutate,
+    error: entryError,
+    isError: entryIsError,
+    isPending: entryIsPending,
+  } = useEntry();
 
   useEffect(() => {
-    if (!roomId) return;
-    if (!data) return;
+    entryMutate(undefined, {
+      onSettled: (data, error) => {
+        console.dir("settled", { data, error });
+      },
+      onError: (error) => {
+        console.dir("error", error);
+      },
+    });
+  }, []);
 
-    mutate(roomId);
-  }, [roomId, data]);
+  const handleSubmit = () => {
+    if (!nickname?.trim()) return;
+    entryMutate({ nickname });
+    setIsFirstLoad(false);
+  };
 
-  if (isLoading) return null;
+  return (
+    <>
+      {entryIsError && !isFirstLoad && (
+        <Alert
+          className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
+          variant="destructive"
+        >
+          <CircleAlert className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{entryError.error}</AlertDescription>
+        </Alert>
+      )}
 
-  if (isError || !data) {
-    return <EntryNickname />;
-  }
+      <Drawer open dismissible={false}>
+        <DrawerContent>
+          <div className="mx-auto mb-4 flex w-full max-w-lg flex-col items-center">
+            <DrawerHeader className="mb-2">
+              <DrawerTitle>Set your nickname</DrawerTitle>
+            </DrawerHeader>
 
-  // roomId 있으면 entry API 결과 우선
-  const finalEntry = entered?.data ?? data;
+            <section className="mb-4 w-full px-4">
+              <Input
+                ref={inputRef}
+                className="text-center text-lg font-semibold"
+                value={nickname}
+                placeholder="nickname..."
+                disabled={entryIsPending}
+                onChange={(e) => setNickname(e.target.value)}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey &&
+                    e.nativeEvent.isComposing === false
+                  ) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+              />
+            </section>
 
-  return <ChatRoom entry={finalEntry} />;
+            <DrawerFooter className="w-full">
+              <Button
+                disabled={entryIsPending || !nickname?.trim()}
+                variant="default"
+                className="w-full rounded-xl py-3 text-lg font-bold shadow-md"
+                onClick={handleSubmit}
+              >
+                {entryIsPending ? "Saving..." : "Submit"}
+              </Button>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
+      {children}
+    </>
+  );
 }

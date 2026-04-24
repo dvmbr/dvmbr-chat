@@ -24,12 +24,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import type { RoomDTO } from "@/lib/schema/room.schema";
-import { useUpdateRoom } from "@/hooks/useRoom";
-import { useDeleteRoom } from "@/hooks/useRoom";
 
 type RoomActionsProps = {
-  room: RoomDTO;
+  room: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export default function RoomActions({ room }: RoomActionsProps) {
@@ -37,17 +34,17 @@ export default function RoomActions({ room }: RoomActionsProps) {
   const [openDelete, setOpenDelete] = useState(false);
   const [name, setName] = useState(room.name);
 
-  const updateMutation = useUpdateRoom(room.id, {
-    onSuccess: () => {
-      setOpenEdit(false);
-    },
-  });
+  // const updateMutation = useUpdateRoom(room.id, {
+  //   onSuccess: () => {
+  //     setOpenEdit(false);
+  //   },
+  // });
 
-  const deleteMutation = useDeleteRoom(room.id, {
-    onSuccess: () => {
-      setOpenDelete(false);
-    },
-  });
+  // const deleteMutation = useDeleteRoom(room.id, {
+  //   onSuccess: () => {
+  //     setOpenDelete(false);
+  //   },
+  // });
 
   return (
     <div
@@ -87,7 +84,7 @@ export default function RoomActions({ room }: RoomActionsProps) {
               type="button"
               onClick={() => {
                 setOpenEdit(false);
-                updateMutation.reset();
+                // updateMutation.reset();
                 setName(room.name);
               }}
             >
@@ -95,23 +92,23 @@ export default function RoomActions({ room }: RoomActionsProps) {
             </Button>
             <Button
               type="button"
-              disabled={updateMutation.isPending || !name.trim()}
+              // disabled={updateMutation.isPending || !name.trim()}
               onClick={() => {
-                updateMutation.mutate({
-                  name: name.trim(),
-                });
+                // updateMutation.mutate({
+                //   name: name.trim(),
+                // });
               }}
             >
-              {updateMutation.isPending ? "Updating..." : "Update"}
+              {/* {updateMutation.isPending ? "Updating..." : "Update"} */}
             </Button>
           </DialogFooter>
 
-          {updateMutation.error && (
+          {/* {updateMutation.error && (
             <div className="text-destructive flex items-center gap-2 text-sm">
               <CircleAlert className="h-4 w-4" />
               <span>{updateMutation.error.message}</span>
             </div>
-          )}
+          )} */}
         </DialogContent>
       </Dialog>
 
@@ -137,31 +134,31 @@ export default function RoomActions({ room }: RoomActionsProps) {
 
           <AlertDialogFooter>
             <AlertDialogCancel
-              disabled={deleteMutation.isPending}
-              onClick={() => {
-                deleteMutation.reset();
-              }}
+            // disabled={deleteMutation.isPending}
+            // onClick={() => {
+            //   deleteMutation.reset();
+            // }}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
-              disabled={deleteMutation.isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteMutation.mutate();
-              }}
+              // disabled={deleteMutation.isPending}
+              // onClick={(e) => {
+              //   e.preventDefault();
+              //   deleteMutation.mutate();
+              // }}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {/* {deleteMutation.isPending ? "Deleting..." : "Delete"} */}
             </AlertDialogAction>
           </AlertDialogFooter>
 
-          {deleteMutation.error && (
+          {/* {deleteMutation.error && (
             <div className="text-destructive mt-2 flex items-center gap-2 text-sm">
               <CircleAlert className="h-4 w-4" />
               <span>{deleteMutation.error.message}</span>
             </div>
-          )}
+          )} */}
         </AlertDialogContent>
       </AlertDialog>
     </div>

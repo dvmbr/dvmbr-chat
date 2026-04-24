@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getErrorMessage } from "./error";
 import type {
   ErrorResponse,
   OkResponse,
   ListData,
 } from "@/lib/schema/response.schema";
+import { toErrorResponse } from "./error-response";
 
 export function sendOk<T>(
   data: T,
@@ -54,9 +54,7 @@ export function sendError(
 ): NextResponse<ErrorResponse> {
   return NextResponse.json(
     {
-      data: null,
-      error: getErrorMessage(error),
-      statusCode,
+      ...toErrorResponse(error, statusCode),
       timestamp: new Date().toISOString(),
       meta: meta,
     },

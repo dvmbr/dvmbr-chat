@@ -7,11 +7,12 @@ generator client {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  nickname   String   @unique
-  lastRoomId Int?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  nickname     String   @unique
+  browserToken String   @unique
+  lastRoomId   Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   participants Participant[]
   createdRooms Room[]        @relation("RoomCreator")

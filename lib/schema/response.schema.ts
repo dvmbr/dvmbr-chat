@@ -1,9 +1,8 @@
-import { z } from "../openapi/zod";
+import { z } from "../zod";
 
 export function errorOpenApi() {
   return z
     .object({
-      data: z.null(),
       error: z.string(),
       statusCode: z.number(),
       timestamp: z.string(),

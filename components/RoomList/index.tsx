@@ -15,11 +15,10 @@ import {
 } from "../ui/drawer";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { RoomWithCreatorDTO } from "@/lib/schema/room.schema";
-import { useCreateRoom } from "@/hooks/useRoom";
 
 type RoomListProps = {
-  rooms: RoomWithCreatorDTO[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rooms: any[];
 };
 
 export default function RoomList({ rooms }: RoomListProps) {
@@ -32,14 +31,14 @@ export default function RoomList({ rooms }: RoomListProps) {
   const myRooms = rooms.filter((room) => room.creatorId === userId);
   const otherRooms = rooms.filter((room) => room.creatorId !== userId);
 
-  const createRoomMutation = useCreateRoom({
-    onSuccess: () => {
-      setOpen(false);
-    },
-    onSettled: () => {
-      setRoomName("");
-    },
-  });
+  // const createRoomMutation = useCreateRoom({
+  //   onSuccess: () => {
+  //     setOpen(false);
+  //   },
+  //   onSettled: () => {
+  //     setRoomName("");
+  //   },
+  // });
 
   useEffect(() => {
     if (!open) return;
@@ -52,15 +51,14 @@ export default function RoomList({ rooms }: RoomListProps) {
   }, [open]);
 
   const handleCreateRoom = () => {
-    if (!userId || !roomName.trim() || createRoomMutation.isPending) return;
-
-    createRoomMutation.mutate({
-      name: roomName.trim(),
-    });
+    // if (!userId || !roomName.trim() || createRoomMutation.isPending) return;
+    // createRoomMutation.mutate({
+    //   name: roomName.trim(),
+    // });
   };
 
   const handleCloseDrawer = () => {
-    createRoomMutation.reset();
+    // createRoomMutation.reset();
     setRoomName("");
     setOpen(false);
   };
@@ -82,7 +80,8 @@ export default function RoomList({ rooms }: RoomListProps) {
     </DrawerTrigger>
   );
 
-  const renderRoomList = (list: RoomWithCreatorDTO[], editable = false) => (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderRoomList = (list: any[], editable = false) => (
     <ul className="mt-2 flex flex-col gap-4">
       {list.map((room) => (
         <li key={room.id}>
@@ -94,7 +93,7 @@ export default function RoomList({ rooms }: RoomListProps) {
 
   return (
     <>
-      {createRoomMutation.error && (
+      {/* {createRoomMutation.error && (
         <Alert
           className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
           variant="destructive"
@@ -105,7 +104,7 @@ export default function RoomList({ rooms }: RoomListProps) {
             {createRoomMutation.error.message}
           </AlertDescription>
         </Alert>
-      )}
+      )} */}
 
       <Drawer open={open} onOpenChange={setOpen}>
         <div className="container mx-auto flex h-full max-w-3xl flex-col gap-6 p-4">
@@ -171,7 +170,7 @@ export default function RoomList({ rooms }: RoomListProps) {
                 className="flex-1"
                 variant="outline"
                 onClick={handleCloseDrawer}
-                disabled={createRoomMutation.isPending}
+                // disabled={createRoomMutation.isPending}
               >
                 Cancel
               </Button>
@@ -180,9 +179,9 @@ export default function RoomList({ rooms }: RoomListProps) {
                 className="flex-1"
                 variant="default"
                 onClick={handleCreateRoom}
-                disabled={createRoomMutation.isPending || !roomName.trim()}
+                // disabled={createRoomMutation.isPending || !roomName.trim()}
               >
-                {createRoomMutation.isPending ? "Creating..." : "Create"}
+                {/* {createRoomMutation.isPending ? "Creating..." : "Create"} */}
               </Button>
             </DrawerFooter>
           </div>

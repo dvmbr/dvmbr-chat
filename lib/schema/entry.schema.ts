@@ -1,36 +1,30 @@
-import { z } from "../openapi/zod";
+import { User } from "@prisma/client";
+import { z } from "../zod";
+import { toUserDTO, UserSchema } from "./user.schema";
 
-export const EnterChatSchema = z
+export const EntrySchema = z
   .object({
-    userId: z.number().int().positive(),
-    roomId: z.number().int().positive(),
-    participantId: z.number().int().positive(),
+    user: UserSchema,
+    isNew: z.boolean(),
   })
-  .openapi("EnterChat");
+  .openapi("Entry");
 
-export const EnterChatCreateBodySchema = z
+export const EntryBodySchema = z
   .object({
     nickname: z.string().trim().min(1),
   })
-  .openapi("EnterChatCreateBody");
+  .openapi("EntryBody");
 
-export const EnterCookieSchema = z.object({
-  userId: z.coerce.number().int().positive().optional(),
-});
-
-type EnterChat = {
-  userId: number;
-  roomId: number;
-  participantId: number;
+export type Entry = {
+  user: User;
+  isNew: boolean;
 };
-export type EnterChatDTO = z.infer<typeof EnterChatSchema>;
-export type EnterChatCreateBodyDTO = z.infer<typeof EnterChatCreateBodySchema>;
-export type EnterCookieDTO = z.infer<typeof EnterCookieSchema>;
+export type EntryDTO = z.infer<typeof EntrySchema>;
+export type EntryBodyDTO = z.infer<typeof EntryBodySchema>;
 
-export function toEnterChatDTO(enterChat: EnterChat): EnterChatDTO {
-  return EnterChatSchema.parse({
-    userId: enterChat.userId,
-    roomId: enterChat.roomId,
-    participantId: enterChat.participantId,
+export function toEntryDTO(data: Entry): EntryDTO {
+  return EntrySchema.parse({
+    user: toUserDTO(data.user),
+    isNew: data.isNew,
   });
 }

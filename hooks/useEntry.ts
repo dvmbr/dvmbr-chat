@@ -1,28 +1,15 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiClient } from "@/lib/apiClient";
-import {
-  EnterChatCreateBodyDTO,
-  EnterChatDTO,
-} from "@/lib/schema/entry.schema";
+import { apiClient } from "@/lib/api-client";
+import type { EntryBodyDTO, EntryDTO } from "@/lib/schema/entry.schema";
+import type { ErrorResponse, OkResponse } from "@/lib/schema/response.schema";
+import { useMutation } from "@tanstack/react-query";
 
-export function useRestoreEntry() {
-  return useQuery<EnterChatDTO>({
-    queryKey: ["entry"],
-    queryFn: async () => {
-      return apiClient.get("entry").json();
-    },
-    retry: false,
-  });
-}
-
-export function useCreateEntry() {
-  return useMutation<EnterChatDTO, Error, EnterChatCreateBodyDTO>({
-    mutationFn: async (payload: EnterChatCreateBodyDTO) => {
-      return apiClient
-        .post("entry", {
-          json: payload,
-        })
-        .json();
+export default function useEntry() {
+  return useMutation<EntryDTO, ErrorResponse, EntryBodyDTO | void>({
+    mutationFn: async (body) => {
+      const res = await apiClient
+        .post("entry", { json: body })
+        .json<OkResponse<EntryDTO>>();
+      return res.data;
     },
   });
 }

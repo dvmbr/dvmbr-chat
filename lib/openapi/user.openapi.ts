@@ -1,5 +1,5 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { z } from "@/lib/openapi/zod";
+import { z } from "@/lib/zod";
 import {
   UserSchema,
   CreateUserSchema,

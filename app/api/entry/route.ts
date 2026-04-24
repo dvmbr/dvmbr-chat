@@ -1,130 +1,70 @@
-import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
-import {
-  EnterChatCreateBodySchema,
-  EnterCookieSchema,
-} from "@/lib/schema/entry.schema";
-import { badRequest, notFound, serverError } from "@/lib/utils/error-response";
+import { EntryBodySchema, toEntryDTO } from "@/lib/schema/entry.schema";
+import { badRequest, internalServerError } from "@/lib/utils/error-response";
 import { sendOk } from "@/lib/utils/response";
-
-export async function GET(req: NextRequest) {
-  try {
-    const parsed = EnterCookieSchema.safeParse({
-      userId: req.cookies.get("userId")?.value,
-    });
-
-    if (!parsed.success || !parsed.data.userId) {
-      return badRequest("User cookie not found", {
-        expected: "{ userId: number }",
-      });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: parsed.data.userId },
-
-      select: {
-        id: true,
-
-        lastRoomId: true,
-      },
-    });
-
-    if (!user) {
-      return notFound("User not found");
-    }
-
-    if (!user.lastRoomId) {
-      return notFound("Last room not found");
-    }
-
-    const participant = await prisma.participant.findUnique({
-      where: {
-        userId_roomId: {
-          userId: user.id,
-          roomId: user.lastRoomId,
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!participant) {
-      return notFound("Participant not found");
-    }
-
-    return sendOk({
-      userId: user.id,
-      roomId: user.lastRoomId,
-      participantId: participant.id,
-    });
-  } catch {
-    return serverError();
-  }
-}
+import { randomUUID } from "crypto";
+import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const token = req.cookies.get("browserToken")?.value;
 
-    const parsed = EnterChatCreateBodySchema.safeParse(body);
-    if (!parsed.success) {
-      return badRequest("Invalid request body", {
+    /*
+     * Returning flow:
+     * If browserToken exists and matches a user, return the existing user.
+     * If the token is missing or does not match any user, continue to the creation flow.
+     */
+    if (token) {
+      const user = await prisma.user.findUnique({
+        where: { browserToken: token },
+      });
+
+      if (user) {
+        return sendOk(toEntryDTO({ user, isNew: false }));
+      }
+    }
+
+    /*
+     * Creation flow:
+     * If the request body is missing or invalid, return 400.
+     * The client should prompt the user to enter a nickname.
+     */
+    const body = await req.json().catch(() => null);
+    const parsedBody = EntryBodySchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return badRequest({
         expected: "{ nickname: string }",
+        details: "nickname must be at least 1 character",
       });
     }
 
-    const { nickname } = parsed.data;
+    const nickname = parsedBody.data.nickname.trim();
+    const browserToken = randomUUID();
 
-    // 1. 모든 생성을 하나의 트랜잭션으로 묶음
-    const result = await prisma.$transaction(async (tx) => {
-      // 유저 생성
-      const user = await tx.user.create({
-        data: { nickname },
-      });
-
-      // 방 생성
-      const room = await tx.room.create({
-        data: {
-          name: `${nickname}'s room`,
-          creatorId: user.id,
-        },
-      });
-
-      // 참가자 생성
-      const participant = await tx.participant.create({
-        data: {
-          userId: user.id,
-          roomId: room.id,
-        },
-      });
-
-      // 유저의 lastRoomId 업데이트
-      const updatedUser = await tx.user.update({
-        where: { id: user.id },
-        data: { lastRoomId: room.id },
-      });
-
-      return {
-        userId: updatedUser.id,
-        roomId: room.id,
-        participantId: participant.id,
-      };
+    /**
+     * if nickname is duplicated, Prisma throws P2002.
+     * toErrorResponse() maps P2002 to 409 Conflict.
+     * The client should ask the user to choose another nickname.
+     */
+    const user = await prisma.user.create({
+      data: {
+        nickname,
+        browserToken,
+      },
     });
 
-    // 2. 응답 구성 및 쿠키 설정
-    const res = sendOk(result);
-
-    res.cookies.set("userId", String(result.userId), {
+    const res = sendOk(toEntryDTO({ user, isNew: true }));
+    res.cookies.set("browserToken", browserToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
     });
 
     return res;
   } catch (error) {
-    console.error("Entry Transaction Error:", error);
-    return serverError();
+    console.error("Error in /entry route:", error);
+    return internalServerError(error);
   }
 }

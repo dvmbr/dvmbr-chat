@@ -1,31 +1,30 @@
-import { z } from "../openapi/zod";
-import type { User } from "@prisma/client";
+import { User } from "@prisma/client";
+import { z } from "../zod";
 
 export const UserSchema = z
   .object({
     id: z.number(),
     nickname: z.string().trim().min(1),
-    lastRoomId: z.number().int().positive().nullable(),
+    browserToken: z.string(),
+    lastRoomId: z.number().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
   .openapi("User");
 
-export const UserCreateBodySchema = z
+export const userCreateBodySchema = z
   .object({
     nickname: z.string().trim().min(1),
   })
   .openapi("UserCreateBody");
 
 export type UserDTO = z.infer<typeof UserSchema>;
-export type UserCreateBodyDTO = z.infer<typeof UserCreateBodySchema>;
+export type UserCreateBodyDTO = z.infer<typeof userCreateBodySchema>;
 
-export function toUserDTO(user: User): UserDTO {
+export function toUserDTO(data: User): UserDTO {
   return UserSchema.parse({
-    id: user.id,
-    nickname: user.nickname,
-    lastRoomId: user.lastRoomId,
-    createdAt: user.createdAt.toISOString(),
-    updatedAt: user.updatedAt.toISOString(),
+    ...data,
+    createdAt: data.createdAt.toISOString(),
+    updatedAt: data.updatedAt.toISOString(),
   });
 }
