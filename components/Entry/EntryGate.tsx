@@ -4,10 +4,11 @@ import useEntry from "@/hooks/useEntry";
 import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import ChatRoom from "./ChatRoom";
-import ChatRoomScaffold from "./ui/ChatRoomScaffold";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import ChatRoom from "../ChatRoom";
+import ChatRoomScaffold from "../ui/ChatRoomScaffold";
 import EntryNicknameDrawer from "./EntryNicknameDrawer";
+import { EntryBodyDTO } from "@/lib/schema/entry.schema";
 
 export default function EntryGate() {
   const [nickname, setNickname] = useState("");
@@ -15,16 +16,11 @@ export default function EntryGate() {
   const [isNicknameDrawerOpen, setIsNicknameDrawerOpen] = useState(false);
   const [isCheckingEntry, setIsCheckingEntry] = useState(true);
 
-  const {
-    mutate: entryMutate,
-    error: entryError,
-    isError: entryIsError,
-    isPending: entryIsPending,
-  } = useEntry();
+  const { mutate, error, isError, isPending } = useEntry();
 
   // Check initial entry (Returning flow)
   useEffect(() => {
-    entryMutate(undefined, {
+    mutate(undefined, {
       onSuccess: () => setIsNicknameDrawerOpen(false),
       onError: () => setIsNicknameDrawerOpen(true),
       onSettled: () => setIsCheckingEntry(false),
@@ -37,35 +33,34 @@ export default function EntryGate() {
 
     setIsFirstLoad(false);
 
-    entryMutate(
-      { nickname },
-      {
-        onSuccess: () => {
-          setIsNicknameDrawerOpen(false);
-          setNickname("");
-        },
-        onError: () => setIsNicknameDrawerOpen(true),
+    const body: EntryBodyDTO = { nickname: nickname.trim() };
+
+    mutate(body, {
+      onSuccess: () => {
+        setIsNicknameDrawerOpen(false);
+        setNickname("");
       },
-    );
+      onError: () => setIsNicknameDrawerOpen(true),
+    });
   };
 
   return (
     <>
-      {entryIsError && !isFirstLoad && entryError.statusCode !== 400 && (
+      {isError && !isFirstLoad && error.statusCode !== 400 && (
         <Alert
           className="fixed inset-1/2 z-999 min-h-fit w-max -translate-1/2"
           variant="destructive"
         >
           <CircleAlert className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{entryError.error}</AlertDescription>
+          <AlertDescription>{error.error}</AlertDescription>
         </Alert>
       )}
 
       <EntryNicknameDrawer
         open={isNicknameDrawerOpen}
         nickname={nickname}
-        isPending={entryIsPending}
+        isPending={isPending}
         onChange={setNickname}
         onSubmit={handleSubmit}
       />

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/ui/MainSidebar";
 import MainBreadCrumb from "@/components/ui/MainBreadCrumb";
-import EntryGate from "@/components/EntryGate";
+import EntryGate from "@/components/Entry/EntryGate";
 
 const ubuntuSans = Ubuntu_Sans({
   subsets: ["latin"],

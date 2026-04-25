@@ -2,15 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Drawer,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "./ui/drawer";
-import { Input } from "./ui/input";
+} from "../ui/drawer";
+import { Input } from "../ui/input";
 
 type EntryNicknameDrawerProps = {
   open: boolean;

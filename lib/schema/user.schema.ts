@@ -12,14 +12,7 @@ export const UserSchema = z
   })
   .openapi("User");
 
-export const userCreateBodySchema = z
-  .object({
-    nickname: z.string().trim().min(1),
-  })
-  .openapi("UserCreateBody");
-
 export type UserDTO = z.infer<typeof UserSchema>;
-export type UserCreateBodyDTO = z.infer<typeof userCreateBodySchema>;
 
 export function toUserDTO(data: User): UserDTO {
   return UserSchema.parse({
