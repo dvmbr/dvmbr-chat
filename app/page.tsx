@@ -1,5 +1,5 @@
-import ChatRoom from "@/components/ChatRoom";
+import ChatRoomEntry from "@/components/ChatRoom/ChatRoomEntry";
 
 export default function Home() {
-  return <ChatRoom />;
+  return <ChatRoomEntry />;
 }

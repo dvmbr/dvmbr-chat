@@ -1,21 +1,30 @@
 import RoomList from "@/components/RoomList";
 import prisma from "@/lib/db";
-import { toRoomWithCreatorDTO } from "@/lib/schema/room.schema";
+import { cookies } from "next/headers";
 
 export default async function RoomsPage() {
-  const result = await prisma.room.findMany({
-    orderBy: {
-      createdAt: "desc",
+  const cookieStore = await cookies();
+  const token = cookieStore.get("browserToken")?.value;
+  if (!token) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { browserToken: token },
+  });
+  if (!user) return null;
+
+  const rooms = await prisma.room.findMany({
+    where: {
+      participants: {
+        some: {
+          userId: user.id,
+        },
+      },
     },
-    include: {
-      creator: true,
+    orderBy: {
+      updatedAt: "desc",
     },
   });
-  const rooms = result.map(toRoomWithCreatorDTO);
+  // const rooms = result.map(toRoomWithCreatorDTO);
 
-  return (
-    <div className="h-full">
-      <RoomList rooms={rooms} />
-    </div>
-  );
+  return <RoomList rooms={rooms} />;
 }

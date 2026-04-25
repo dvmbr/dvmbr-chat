@@ -8,7 +8,7 @@ export default function useChatRoomEntry() {
   return useMutation<ChatRoomEntryDTO, ErrorResponse, number | undefined>({
     mutationFn: async (roomId) => {
       const res = await apiClient
-        .post(roomId ? `/rooms/${roomId}/entry` : "/rooms/entry")
+        .post(roomId ? `rooms/${roomId}/entry` : "rooms/entry")
         .json<OkResponse<ChatRoomEntryDTO>>();
       return res.data;
     },

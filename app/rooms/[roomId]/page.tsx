@@ -1,4 +1,4 @@
-import EntryGate from "@/components/EntryGate";
+import ChatRoomEntry from "@/components/ChatRoom/ChatRoomEntry";
 import { notFound } from "next/navigation";
 
 export default async function RoomPage({
@@ -9,9 +9,9 @@ export default async function RoomPage({
   const { roomId: roomIdParam } = await params;
   const roomId = Number(roomIdParam);
 
-  if (Number.isNaN(roomId)) {
+  if (!Number.isInteger(roomId) || roomId <= 0) {
     notFound();
   }
 
-  return <EntryGate roomId={roomId} />;
+  return <ChatRoomEntry roomId={roomId} />;
 }
