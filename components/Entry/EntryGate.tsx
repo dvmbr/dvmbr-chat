@@ -5,16 +5,17 @@ import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import ChatRoomScaffold from "../ui/ChatRoomScaffold";
 import EntryNicknameDrawer from "./EntryNicknameDrawer";
 import { EntryBodyDTO } from "@/lib/schema/entry.schema";
-import ChatRoomEntry from "../ChatRoom/ChatRoomEntry";
 
-export default function EntryGate() {
+export default function EntryGate({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const [nickname, setNickname] = useState("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [isNicknameDrawerOpen, setIsNicknameDrawerOpen] = useState(false);
-  const [isCheckingEntry, setIsCheckingEntry] = useState(true);
 
   const { mutate, error, isError, isPending } = useEntry();
 
@@ -23,7 +24,6 @@ export default function EntryGate() {
     mutate(undefined, {
       onSuccess: () => setIsNicknameDrawerOpen(false),
       onError: () => setIsNicknameDrawerOpen(true),
-      onSettled: () => setIsCheckingEntry(false),
     });
   }, []);
 
@@ -65,11 +65,7 @@ export default function EntryGate() {
         onSubmit={handleSubmit}
       />
 
-      {!isCheckingEntry && !isNicknameDrawerOpen ? (
-        <ChatRoomEntry />
-      ) : (
-        <ChatRoomScaffold />
-      )}
+      {children}
     </>
   );
 }

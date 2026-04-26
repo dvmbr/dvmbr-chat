@@ -22,7 +22,7 @@ export default function Loading({
     return () => clearTimeout(timer);
   }, []);
   return (
-    <div className="z-9 mx-auto flex h-dvh flex-col items-center justify-center overflow-hidden p-6">
+    <div className="bg-background fixed inset-0 z-9999 mx-auto flex h-dvh flex-col items-center justify-center overflow-hidden p-6">
       {showProgress ? (
         <Field className="w-full max-w-sm">
           <FieldLabel htmlFor="progress-upload">

@@ -18,7 +18,7 @@ export default function ChatRoom({ roomId, participantId }: ChatRoomProps) {
   };
 
   return (
-    <section className="container mx-auto flex h-full max-w-3xl flex-col">
+    <section className="flex h-full flex-col">
       <div className="min-h-0 flex-1">
         <ChatMessages messages={[]} />
       </div>
