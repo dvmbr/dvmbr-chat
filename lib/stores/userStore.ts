@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 type UserState = {
   userId: number | null;
@@ -8,20 +7,13 @@ type UserState = {
   setUser: (userId: number | null, nickname: string | null) => void;
 };
 
-export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      userId: null,
-      nickname: null,
+export const userStore = create<UserState>((set) => ({
+  userId: null,
+  nickname: null,
 
-      setUser: (userId, nickname) =>
-        set({
-          userId,
-          nickname,
-        }),
+  setUser: (userId, nickname) =>
+    set({
+      userId,
+      nickname,
     }),
-    {
-      name: "dvmbr-chat-user-storage",
-    },
-  ),
-);
+}));

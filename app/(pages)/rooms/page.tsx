@@ -1,10 +1,11 @@
 import RoomList from "@/components/RoomList";
+import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import prisma from "@/lib/db";
 import { cookies } from "next/headers";
 
 export default async function RoomsPage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("browserToken")?.value;
+  const token = cookieStore.get(COOKIE_KEY)?.value;
   if (!token) return null;
 
   const user = await prisma.user.findUnique({

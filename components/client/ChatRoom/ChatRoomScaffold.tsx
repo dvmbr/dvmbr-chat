@@ -1,7 +1,7 @@
 "use client";
 
-import ChatInput from "../ChatRoom/ChatInput";
-import ChatMessages from "../ChatRoom/ChatMessages";
+import ChatInput from "./ChatInput";
+import ChatMessages from "./ChatMessages";
 
 export default function ChatRoomScaffold() {
   return (

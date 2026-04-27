@@ -1,3 +1,4 @@
+import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import prisma from "@/lib/db";
 import { EntryBodySchema, toEntryDTO } from "@/lib/schema/entry.schema";
 import { badRequest, internalServerError } from "@/lib/utils/error-response";
@@ -7,23 +8,6 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("browserToken")?.value;
-
-    /*
-     * Returning flow:
-     * If browserToken exists and matches a user, return the existing user.
-     * If the token is missing or does not match any user, continue to the creation flow.
-     */
-    if (token) {
-      const user = await prisma.user.findUnique({
-        where: { browserToken: token },
-      });
-
-      if (user) {
-        return sendOk(toEntryDTO({ user, isNew: false }));
-      }
-    }
-
     /*
      * Creation flow:
      * If the request body is missing or invalid, return 400.
@@ -34,8 +18,8 @@ export async function POST(req: NextRequest) {
 
     if (!parsedBody.success) {
       return badRequest({
-        expected: "{ nickname: string }",
-        details: "nickname must be at least 1 character",
+        message:
+          "nickname is required in the request body and must be a non-empty string",
       });
     }
 
@@ -54,8 +38,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const res = sendOk(toEntryDTO({ user, isNew: true }));
-    res.cookies.set("browserToken", browserToken, {
+    const res = sendOk(toEntryDTO({ user }));
+    res.cookies.set(COOKIE_KEY, browserToken, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",

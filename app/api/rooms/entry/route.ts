@@ -1,31 +1,14 @@
 import prisma from "@/lib/db";
 import { toChatRoomEntryDTO } from "@/lib/schema/chat-room-entry.schema";
 
-import {
-  internalServerError,
-  notFound,
-  unauthorized,
-} from "@/lib/utils/error-response";
+import { internalServerError } from "@/lib/utils/error-response";
+import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
 import { sendOk } from "@/lib/utils/response";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get("browserToken")?.value;
-    if (!token) {
-      return unauthorized({
-        message: "Missing browserToken cookie",
-      });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { browserToken: token },
-    });
-    if (!user) {
-      return notFound({
-        message: "User not found for the provided browserToken",
-      });
-    }
+    const user = await getUserFromRequest(req);
 
     const entry = await prisma.$transaction(async (tx) => {
       let room = null;
@@ -66,6 +49,7 @@ export async function POST(req: NextRequest) {
       return {
         roomId: room.id,
         participantId: participant.id,
+        room: room,
       };
     });
 

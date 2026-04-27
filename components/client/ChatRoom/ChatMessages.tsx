@@ -1,13 +1,18 @@
 "use client";
 
-import { MessageDto } from "@/lib/schema/message.schema";
 import { useRef, useEffect } from "react";
+import { MessageDTO } from "@/lib/schema/message.schema";
 
 type ChatMessagesProps = {
-  messages: MessageDto[];
+  participantId: number;
+  messages: MessageDTO[];
 };
 
-export default function ChatMessages({ messages }: ChatMessagesProps) {
+export default function ChatMessages({
+  participantId,
+  messages,
+}: ChatMessagesProps) {
+  console.log("Messages:", messages);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages change

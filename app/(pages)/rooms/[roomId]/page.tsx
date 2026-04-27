@@ -1,4 +1,4 @@
-import ChatRoomEntry from "@/components/ChatRoom/ChatRoomEntry";
+import ChatRoomEntry from "@/components/client/ChatRoom/ChatRoomEntry";
 import { notFound } from "next/navigation";
 
 export default async function RoomPage({
@@ -6,8 +6,8 @@ export default async function RoomPage({
 }: {
   params: Promise<{ roomId: string }>;
 }) {
-  const { roomId: roomIdParam } = await params;
-  const roomId = Number(roomIdParam);
+  const p = await params;
+  const roomId = Number(p.roomId);
 
   if (!Number.isInteger(roomId) || roomId <= 0) {
     notFound();

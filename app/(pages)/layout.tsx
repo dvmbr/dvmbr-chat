@@ -1,9 +1,9 @@
-import "./global.css";
+import "@/app/styles/global.css";
 import { Ubuntu_Sans } from "next/font/google";
 
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 
-import AppShell from "@/components/AppShell";
+import AppGate from "@/components/server/AppGate";
 
 const ubuntuSans = Ubuntu_Sans({
   subsets: ["latin"],
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en" className={`dark ${ubuntuSans.variable}`}>
       <body>
         <ReactQueryProvider>
-          <AppShell>{children}</AppShell>
+          <AppGate>{children}</AppGate>
         </ReactQueryProvider>
       </body>
     </html>

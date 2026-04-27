@@ -8,38 +8,25 @@ import {
   badRequest,
   internalServerError,
   notFound,
-  unauthorized,
 } from "@/lib/utils/error-response";
+import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
 import { sendOk } from "@/lib/utils/response";
 import { NextRequest } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { roomId: string } },
+  { params }: RouteContext<"/api/rooms/[roomId]/entry">,
 ) {
   try {
-    const token = req.cookies.get("browserToken")?.value;
-    if (!token) {
-      return unauthorized({
-        message: "Missing browserToken cookie",
-      });
-    }
+    const user = await getUserFromRequest(req);
 
-    const user = await prisma.user.findUnique({
-      where: { browserToken: token },
-    });
-    if (!user) {
-      return notFound({
-        message: "User not found for the provided browserToken",
-      });
-    }
-
+    const p = await params;
     const parsedParams = ChatRoomEntryParamsSchema.safeParse({
-      roomId: params.roomId,
+      roomId: p.roomId,
     });
     if (!parsedParams.success) {
       return badRequest({
-        expected: "roomId as a positive integer in the URL path",
+        message: "roomId as a positive integer in the URL path",
       });
     }
 
@@ -77,6 +64,7 @@ export async function POST(
       return {
         roomId,
         participantId: participant.id,
+        room,
       };
     });
     return sendOk(toChatRoomEntryDTO(chatRoomEntry));
