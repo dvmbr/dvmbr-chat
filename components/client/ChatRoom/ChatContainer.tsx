@@ -14,7 +14,7 @@ export default function ChatContainer({
 }: ChatContainerProps) {
   console.log(roomId, participantId);
   const { data } = useGetMessages(roomId);
-  const { mutate } = useCreateMessage(roomId);
+  const { mutate } = useCreateMessage(roomId, participantId);
 
   const handleSend = (input: string) => {
     mutate({ content: input, type: "TEXT" });
