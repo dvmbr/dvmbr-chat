@@ -30,8 +30,17 @@ export async function POST(
       });
     }
 
+    // REFACTOR: update room entry API to include creator info
     const room = await prisma.room.findUnique({
       where: { id: parsedParams.data.roomId },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            nickname: true,
+          },
+        },
+      },
     });
     if (!room) {
       return notFound({

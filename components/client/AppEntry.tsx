@@ -20,7 +20,7 @@ import { EntryBodyDTO } from "@/lib/schema/entry.schema";
 import AppShell from "./AppShell";
 import { UserDTO } from "@/lib/schema/user.schema";
 import { userStore } from "@/lib/stores/userStore";
-import Loading from "../ui/Loading";
+import LoadingView from "../ui/LoadingView";
 import ChatRoomScaffold from "./ChatRoom/ChatRoomScaffold";
 
 /**
@@ -81,7 +81,7 @@ export default function AppEntry({ children, user }: Props) {
         {isPending ? (
           <>
             <ChatRoomScaffold />
-            <Loading text="Creating user..." />
+            <LoadingView text="Creating user..." />
           </>
         ) : open ? (
           <ChatRoomScaffold />

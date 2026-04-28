@@ -1,11 +1,12 @@
 "use client";
 
 import ChatRoomScaffold from "@/components/client/ChatRoom/ChatRoomScaffold";
-import Loading from "@/components/ui/Loading";
+import LoadingView from "@/components/ui/LoadingView";
 import useChatRoomEntry from "@/hooks/useChatRoomEntry";
 import { roomStore } from "@/lib/stores/roomStore";
 import { useEffect } from "react";
 import ChatContainer from "./ChatContainer";
+import ErrorView from "@/components/ui/ErrorView";
 
 type ChatRoomEntryProps = {
   roomId?: number;
@@ -29,18 +30,14 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
       return <ChatRoomScaffold />;
     }
 
-    return (
-      <div className="flex h-full flex-col items-center justify-center p-4">
-        <p>Failed to enter room</p>
-      </div>
-    );
+    return <ErrorView text="Failed to enter Chatting Room" />;
   }
 
   if (isIdle || isPending) {
     return (
       <>
         <ChatRoomScaffold />
-        <Loading text="Preparing the chatting room..." />
+        <LoadingView text="Preparing the chatting room..." />
       </>
     );
   }

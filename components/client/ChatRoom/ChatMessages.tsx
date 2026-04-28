@@ -12,7 +12,6 @@ export default function ChatMessages({
   participantId,
   messages,
 }: ChatMessagesProps) {
-  console.log("Messages:", messages);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages change

@@ -33,6 +33,10 @@ export function conflict(meta?: Record<string, unknown>) {
 }
 
 export function internalServerError(error: unknown) {
+  console.error(
+    "================== Internal Server Error ==================\n",
+    error,
+  );
   return sendError(error, E.INTERNAL_SERVER_ERROR.statusCode);
 }
 

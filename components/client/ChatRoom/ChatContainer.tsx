@@ -3,6 +3,8 @@
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import { useCreateMessage, useGetMessages } from "@/hooks/useMessages";
+import ChatRoomScaffold from "./ChatRoomScaffold";
+import LoadingView from "@/components/ui/LoadingView";
 
 type ChatContainerProps = {
   roomId: number;
@@ -12,13 +14,21 @@ export default function ChatContainer({
   roomId,
   participantId,
 }: ChatContainerProps) {
-  console.log(roomId, participantId);
-  const { data } = useGetMessages(roomId);
+  const { data, isPending } = useGetMessages(roomId);
   const { mutate } = useCreateMessage(roomId, participantId);
 
   const handleSend = (input: string) => {
     mutate({ content: input, type: "TEXT" });
   };
+
+  if (isPending) {
+    return (
+      <>
+        <ChatRoomScaffold />
+        <LoadingView text="Pending messages..." />
+      </>
+    );
+  }
 
   return (
     <section className="flex h-full flex-col">

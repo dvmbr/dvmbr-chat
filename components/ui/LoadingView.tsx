@@ -1,12 +1,14 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
-type LoadingProps = {
+type LoadingViewProps = {
   text: string;
   className?: string;
 };
 
-export default function Loading({ text, className }: LoadingProps) {
+export default function LoadingView({ text, className }: LoadingViewProps) {
   return (
     <div
       className={cn(

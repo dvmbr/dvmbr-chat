@@ -33,11 +33,11 @@ export type MessageCreateBodyDTO = z.infer<typeof MessageCreateBodySchema>;
 export type MessageDTO = z.infer<typeof MessageSchema>;
 
 export function toMessageDTO(data: Message): MessageDTO {
-  return {
+  return MessageSchema.parse({
     ...data,
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
-  };
+  });
 }
 
 export function toMessageListDTO(data: Message[]): MessageDTO[] {

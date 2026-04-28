@@ -10,6 +10,8 @@ type RoomState = {
     roomName: string | null,
     participantId: number | null,
   ) => void;
+
+  clearRoom: () => void;
 };
 
 export const roomStore = create<RoomState>((set) => ({
@@ -26,4 +28,6 @@ export const roomStore = create<RoomState>((set) => ({
       roomName,
       participantId,
     }),
+
+  clearRoom: () => set({ roomId: null, roomName: null, participantId: null }),
 }));

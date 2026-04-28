@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function AppHeader() {
-  const { roomName } = roomStore();
+  const { roomName, clearRoom } = roomStore();
   const { nickname } = userStore();
   const pathname = usePathname();
 
@@ -19,24 +19,26 @@ export default function AppHeader() {
         DVMBR Chat
       </h1>
 
-      {isChatRoomPage && (
-        <div className="flex flex-col items-end">
+      <div className="flex flex-col items-end">
+        {isChatRoomPage && (
           <i className="text-muted-foreground text-sm sm:text-base">
-            {roomName || (
-              <span className="text-transparent">roomName placeholder</span>
-            )}
+            {roomName}
           </i>
-          <div className="flex gap-x-2">
-            <User className="text-muted-foreground" />
+        )}
+
+        <div className="flex gap-x-2">
+          <User className="text-muted-foreground" />
+          {isChatRoomPage && (
             <Link
-              href="#"
+              href="/rooms"
+              onClick={clearRoom}
               className="text-muted-foreground hover:text-brand-red block transition-colors sm:text-base"
             >
               <DoorOpen />
             </Link>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </header>
   );
 }
