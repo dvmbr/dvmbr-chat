@@ -16,13 +16,13 @@ export default async function RoomsPage() {
   if (!user) return <ErrorView text="User not found" />;
 
   const rooms = await prisma.room.findMany({
-    where: {
-      participants: {
-        some: {
-          userId: user.id,
-        },
-      },
-    },
+    // where: {
+    //   participants: {
+    //     some: {
+    //       userId: user.id,
+    //     },
+    //   },
+    // },
     orderBy: {
       updatedAt: "desc",
     },

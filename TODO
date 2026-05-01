@@ -1,5 +1,13 @@
-Chat Feature:
-  ☐ Distinguish messages by sender @high
+Chat Features:
+  ☐ Distinguish messages by sender @started(26-05-01 22:59)
+    ✔ Add sender to MessageSchema @API @done(26-05-01 23:12)
+    ✔ Include participant.user in message GET API @API @done(26-05-01 23:12)
+    ✔ Include participant.user in message POST API @API @done(26-05-01 23:12)
+    ✔ Map participant.user to sender in DTO @API @done(26-05-01 23:12)
+    ✔ Update ChatMessages to style messages based on sender @UI @done(26-05-02 00:41)
+      ✔ Add isMe boolean by comparing sender.id with current user id @done(26-05-02 00:41)
+      ✔ Style message bubble alignment and colors based on isMe @done(26-05-02 00:40)
+
   ☐ Implement Rooms child components @today @started(26-04-29 01:40)
     ✔ Refactor RoomSchema to include creator { id, nickname } @API @done(26-04-29 03:24)
     ✔ Implement RoomsContainer layout @UI @done(26-04-29 03:24)
@@ -7,7 +15,15 @@ Chat Feature:
     ✔ Implement RoomItem card UI @UI @done(26-04-29 03:24)
     ✔ Add edit/delete actions to RoomItem @UI @done(26-04-29 03:24)
     ✔ Implement room navigation from RoomItem @UI @done(26-04-29 03:24)
+    ✔ Implement horizontal padding on Messages section for scrollbar area @UI @done(26-05-02 00:40)
 
-  ☐ Implement Room Entry Flow @high
+  ☐ Implement room update / delete features
+    ☐ Implement room update API @API
+    ☐ Implement room delete API @API
+    ☐ Implement room update UI on RoomItem @UI
+    ☐ Implement room delete UI on RoomItem @UI
+    ☐ Fix click event bubbling on RoomItem update/delete action buttons @UI
+
+  ☐ Implement Room Entry Flow 
     ✔ Refactor RoomEntry API to return room with creator @API @done(26-05-01 22:25)
 Archive:

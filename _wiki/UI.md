@@ -1,0 +1,1 @@
+When a parent is a flex container and a child element has a max-width, it may not work correctly if there are multiple children. In this case, you should set the parent’s width to 100% so that the children can properly calculate their max-width based on the parent’s width.

@@ -38,7 +38,6 @@ export async function GET(
       where: {
         userId_roomId: {
           userId,
-
           roomId,
         },
       },
@@ -52,6 +51,18 @@ export async function GET(
 
     const messages = await prisma.message.findMany({
       where: { roomId },
+      include: {
+        participant: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                nickname: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { createdAt: "asc" },
     });
 
@@ -111,6 +122,18 @@ export async function POST(
           roomId,
           content: parsedBody.data.content,
           type: parsedBody.data.type,
+        },
+        include: {
+          participant: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  nickname: true,
+                },
+              },
+            },
+          },
         },
       });
 

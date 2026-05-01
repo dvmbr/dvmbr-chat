@@ -11,14 +11,11 @@ export default function RoomList({ rooms }: RoomListProps) {
   return (
     <ScrollArea className="h-full">
       <ul className="space-y-2 p-4">
-        {/* FIXME: Replace with actual room data */}
-        {[...rooms, ...rooms, ...rooms, ...rooms, ...rooms, ...rooms].map(
-          (room, i) => (
-            <li key={room.id + `${i}`}>
-              <RoomItem roomItem={room} />
-            </li>
-          ),
-        )}
+        {rooms.map((room, i) => (
+          <li key={room.id + `${i}`}>
+            <RoomItem roomItem={room} />
+          </li>
+        ))}
       </ul>
     </ScrollArea>
   );

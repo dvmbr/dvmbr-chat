@@ -1,11 +1,16 @@
-import { Message, MessageType } from "@prisma/client";
+import { Message, MessageType, User } from "@prisma/client";
 import { z } from "../zod";
-import { ListResponse } from "./response.schema";
+
+const MessageSenderSchema = z.object({
+  id: z.number(),
+  nickname: z.string(),
+});
 
 export const MessageSchema = z
   .object({
     id: z.number(),
     participantId: z.number(),
+    sender: MessageSenderSchema,
     roomId: z.number(),
     content: z.string().trim().min(1),
     type: z.enum(MessageType),
@@ -32,14 +37,30 @@ export const MessageCreateBodySchema = z
 export type MessageCreateBodyDTO = z.infer<typeof MessageCreateBodySchema>;
 export type MessageDTO = z.infer<typeof MessageSchema>;
 
-export function toMessageDTO(data: Message): MessageDTO {
+type MessageWithSender = Message & {
+  participant: {
+    user: Pick<User, "id" | "nickname">;
+  };
+};
+
+export function toMessageDTO(data: MessageWithSender): MessageDTO {
   return MessageSchema.parse({
-    ...data,
+    id: data.id,
+    participantId: data.participantId,
+    sender: {
+      id: data.participant.user.id,
+      nickname: data.participant.user.nickname,
+    },
+    roomId: data.roomId,
+    type: data.type,
+    content: data.content,
+    isDeleted: data.isDeleted,
+    isEdited: data.isEdited,
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   });
 }
 
-export function toMessageListDTO(data: Message[]): MessageDTO[] {
+export function toMessageListDTO(data: MessageWithSender[]): MessageDTO[] {
   return data.map(toMessageDTO);
 }
