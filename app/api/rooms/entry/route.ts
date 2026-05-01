@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { toChatRoomEntryDTO } from "@/lib/schema/chat-room-entry.schema";
+import { RoomWithCreator } from "@/lib/schema/room.schema";
 
 import { internalServerError } from "@/lib/utils/error-response";
 import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
@@ -11,10 +12,13 @@ export async function POST(req: NextRequest) {
     const user = await getUserFromRequest(req);
 
     const entry = await prisma.$transaction(async (tx) => {
-      let room = null;
+      let room: RoomWithCreator | null = null;
       if (user.lastRoomId) {
         room = await tx.room.findUnique({
           where: { id: user.lastRoomId },
+          include: {
+            creator: true,
+          },
         });
       }
 
@@ -23,6 +27,9 @@ export async function POST(req: NextRequest) {
           data: {
             name: `${user.nickname}'s room`,
             creatorId: user.id,
+          },
+          include: {
+            creator: true,
           },
         });
       }

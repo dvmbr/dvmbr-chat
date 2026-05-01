@@ -12,7 +12,7 @@ export default function LoadingView({ text, className }: LoadingViewProps) {
   return (
     <div
       className={cn(
-        "bg-background/60 fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 backdrop-blur-sm",
+        "bg-background/60 fixed inset-0 z-99 flex flex-col items-center justify-center gap-3 backdrop-blur-sm",
         className,
       )}
     >

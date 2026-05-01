@@ -1,6 +1,5 @@
-import { Room } from "@prisma/client";
 import { z } from "../zod";
-import { RoomSchema, toRoomDTO } from "./room.schema";
+import { RoomSchema, toRoomDTO, type RoomWithCreator } from "./room.schema";
 
 export const ChatRoomEntrySchema = z
   .object({
@@ -21,7 +20,7 @@ export type ChatRoomEntryDTO = z.infer<typeof ChatRoomEntrySchema>;
 export type ChatRoomEntry = {
   roomId: number;
   participantId: number;
-  room: Room;
+  room: RoomWithCreator;
 };
 export function toChatRoomEntryDTO(data: ChatRoomEntry): ChatRoomEntryDTO {
   return ChatRoomEntrySchema.parse({ ...data, room: toRoomDTO(data.room) });

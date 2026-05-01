@@ -25,7 +25,7 @@ export const RoomCreateBodySchema = z
 export type RoomDTO = z.infer<typeof RoomSchema>;
 export type RoomCreateBodyDTO = z.infer<typeof RoomCreateBodySchema>;
 
-type RoomWithCreator = Room & {
+export type RoomWithCreator = Room & {
   creator: Pick<User, "id" | "nickname">;
 };
 

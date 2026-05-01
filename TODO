@@ -1,9 +1,13 @@
-Rooms Feature:
-  ☐ Implement Rooms child components @started(26-04-29 01:40)
+Chat Feature:
+  ☐ Distinguish messages by sender @high
+  ☐ Implement Rooms child components @today @started(26-04-29 01:40)
     ✔ Refactor RoomSchema to include creator { id, nickname } @API @done(26-04-29 03:24)
     ✔ Implement RoomsContainer layout @UI @done(26-04-29 03:24)
     ✔ Implement RoomList scroll layout @UI @done(26-04-29 03:24)
     ✔ Implement RoomItem card UI @UI @done(26-04-29 03:24)
     ✔ Add edit/delete actions to RoomItem @UI @done(26-04-29 03:24)
     ✔ Implement room navigation from RoomItem @UI @done(26-04-29 03:24)
+
+  ☐ Implement Room Entry Flow @high
+    ✔ Refactor RoomEntry API to return room with creator @API @done(26-05-01 22:25)
 Archive:
