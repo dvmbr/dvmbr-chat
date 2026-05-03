@@ -1,4 +1,5 @@
 Backlog:
+  TODOs that are not yet started
   UI:
     ☐ Polish UI
       ☐ Hide scrollbar on Messages section @UI
@@ -6,17 +7,25 @@ Backlog:
   Refactor:
     ☐ Improve code quality
 
+  WebSocket:
+    ☐ Implement WebSocket connection
+
 Today:
-  Room:
-    ☐ Implement room create / update / delete features @started(26-05-02 16:22)
-      ☐ Implement room create UI in RoomsContainer @UI
-      ☐ Implement room update UI on RoomItem @UI
-      ☐ Implement room delete UI on RoomItem @UI
-      ☐ Allow only room creator to see update/delete actions @UI
-      ☐ Fix click event bubbling on RoomItem update/delete action buttons @UI
-    ☐ Implement Room Entry Flow
+  TODOs that are being worked on today
 
 Archive:
+  ✔ Implement room create / update / delete features @started(26-05-02 16:22) @done(26-05-03 11:27) @lasted(19h5m59s) @project(Today.Room)
+  ✔ Allow only room creator to see update/delete actions @UI @done(26-05-03 11:27) @project(Today.Room)
+  ✔ Fix click event bubbling on RoomItem update/delete action buttons @UI @done(26-05-03 11:27) @project(Today.Room)
+  ✔ Show loading state on RoomItem when creating/updating/deleting @UI @done(26-05-03 11:27) @project(Today.Room)
+  ✔ Handle duplicate room name conflict in room create API @API @done(26-05-03 11:27) @project(Today.Room)
+  ✔ Handle duplicate room name conflict in room update API @API @done(26-05-03 11:27) @project(Today.Room)
+  ✔ Add unique attribute to Room name in Prisma schema @Model @done(26-05-02 20:56) @project(Today.Server)
+  ✔ Handle duplicate room name conflict in room create API @API @started(26-05-02 20:56) @done(26-05-02 21:23) @lasted(27m36s) @project(Today.Server)
+  ✔ Implement room create UI in RoomsContainer @UI @done(26-05-02 21:23) @project(Today.Room)
+  ✔ Implement room update UI on RoomItem @UI @done(26-05-02 21:23) @project(Today.Room)
+  ✔ Implement room delete UI on RoomItem @UI @done(26-05-02 21:23) @project(Today.Room)
+  ✔ Implement Room Entry Flow @done(26-05-02 20:09) @project(Today.Room)
   ✔ Distinguish messages by sender @started(26-05-01 22:59) @done(26-05-02 18:01) @lasted(19h2m30s) @project(Today.Chat)
   ✔ Add sender to MessageSchema @API @done(26-05-01 23:12) @project(Today.Chat)
   ✔ Include participant.user in message GET API @API @done(26-05-01 23:12) @project(Today.Chat)

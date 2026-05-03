@@ -10,7 +10,7 @@ type RoomListProps = {
 export default function RoomList({ rooms }: RoomListProps) {
   return (
     <ScrollArea className="h-full">
-      <ul className="space-y-2 p-4">
+      <ul className="space-y-2 px-4">
         {rooms.map((room, i) => (
           <li key={room.id + `${i}`}>
             <RoomItem roomItem={room} />

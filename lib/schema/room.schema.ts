@@ -16,14 +16,27 @@ export const RoomSchema = z
   })
   .openapi("Room");
 
+export const RoomParamsSchema = z
+  .object({
+    roomId: z.coerce.number().int().positive(),
+  })
+  .openapi("RoomParams");
+
 export const RoomCreateBodySchema = z
   .object({
     name: z.string().trim().min(1),
   })
   .openapi("RoomCreateBody");
 
+export const RoomUpdateBodySchema = z
+  .object({
+    name: z.string().trim().min(1),
+  })
+  .openapi("RoomUpdateBody");
+
 export type RoomDTO = z.infer<typeof RoomSchema>;
-export type RoomCreateBodyDTO = z.infer<typeof RoomCreateBodySchema>;
+export type RoomCreateBody = z.infer<typeof RoomCreateBodySchema>;
+export type RoomUpdateBody = z.infer<typeof RoomUpdateBodySchema>;
 
 export type RoomWithCreator = Room & {
   creator: Pick<User, "id" | "nickname">;

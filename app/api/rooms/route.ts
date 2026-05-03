@@ -1,8 +1,16 @@
 import prisma from "@/lib/db";
-import { toRoomListDTO } from "@/lib/schema/room.schema";
-import { internalServerError } from "@/lib/utils/error-response";
+import {
+  RoomCreateBodySchema,
+  toRoomDTO,
+  toRoomListDTO,
+} from "@/lib/schema/room.schema";
+import {
+  badRequest,
+  conflict,
+  internalServerError,
+} from "@/lib/utils/error-response";
 import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
-import { sendList } from "@/lib/utils/response";
+import { sendList, sendOk } from "@/lib/utils/response";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -28,6 +36,56 @@ export async function GET(req: NextRequest) {
     });
 
     return sendList(toRoomListDTO(rooms));
+  } catch (error) {
+    return internalServerError(error);
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getUserFromRequest(req);
+
+    const body = await req.json();
+
+    const parsedBody = RoomCreateBodySchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return badRequest({
+        message: "Invalid request body",
+      });
+    }
+
+    if (!parsedBody.data.name || parsedBody.data.name.trim() === "") {
+      return badRequest({
+        message: "room name must be a non-empty string",
+      });
+    }
+
+    const name = parsedBody.data.name.trim();
+
+    const existingRoom = await prisma.room.findUnique({
+      where: { name },
+    });
+
+    if (existingRoom) {
+      return conflict({
+        message: "Room name already exists",
+      });
+    }
+
+    const userId = user.id;
+
+    const room = await prisma.room.create({
+      data: {
+        name,
+        creatorId: userId,
+      },
+      include: {
+        creator: true,
+      },
+    });
+
+    return sendOk(toRoomDTO(room));
   } catch (error) {
     return internalServerError(error);
   }
