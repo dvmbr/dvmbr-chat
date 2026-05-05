@@ -5,6 +5,13 @@ import ChatInput from "./ChatInput";
 import { useCreateMessage, useGetMessages } from "@/hooks/useMessages";
 import ChatRoomScaffold from "./ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
+import { useSocket } from "@/hooks/useSocket";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schema/message.schema";
+import { useQueryClient } from "@tanstack/react-query";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket-events";
+import { MessageType } from "@prisma/client";
+import { ListResponse } from "@/lib/schema/response.schema";
 
 type ChatContainerProps = {
   roomId: number;
@@ -14,11 +21,100 @@ export default function ChatContainer({
   roomId,
   participantId,
 }: ChatContainerProps) {
+  const queryClient = useQueryClient();
+  const { socketRef, isConnected } = useSocket(roomId);
   const { data, isPending } = useGetMessages(roomId);
-  const { mutate } = useCreateMessage(roomId, participantId);
+  const [optimisticMessages, setOptimisticMessages] = useState<MessageDTO[]>(
+    [],
+  );
 
-  const handleSend = (input: string) => {
-    mutate({ content: input, type: "TEXT" });
+  const messages = [...(data?.items ?? []), ...optimisticMessages];
+
+  const { mutateAsync } = useCreateMessage(roomId);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
+    if (!socket || !isConnected) return;
+
+    const handleMessageCreated = (message: MessageDTO) => {
+      queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
+        ["messages", roomId],
+        (prev) => {
+          if (!prev) return prev;
+
+          const exists = prev.items.some((item) => item.id === message.id);
+          if (exists) return prev;
+
+          return {
+            ...prev,
+            items: [...prev.items, message].sort((a, b) => a.id - b.id),
+            total: prev.total + 1,
+          };
+        },
+      );
+    };
+
+    socket.on(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
+
+    return () => {
+      socket.off(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
+    };
+  }, [queryClient, roomId, socketRef, isConnected]);
+
+  const sendQueueRef: RefObject<Promise<MessageDTO | void>> = useRef(
+    Promise.resolve(),
+  );
+
+  const handleSend = (content: string, type: MessageType = "TEXT") => {
+    const optimisticMessage: MessageDTO = {
+      id: -Date.now(), // Temporary ID for optimistic message
+      participantId,
+      sender: {
+        id: -1,
+        nickname: "You",
+      },
+      roomId,
+      content,
+      type,
+      isDeleted: false,
+      isEdited: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setOptimisticMessages((prev) => [...prev, optimisticMessage]);
+
+    sendQueueRef.current = sendQueueRef.current
+      .then(async () => {
+        const variables: MessageCreateBodyDTO = { content, type };
+        const message = await mutateAsync(variables);
+        setOptimisticMessages((prev) =>
+          prev.filter((msg) => msg.id !== optimisticMessage.id),
+        );
+
+        queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
+          ["messages", roomId],
+          (prev) => {
+            if (!prev) return prev;
+            const exists = prev.items.some((item) => item.id === message.id);
+            if (exists) return prev;
+            return {
+              ...prev,
+              items: [...prev.items, message].sort((a, b) => a.id - b.id),
+              total: prev.total + 1,
+            };
+          },
+        );
+
+        socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
+      })
+      .catch((error) => {
+        console.error("Failed to send message:", error);
+        setOptimisticMessages((prev) =>
+          prev.filter((msg) => msg.id !== optimisticMessage.id),
+        );
+      });
   };
 
   if (isPending) {
@@ -33,10 +129,7 @@ export default function ChatContainer({
   return (
     <section className="flex h-full flex-col">
       <div className="min-h-0 flex-1">
-        <ChatMessages
-          participantId={participantId}
-          messages={data?.items || []}
-        />
+        <ChatMessages participantId={participantId} messages={messages} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
         <ChatInput onSend={handleSend} />

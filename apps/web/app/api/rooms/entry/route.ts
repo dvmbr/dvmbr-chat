@@ -23,15 +23,32 @@ export async function POST(req: NextRequest) {
       }
 
       if (!room) {
-        room = await tx.room.create({
-          data: {
-            name: `${user.nickname}'s room`,
-            creatorId: user.id,
-          },
-          include: {
-            creator: true,
-          },
+        const latestUser = await tx.user.findUnique({
+          where: { id: user.id },
         });
+
+        if (latestUser?.lastRoomId) {
+          room = await tx.room.findUnique({
+            where: { id: latestUser.lastRoomId },
+
+            include: { creator: true },
+          });
+        }
+
+        if (!room) {
+          const newRoomName = `${user.nickname}'s room`;
+          room = await tx.room.upsert({
+            where: { name: newRoomName },
+            update: {},
+            create: {
+              name: newRoomName,
+              creatorId: user.id,
+            },
+            include: {
+              creator: true,
+            },
+          });
+        }
       }
 
       const participant = await tx.participant.upsert({

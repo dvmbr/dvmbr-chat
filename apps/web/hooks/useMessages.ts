@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schema/message.schema";
 import {
@@ -21,65 +21,14 @@ export function useGetMessages(roomId: number) {
   });
 }
 
-export function useCreateMessage(roomId: number, participantId: number) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    MessageDTO,
-    ErrorResponse,
-    MessageCreateBodyDTO,
-    { previousMessages?: ListResponse<MessageDTO>["data"] }
-  >({
+export function useCreateMessage(roomId: number) {
+  return useMutation<MessageDTO, ErrorResponse, MessageCreateBodyDTO>({
     mutationFn: async (body) => {
       const res = await apiClient
         .post(`rooms/${roomId}/messages`, { json: body })
         .json<OkResponse<MessageDTO>>();
 
       return res.data;
-    },
-    onMutate: async (body) => {
-      await queryClient.cancelQueries({ queryKey: ["messages", roomId] });
-
-      const previousMessages = queryClient.getQueryData<
-        ListResponse<MessageDTO>["data"]
-      >(["messages", roomId]);
-
-      const optimisticMessage: MessageDTO = {
-        id: Date.now() * -1, // Temporary ID for optimistic message
-        roomId,
-        participantId,
-        content: body.content,
-        type: body.type,
-        isDeleted: false,
-        isEdited: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
-        ["messages", roomId],
-
-        (old) => ({
-          items: [...(old?.items ?? []), optimisticMessage],
-          total: (old?.total ?? 0) + 1,
-        }),
-      );
-
-      return { previousMessages };
-    },
-    onError: (_error, _body, context) => {
-      if (context?.previousMessages) {
-        queryClient.setQueryData(
-          ["messages", roomId],
-
-          context.previousMessages,
-        );
-      }
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["messages", roomId],
-      });
     },
   });
 }

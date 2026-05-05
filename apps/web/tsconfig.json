@@ -25,7 +25,8 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "@dvmbr/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": [

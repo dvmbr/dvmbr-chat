@@ -15,6 +15,8 @@
     "prisma:studio": "pnpm --filter web prisma:studio",
     "prisma:migrate": "pnpm --filter web prisma:migrate",
     "prisma:generate": "pnpm --filter web prisma:generate",
-    "prisma:reset": "pnpm --filter web prisma:reset"
+    "prisma:reset": "pnpm --filter web prisma:reset",
+
+    "dev:socket": "pnpm --filter socket-server dev"
   }
 }

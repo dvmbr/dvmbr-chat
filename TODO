@@ -1,5 +1,4 @@
 Backlog:
-  TODOs that are not yet started
   Monorepo:
     ☐ Add socket-server workspace
     ☐ Create shared package
@@ -10,21 +9,26 @@ Backlog:
 
   Refactor:
     ☐ Improve code quality
-
+    
   WebSocket:
     ☐ Implement WebSocket connection
 
 Today:
-  TODOs that are being worked on today
-  Monorepo:
-    ✔ Migrate from npm to pnpm workspace @today @done(26-05-03 13:39)
-    ✔ Move web to apps/web @today @done(26-05-03 13:28)
-    ✔ Setup workspace configuration in root package.json @today @done(26-05-03 13:28)
-    ✔ Clean up root & reinstall dependencies @today @done(26-05-03 13:29)
-    ✔ Fix Prisma client (generate) @today @done(26-05-03 13:29)
-    ✔ Verify Next app runs in workspace @today @done(26-05-03 13:29)
+  WebSocket:
+    ✔ Integrate socket-based message sync in ChatContainer @Client @started(26-05-05 15:51) @done(26-05-05 17:06) @lasted(1h15m45s)
+    ✔ Optimize message sync with optimistic UI and send queue @Client @started(26-05-05 16:16) @done(26-05-05 17:06) @lasted(50m45s)
 
 Archive:
+  ✔ Make rooms/entry API idempotent @API @started(26-05-05 13:59) @done(26-05-05 14:08) @lasted(9m38s) @project(Today.Refactor)
+  ✔ Prevent duplicate room entry requests in ChatRoomEntry (React Strict Mode) @Client @started(26-05-05 14:09) @done(26-05-05 15:47) @lasted(1h38m34s) @project(Today.Refactor)
+  ✔ Migrate from npm to pnpm workspace @today @done(26-05-03 13:39) @project(Today.Monorepo)
+  ✔ Move web to apps/web @today @done(26-05-03 13:28) @project(Today.Monorepo)
+  ✔ Setup workspace configuration in root package.json @today @done(26-05-03 13:28) @project(Today.Monorepo)
+  ✔ Clean up root & reinstall dependencies @today @done(26-05-03 13:29) @project(Today.Monorepo)
+  ✔ Fix Prisma client (generate) @today @done(26-05-03 13:29) @project(Today.Monorepo)
+  ✔ Verify Next app runs in workspace @today @done(26-05-03 13:29) @project(Today.Monorepo)
+  ✔ Create socket-server workspace @socket-server @today @done(26-05-03 14:26) @project(Today.WebSocket)
+  ✔ Setup Socket.IO server @socket-server @today @done(26-05-03 14:26) @project(Today.WebSocket)
   ✔ Implement room create / update / delete features @started(26-05-02 16:22) @done(26-05-03 11:27) @lasted(19h5m59s) @project(Today.Room)
   ✔ Allow only room creator to see update/delete actions @UI @done(26-05-03 11:27) @project(Today.Room)
   ✔ Fix click event bubbling on RoomItem update/delete action buttons @UI @done(26-05-03 11:27) @project(Today.Room)

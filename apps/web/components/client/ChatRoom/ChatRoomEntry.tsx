@@ -2,38 +2,55 @@
 
 import ChatRoomScaffold from "@/components/client/ChatRoom/ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
-import useChatRoomEntry from "@/hooks/useChatRoomEntry";
-import { roomStore } from "@/lib/stores/roomStore";
-import { useEffect } from "react";
-import ChatContainer from "./ChatContainer";
 import ErrorView from "@/components/ui/ErrorView";
+import useChatRoomEntry from "@/hooks/useChatRoomEntry";
+import { ChatRoomEntryDTO } from "@/lib/schema/chat-room-entry.schema";
+import { roomStore } from "@/lib/stores/roomStore";
+import { useEffect, useRef, useState } from "react";
+import ChatContainer from "./ChatContainer";
 
 type ChatRoomEntryProps = {
   roomId?: number;
 };
-export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
-  const { mutate, data, error, isIdle, isPending, isError } =
-    useChatRoomEntry();
 
-  const { setRoom } = roomStore();
+export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
+  const { mutateAsync } = useChatRoomEntry();
+
+  const setRoom = roomStore((state) => state.setRoom);
+
+  const didMutate = useRef(false);
+  const [entry, setEntry] = useState<ChatRoomEntryDTO | null>(null);
+  const [isEntering, setIsEntering] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    mutate(roomId, {
-      onSuccess: (data) => {
-        setRoom(data.roomId, data.room.name, data.participantId);
-      },
-    });
-  }, [mutate, roomId, setRoom]);
+    if (didMutate.current) return;
+    didMutate.current = true;
 
-  if (isError) {
-    if (error.statusCode === 401) {
-      return <ChatRoomScaffold />;
-    }
+    const enterRoom = async () => {
+      try {
+        setIsEntering(true);
 
+        const entry = await mutateAsync(roomId);
+
+        setRoom(entry.roomId, entry.room.name, entry.participantId);
+        setEntry(entry);
+      } catch (error) {
+        console.error("ChatRoomEntry mutate error:", error);
+        setHasError(true);
+      } finally {
+        setIsEntering(false);
+      }
+    };
+
+    enterRoom();
+  }, [mutateAsync, roomId, setRoom]);
+
+  if (hasError) {
     return <ErrorView text="Failed to enter Chatting Room" />;
   }
 
-  if (isIdle || isPending) {
+  if (isEntering) {
     return (
       <>
         <ChatRoomScaffold />
@@ -42,11 +59,11 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
     );
   }
 
-  if (!data) {
+  if (!entry) {
     return <ChatRoomScaffold />;
   }
 
   return (
-    <ChatContainer roomId={data.roomId} participantId={data.participantId} />
+    <ChatContainer roomId={entry.roomId} participantId={entry.participantId} />
   );
 }
