@@ -9,12 +9,8 @@ Backlog:
   WebSocket:
     ☐ Set NEXT_PUBLIC_SOCKET_SERVER_URL to point to deployed socket server
     ☐ Implement WebSocket connection
-
-  API:
     
 Today:
-  Monorepo:
-  API:
 
 Archive:
   ✔ Add socket-server workspace @done(26-05-06 09:13) @project(Today.Monorepo)
