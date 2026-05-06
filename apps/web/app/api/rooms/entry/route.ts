@@ -58,10 +58,13 @@ export async function POST(req: NextRequest) {
             roomId: room.id,
           },
         },
-        update: {},
+        update: {
+          lastReadAt: new Date(),
+        },
         create: {
           roomId: room.id,
           userId: user.id,
+          lastReadAt: new Date(),
         },
       });
 

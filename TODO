@@ -1,8 +1,4 @@
 Backlog:
-  Monorepo:
-    ☐ Add socket-server workspace
-    ☐ Create shared package
-
   UI:
     ☐ Polish UI
       ☐ Hide scrollbar on Messages section @UI
@@ -11,14 +7,22 @@ Backlog:
     ☐ Improve code quality
     
   WebSocket:
+    ☐ Set NEXT_PUBLIC_SOCKET_SERVER_URL to point to deployed socket server
     ☐ Implement WebSocket connection
 
+  API:
+    
 Today:
-  WebSocket:
-    ✔ Integrate socket-based message sync in ChatContainer @Client @started(26-05-05 15:51) @done(26-05-05 17:06) @lasted(1h15m45s)
-    ✔ Optimize message sync with optimistic UI and send queue @Client @started(26-05-05 16:16) @done(26-05-05 17:06) @lasted(50m45s)
+  Monorepo:
+  API:
 
 Archive:
+  ✔ Add socket-server workspace @done(26-05-06 09:13) @project(Today.Monorepo)
+  ✔ Create shared package @done(26-05-06 09:13) @project(Today.Monorepo)
+  ✔ Implement room read API to update lastReadAt @API @started(26-05-06 09:11) @done(26-05-06 09:11) @lasted(56s) @project(Today.API)
+  ✔ Implement room read API to update lastReadAt @API @started(26-05-06 09:12) @done(26-05-06 09:12) @lasted(36s) @project(Today.API)
+  ✔ Integrate socket-based message sync in ChatContainer @Client @started(26-05-05 15:51) @done(26-05-05 17:06) @lasted(1h15m45s) @project(Today.WebSocket)
+  ✔ Optimize message sync with optimistic UI and send queue @Client @started(26-05-05 16:16) @done(26-05-05 17:06) @lasted(50m45s) @project(Today.WebSocket)
   ✔ Make rooms/entry API idempotent @API @started(26-05-05 13:59) @done(26-05-05 14:08) @lasted(9m38s) @project(Today.Refactor)
   ✔ Prevent duplicate room entry requests in ChatRoomEntry (React Strict Mode) @Client @started(26-05-05 14:09) @done(26-05-05 15:47) @lasted(1h38m34s) @project(Today.Refactor)
   ✔ Migrate from npm to pnpm workspace @today @done(26-05-03 13:39) @project(Today.Monorepo)

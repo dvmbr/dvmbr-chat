@@ -6,12 +6,13 @@ import { useCreateMessage, useGetMessages } from "@/hooks/useMessages";
 import ChatRoomScaffold from "./ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
 import { useSocket } from "@/hooks/useSocket";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schema/message.schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket-events";
 import { MessageType } from "@prisma/client";
 import { ListResponse } from "@/lib/schema/response.schema";
+import { useReadRoom } from "@/hooks/useRoom";
 
 type ChatContainerProps = {
   roomId: number;
@@ -30,14 +31,8 @@ export default function ChatContainer({
 
   const messages = [...(data?.items ?? []), ...optimisticMessages];
 
-  const { mutateAsync } = useCreateMessage(roomId);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    if (!socket || !isConnected) return;
-
-    const handleMessageCreated = (message: MessageDTO) => {
+  const addMessageToCache = useCallback(
+    (message: MessageDTO) => {
       queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
         ["messages", roomId],
         (prev) => {
@@ -53,6 +48,28 @@ export default function ChatContainer({
           };
         },
       );
+    },
+    [queryClient, roomId],
+  );
+
+  const { mutateAsync: asyncCreateMessage } = useCreateMessage(roomId);
+  const { mutate: readRoom } = useReadRoom(roomId);
+
+  useEffect(() => {
+    readRoom();
+  }, [roomId, readRoom]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
+    if (!socket || !isConnected) return;
+
+    const handleMessageCreated = (message: MessageDTO) => {
+      if (message.roomId !== roomId) return;
+
+      addMessageToCache(message);
+
+      readRoom();
     };
 
     socket.on(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
@@ -60,11 +77,9 @@ export default function ChatContainer({
     return () => {
       socket.off(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
     };
-  }, [queryClient, roomId, socketRef, isConnected]);
+  }, [addMessageToCache, roomId, socketRef, isConnected, readRoom]);
 
-  const sendQueueRef: RefObject<Promise<MessageDTO | void>> = useRef(
-    Promise.resolve(),
-  );
+  const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const handleSend = (content: string, type: MessageType = "TEXT") => {
     const optimisticMessage: MessageDTO = {
@@ -88,24 +103,12 @@ export default function ChatContainer({
     sendQueueRef.current = sendQueueRef.current
       .then(async () => {
         const variables: MessageCreateBodyDTO = { content, type };
-        const message = await mutateAsync(variables);
+        const message = await asyncCreateMessage(variables);
         setOptimisticMessages((prev) =>
           prev.filter((msg) => msg.id !== optimisticMessage.id),
         );
 
-        queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
-          ["messages", roomId],
-          (prev) => {
-            if (!prev) return prev;
-            const exists = prev.items.some((item) => item.id === message.id);
-            if (exists) return prev;
-            return {
-              ...prev,
-              items: [...prev.items, message].sort((a, b) => a.id - b.id),
-              total: prev.total + 1,
-            };
-          },
-        );
+        addMessageToCache(message);
 
         socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
       })

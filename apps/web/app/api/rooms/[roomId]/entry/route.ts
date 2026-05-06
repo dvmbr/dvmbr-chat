@@ -57,10 +57,13 @@ export async function POST(
             roomId,
           },
         },
-        update: {},
+        update: {
+          lastReadAt: new Date(),
+        },
         create: {
           roomId,
           userId,
+          lastReadAt: new Date(),
         },
       });
 

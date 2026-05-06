@@ -10,10 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prisma:studio": "prisma studio",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate",
-    "prisma:reset": "prisma migrate reset"
+    "prisma:studio": "dotenv -e .env -- prisma studio",
+    "prisma:migrate": "dotenv -e .env -- prisma migrate dev",
+    "prisma:generate": "dotenv -e .env -- prisma generate",
+    "prisma:reset": "dotenv -e .env -- prisma migrate reset"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
@@ -41,7 +41,7 @@
     "ws": "^8.18.3",
     "zod": "^4.3.6",
     "zustand": "^5.0.12",
-      "@dvmbr/shared": "workspace:*"
+    "@dvmbr/shared": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",

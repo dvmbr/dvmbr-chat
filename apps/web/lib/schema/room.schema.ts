@@ -34,9 +34,15 @@ export const RoomUpdateBodySchema = z
   })
   .openapi("RoomUpdateBody");
 
+export const RoomReadSchema = z
+  .object({ updated: z.boolean() })
+  .openapi("RoomRead");
+
 export type RoomDTO = z.infer<typeof RoomSchema>;
 export type RoomCreateBody = z.infer<typeof RoomCreateBodySchema>;
 export type RoomUpdateBody = z.infer<typeof RoomUpdateBodySchema>;
+
+export type RoomReadDTO = z.infer<typeof RoomReadSchema>;
 
 export type RoomWithCreator = Room & {
   creator: Pick<User, "id" | "nickname">;
@@ -57,4 +63,8 @@ export function toRoomDTO(data: RoomWithCreator): RoomDTO {
 
 export function toRoomListDTO(data: RoomWithCreator[]): RoomDTO[] {
   return data.map(toRoomDTO);
+}
+
+export function toRoomReadDTO(updated: boolean): RoomReadDTO {
+  return RoomReadSchema.parse({ updated });
 }

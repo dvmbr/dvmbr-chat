@@ -3,6 +3,7 @@ import { ErrorResponse, ListResponse } from "@/lib/schema/response.schema";
 import {
   RoomCreateBody,
   RoomDTO,
+  RoomReadDTO,
   RoomUpdateBody,
 } from "@/lib/schema/room.schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -43,6 +44,17 @@ export function useDeleteRoom(roomId: number) {
   return useMutation<void, ErrorResponse>({
     mutationFn: async () => {
       await apiClient.delete(`rooms/${roomId}`);
+    },
+  });
+}
+
+export function useReadRoom(roomId: number) {
+  return useMutation<RoomReadDTO, ErrorResponse>({
+    mutationFn: async () => {
+      const res = await apiClient
+        .post(`rooms/${roomId}/read`)
+        .json<RoomReadDTO>();
+      return res;
     },
   });
 }

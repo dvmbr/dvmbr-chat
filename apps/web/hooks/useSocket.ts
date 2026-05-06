@@ -6,6 +6,8 @@ export function useSocket(roomId: number) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    console.log("useSocket effect:", roomId);
+
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL!, {
       query: { roomId },
     });
@@ -13,19 +15,22 @@ export function useSocket(roomId: number) {
     socketRef.current = socket;
 
     socket.on("connect", () => {
+      console.log("socket connected:", socket.id, "room:", roomId);
       setIsConnected(true);
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (reason) => {
+      console.log("socket disconnected:", socket.id, "room:", roomId, reason);
       setIsConnected(false);
     });
 
     return () => {
+      console.log("useSocket cleanup:", roomId, socket.id);
+
       socket.off("connect");
       socket.off("disconnect");
       socket.disconnect();
       socketRef.current = null;
-      setIsConnected(false);
     };
   }, [roomId]);
 
