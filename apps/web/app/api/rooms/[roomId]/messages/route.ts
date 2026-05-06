@@ -1,4 +1,5 @@
 import prisma from "@/lib/db";
+import { socketClient } from "@/lib/http-clients";
 import {
   MessageCreateBodySchema,
   MessageParamsSchema,
@@ -144,6 +145,48 @@ export async function POST(
 
       return createdMessage;
     });
+
+    // TODO(socket): Emit unreadCount update to room participants
+    const participants = await prisma.participant.findMany({
+      where: {
+        roomId,
+        userId: {
+          not: userId,
+        },
+      },
+
+      select: {
+        userId: true,
+        lastReadAt: true,
+      },
+    });
+
+    const unreadCountPayloads = await Promise.all(
+      participants.map(async (participant) => {
+        const unreadCount = await prisma.message.count({
+          where: {
+            roomId,
+            createdAt: {
+              gt: participant.lastReadAt ?? new Date(0),
+            },
+
+            participant: {
+              userId: {
+                not: participant.userId,
+              },
+            },
+          },
+        });
+
+        return {
+          userId: participant.userId,
+          roomId,
+          unreadCount,
+        };
+      }),
+    );
+
+    // TODO(socket): Send unreadCountPayloads to socket server
 
     return sendOk(toMessageDTO(message));
   } catch (error) {

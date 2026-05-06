@@ -14,22 +14,44 @@ const io = new Server(httpServer, {
   },
 });
 
+// TODO(socket): Add unread count broadcasting when a new message is created
 io.on("connection", (socket) => {
-  const roomId = socket.handshake.query.roomId;
+  const { roomId, userId } = socket.handshake.query;
 
-  if (typeof roomId !== "string" || roomId.trim() === "") {
+  if (typeof userId !== "string" || userId.trim() === "") {
     socket.disconnect(true);
     return;
   }
 
-  const roomKey = `room:${roomId}`;
+  const userKey = `user:${userId}`;
+  socket.join(userKey);
 
-  socket.join(roomKey);
+  let roomKey: string | null = null;
 
-  console.log(`connected: ${socket.id} -> ${roomKey}`);
+  if (typeof roomId === "string" && roomId.trim() !== "") {
+    roomKey = `room:${roomId}`;
+    socket.join(roomKey);
+  }
+
+  console.log(`connected: ${socket.id} -> ${userKey}`);
+  if (roomKey) {
+    console.log(`joined room: ${socket.id} -> ${roomKey}`);
+  }
 
   socket.on(SOCKET_EVENTS.MESSAGE_CREATED, (message) => {
+    if (!roomKey) return;
+
     socket.to(roomKey).emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
+  });
+
+  socket.on(SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED, (payload) => {
+    socket.to(`user:${payload.userId}`).emit(
+      SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED,
+      {
+        roomId: payload.roomId,
+        unreadCount: payload.unreadCount,
+      },
+    );
   });
 
   socket.on("disconnect", (reason) => {
