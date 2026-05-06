@@ -11,6 +11,7 @@ export const RoomSchema = z
     id: z.number(),
     name: z.string().trim().min(1),
     creator: RoomCreatorSchema,
+    unreadCount: z.number().int().nonnegative(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -44,11 +45,12 @@ export type RoomUpdateBody = z.infer<typeof RoomUpdateBodySchema>;
 
 export type RoomReadDTO = z.infer<typeof RoomReadSchema>;
 
-export type RoomWithCreator = Room & {
+export type RoomItem = Room & {
   creator: Pick<User, "id" | "nickname">;
+  unreadCount?: number;
 };
 
-export function toRoomDTO(data: RoomWithCreator): RoomDTO {
+export function toRoomDTO(data: RoomItem): RoomDTO {
   return RoomSchema.parse({
     id: data.id,
     name: data.name,
@@ -56,12 +58,13 @@ export function toRoomDTO(data: RoomWithCreator): RoomDTO {
       id: data.creator.id,
       nickname: data.creator.nickname,
     },
+    unreadCount: data.unreadCount ?? 0,
     createdAt: data.createdAt.toISOString(),
     updatedAt: data.updatedAt.toISOString(),
   });
 }
 
-export function toRoomListDTO(data: RoomWithCreator[]): RoomDTO[] {
+export function toRoomListDTO(data: RoomItem[]): RoomDTO[] {
   return data.map(toRoomDTO);
 }
 

@@ -2,7 +2,7 @@ import RoomsContainer from "@/components/client/Rooms/RoomsContainer";
 import ErrorView from "@/components/ui/ErrorView";
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import prisma from "@/lib/db";
-import { RoomSchema, toRoomListDTO } from "@/lib/schema/room.schema";
+import { toRoomListDTO } from "@/lib/schema/room.schema";
 import { cookies } from "next/headers";
 
 export default async function RoomsPage() {
@@ -16,20 +16,41 @@ export default async function RoomsPage() {
   if (!user) return <ErrorView text="User not found" />;
 
   const rooms = await prisma.room.findMany({
-    // where: {
-    //   participants: {
-    //     some: {
-    //       userId: user.id,
-    //     },
-    //   },
-    // },
     orderBy: {
       updatedAt: "desc",
     },
     include: {
       creator: true,
+      participants: {
+        where: {
+          userId: user.id,
+        },
+        select: { lastReadAt: true },
+      },
     },
   });
 
-  return <RoomsContainer rooms={toRoomListDTO(rooms)} />;
+  const RoomsWithUnreadCount = await Promise.all(
+    rooms.map(async (r) => {
+      const lastReadAt = r.participants[0]?.lastReadAt ?? new Date(0);
+
+      const unreadCount = await prisma.message.count({
+        where: {
+          roomId: r.id,
+
+          createdAt: {
+            gt: lastReadAt,
+          },
+
+          participant: {
+            userId: { not: user.id },
+          },
+        },
+      });
+
+      return { ...r, unreadCount };
+    }),
+  );
+
+  return <RoomsContainer rooms={toRoomListDTO(RoomsWithUnreadCount)} />;
 }

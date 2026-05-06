@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 
 import { MouseEventHandler, useRef, useState } from "react";
 import { userStore } from "@/lib/stores/userStore";
+import { Badge } from "@/components/ui/badge";
 
 type RoomItemProps = {
   roomItem: RoomDTO;
@@ -146,7 +147,14 @@ export default function RoomItem({ roomItem }: RoomItemProps) {
               </div>
             </form>
           ) : (
-            <CardTitle className="text-base">{roomItem.name}</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base">{roomItem.name}</CardTitle>
+              {roomItem.unreadCount > 0 && (
+                <Badge className="bg-brand-red text-brand-mint">
+                  {roomItem.unreadCount}
+                </Badge>
+              )}
+            </div>
           )}
 
           {/* actions */}
