@@ -8,7 +8,7 @@ export function useSocket(roomId: number) {
   useEffect(() => {
     console.log("useSocket effect:", roomId);
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL!, {
+    const socket = io(process.env.SOCKET_SERVER_URL!, {
       query: { roomId },
     });
 
