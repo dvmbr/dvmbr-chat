@@ -10,10 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prisma:studio": "dotenv -e .env -- prisma studio",
-    "prisma:migrate": "dotenv -e .env -- prisma migrate dev",
-    "prisma:generate": "dotenv -e .env -- prisma generate",
-    "prisma:reset": "dotenv -e .env -- prisma migrate reset"
+    "prisma:studio": "dotenv -e .env.local -- prisma studio",
+    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:reset": "dotenv -e .env.local -- prisma migrate reset"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
