@@ -9,6 +9,7 @@
     "packages/*"
   ],
   "scripts": {
+    "lint": "eslint .",
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "prisma:studio": "pnpm --filter web prisma:studio",
@@ -18,8 +19,11 @@
     "dev:socket": "pnpm --filter socket-server dev"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.39.4",
+    "eslint-config-next": "16.0.3",
     "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.7.4"
+    "prettier-plugin-tailwindcss": "^0.7.4",
+    "typescript-eslint": "^8.59.2"
   }
 }
