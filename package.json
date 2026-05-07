@@ -15,7 +15,11 @@
     "prisma:migrate": "pnpm --filter web prisma:migrate",
     "prisma:generate": "pnpm --filter web prisma:generate",
     "prisma:reset": "pnpm --filter web prisma:reset",
-
     "dev:socket": "pnpm --filter socket-server dev"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.7.4"
   }
 }

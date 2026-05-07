@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@dvmbr/shared": "workspace:*",
     "@headlessui/react": "^2.2.10",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
@@ -40,8 +41,7 @@
     "vaul": "^1.1.2",
     "ws": "^8.18.3",
     "zod": "^4.3.6",
-    "zustand": "^5.0.12",
-    "@dvmbr/shared": "workspace:*"
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
