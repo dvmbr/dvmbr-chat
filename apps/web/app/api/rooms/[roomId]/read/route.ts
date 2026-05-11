@@ -1,12 +1,14 @@
 import prisma from "@/lib/server/db";
-import { RoomParamsSchema, toRoomReadDTO } from "@/lib/schemas/room.schema";
+
 import {
   badRequest,
+  forbidden,
   internalServerError,
 } from "@/lib/server/http/error-response";
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
+import { RoomParamsSchema } from "@/lib/schemas/room/request";
 
 export async function POST(
   req: NextRequest,
@@ -36,7 +38,13 @@ export async function POST(
       },
     });
 
-    return sendOk(toRoomReadDTO(result.count > 0));
+    if (result.count === 0) {
+      forbidden({
+        message: "Participant not found",
+      });
+    }
+
+    return sendOk(null);
   } catch (error) {
     return internalServerError(error);
   }

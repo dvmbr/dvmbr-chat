@@ -1,9 +1,6 @@
 import prisma from "@/lib/server/db";
-import {
-  ChatRoomEntryParamsSchema,
-  toChatRoomEntryDTO,
-} from "@/lib/schemas/chat-room-entry.schema";
-
+import { toChatRoomEntryDTO } from "@/lib/mappers/chat-room-entry.mapper";
+import { ChatRoomEntryParamsSchema } from "@/lib/schemas/chat-room-entry/request";
 import {
   badRequest,
   internalServerError,

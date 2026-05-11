@@ -1,10 +1,5 @@
 import prisma from "@/lib/server/db";
 import {
-  RoomCreateBodySchema,
-  toRoomDTO,
-  toRoomListDTO,
-} from "@/lib/schemas/room.schema";
-import {
   badRequest,
   conflict,
   internalServerError,
@@ -12,6 +7,8 @@ import {
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendList, sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
+import { toRoomListDTO, toRoomDTO } from "@/lib/mappers/room.mapper";
+import { RoomCreateBodySchema } from "@/lib/schemas/room/request";
 
 export async function GET(req: NextRequest) {
   try {

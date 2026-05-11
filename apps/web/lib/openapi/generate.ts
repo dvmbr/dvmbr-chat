@@ -1,28 +1,28 @@
-// import {
-//   OpenApiGeneratorV3,
-//   OpenAPIRegistry,
-// } from "@asteasolutions/zod-to-openapi";
-// import { registerUserOpenApi } from "./user.openapi";
+import {
+  OpenApiGeneratorV3,
+  OpenAPIRegistry,
+} from "@asteasolutions/zod-to-openapi";
+import { registerEntryOpenApi } from "./entry.openapi";
 
-// const registry = new OpenAPIRegistry();
+const registry = new OpenAPIRegistry();
 
-// registerUserOpenApi(registry);
+registerEntryOpenApi(registry);
 
-// export function generateOpenAPIDocument() {
-//   const generator = new OpenApiGeneratorV3(registry.definitions);
+export function generateOpenAPIDocument() {
+  const generator = new OpenApiGeneratorV3(registry.definitions);
 
-//   const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-//   return generator.generateDocument({
-//     openapi: "3.0.0",
-//     info: {
-//       title: "DVMBR Chat API",
-//       version: "1.0.0",
-//     },
-//     servers: [
-//       {
-//         url,
-//       },
-//     ],
-//   });
-// }
+  return generator.generateDocument({
+    openapi: "3.0.0",
+    info: {
+      title: "DVMBR Chat API",
+      version: "1.0.0",
+    },
+    servers: [
+      {
+        url,
+      },
+    ],
+  });
+}

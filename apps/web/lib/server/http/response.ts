@@ -5,7 +5,7 @@ import type {
   ErrorResponse,
   OkResponse,
   ListData,
-} from "@/lib/schemas/response.schema";
+} from "@/lib/schemas_old/response.schema";
 import { toErrorResponse } from "./error-response";
 
 export function sendOk<T>(

@@ -1,18 +1,17 @@
 import prisma from "@/lib/server/db";
-import { toChatRoomEntryDTO } from "@/lib/schemas/chat-room-entry.schema";
-import { RoomItem } from "@/lib/schemas/room.schema";
 
 import { internalServerError } from "@/lib/server/http/error-response";
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
+import { toChatRoomEntryDTO } from "@/lib/mappers/chat-room-entry.mapper";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req);
 
     const entry = await prisma.$transaction(async (tx) => {
-      let room: RoomItem | null = null;
+      let room = null;
       if (user.lastRoomId) {
         room = await tx.room.findUnique({
           where: { id: user.lastRoomId },

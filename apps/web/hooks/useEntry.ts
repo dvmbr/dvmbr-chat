@@ -1,6 +1,9 @@
 import { apiClient } from "@/lib/api-client";
-import type { EntryBodyDTO, EntryDTO } from "@/lib/schemas/entry.schema";
-import type { ErrorResponse, OkResponse } from "@/lib/schemas/response.schema";
+import type { EntryBodyDTO, EntryDTO } from "@/lib/schemas_old/entry.schema";
+import type {
+  ErrorResponse,
+  OkResponse,
+} from "@/lib/schemas_old/response.schema";
 import { useMutation } from "@tanstack/react-query";
 
 export default function useEntry() {

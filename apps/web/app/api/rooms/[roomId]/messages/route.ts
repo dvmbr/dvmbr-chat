@@ -1,12 +1,6 @@
 import prisma from "@/lib/server/db";
 import { postUnreadCount } from "@/lib/server/socket/api/unread-count.api";
 import {
-  MessageCreateBodySchema,
-  MessageParamsSchema,
-  toMessageDTO,
-  toMessageListDTO,
-} from "@/lib/schemas/message.schema";
-import {
   badRequest,
   internalServerError,
   unauthorized,
@@ -14,6 +8,11 @@ import {
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendList, sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
+import { toMessageListDTO, toMessageDTO } from "@/lib/mappers/message.mapper";
+import {
+  MessageParamsSchema,
+  MessageCreateBodySchema,
+} from "@/lib/schemas/message/request";
 
 export async function GET(
   req: NextRequest,

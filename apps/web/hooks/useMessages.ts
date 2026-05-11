@@ -1,11 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schemas/message.schema";
+import {
+  MessageCreateBodyDTO,
+  MessageDTO,
+} from "@/lib/schemas_old/message.schema";
 import {
   ErrorResponse,
   ListResponse,
   OkResponse,
-} from "@/lib/schemas/response.schema";
+} from "@/lib/schemas_old/response.schema";
 
 export function useGetMessages(roomId: number) {
   return useQuery<ListResponse<MessageDTO>["data"], ErrorResponse>({

@@ -16,9 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import useEntry from "@/hooks/useEntry";
-import { EntryBodyDTO } from "@/lib/schemas/entry.schema";
+import { EntryBodyDTO } from "@/lib/schemas_old/entry.schema";
 import AppShell from "./AppShell";
-import { UserDTO } from "@/lib/schemas/user.schema";
+import { UserDTO } from "@/lib/schemas_old/user.schema";
 import { userStore } from "@/lib/stores/userStore";
 import LoadingView from "../ui/LoadingView";
 import ChatRoomScaffold from "./ChatRoom/ChatRoomScaffold";

@@ -1,6 +1,8 @@
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
+import { toEntryDTO } from "@/lib/mappers/entry.mapper";
+import { userDTOSelect } from "@/lib/mappers/user.mapper";
+import { EntryBodySchema } from "@/lib/schemas/entry/request";
 import prisma from "@/lib/server/db";
-import { EntryBodySchema, toEntryDTO } from "@/lib/schemas/entry.schema";
 import {
   badRequest,
   internalServerError,
@@ -39,6 +41,7 @@ export async function POST(req: NextRequest) {
         nickname,
         browserToken,
       },
+      select: userDTOSelect,
     });
 
     const res = sendOk(toEntryDTO({ user }));

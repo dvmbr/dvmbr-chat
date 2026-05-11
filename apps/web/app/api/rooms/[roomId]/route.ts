@@ -1,10 +1,5 @@
 import prisma from "@/lib/server/db";
 import {
-  RoomParamsSchema,
-  RoomUpdateBodySchema,
-  toRoomDTO,
-} from "@/lib/schemas/room.schema";
-import {
   badRequest,
   forbidden,
   internalServerError,
@@ -13,6 +8,11 @@ import {
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
+import { toRoomDTO } from "@/lib/mappers/room.mapper";
+import {
+  RoomParamsSchema,
+  RoomUpdateBodySchema,
+} from "@/lib/schemas/room/request";
 
 export async function PATCH(
   req: NextRequest,
