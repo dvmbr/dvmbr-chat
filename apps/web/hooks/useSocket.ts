@@ -1,16 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@dvmbr/shared/socket/socket-contract";
+import type { SocketConnectionQuery } from "@dvmbr/shared/socket/socket-query";
 
-export function useSocket(roomId: number) {
-  const socketRef = useRef<Socket | null>(null);
+export function useSocket(participantId: number, roomId: number) {
+  const socketRef = useRef<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     console.log("useSocket effect:", roomId);
 
-    const socket = io(process.env.SOCKET_SERVER_URL!, {
-      query: { roomId },
-    });
+    const query: SocketConnectionQuery = {
+      userId: participantId,
+      roomId,
+    };
+
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+      process.env.SOCKET_SERVER_URL!,
+      {
+        query,
+      },
+    );
 
     socketRef.current = socket;
 
@@ -32,7 +48,7 @@ export function useSocket(roomId: number) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [roomId]);
+  }, [participantId, roomId]);
 
   return { socketRef, isConnected };
 }

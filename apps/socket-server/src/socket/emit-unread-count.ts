@@ -1,13 +1,17 @@
 import { Server } from "socket.io";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket-events";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
 import { UnreadCountBodyDTO } from "@/lib/schemas/unread-count.schema.js";
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@dvmbr/shared/socket/socket-contract";
 
 /** NOTE:
  * A single message can update unread counts
  * for multiple room participants.
  */
 export function emitUnreadCount(
-  io: Server,
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
   payloads: UnreadCountBodyDTO["payloads"],
 ) {
   for (const payload of payloads) {

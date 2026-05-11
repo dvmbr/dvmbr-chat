@@ -7,6 +7,9 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./socket-events": "./src/socket-events.ts"
+    "./socket": "./src/socket/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.2"
   }
 }

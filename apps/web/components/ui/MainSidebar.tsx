@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserStore } from "@/lib/stores/userStore";
+import { userStore } from "@/lib/stores/userStore";
 
 import {
   Sidebar,
@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Button } from "./button";
 
 export default function MainSidebar() {
-  const nickname = useUserStore((state) => state.nickname);
+  const nickname = userStore((state) => state.nickname);
   const safeNickname = nickname || "Unknown User";
   const { setOpenMobile } = useSidebar();
 

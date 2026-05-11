@@ -1,21 +1,36 @@
 import { Server } from "socket.io";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket-events";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
+import {
+  SocketConnectionQuerySchema,
+  type SocketConnectionQuery,
+} from "@dvmbr/shared/socket/socket-query";
+import type {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@dvmbr/shared/socket/socket-contract";
 
-export function registerSocketHandlers(io: Server) {
+export function registerSocketHandlers(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+) {
   io.on("connection", (socket) => {
-    const { roomId, userId } = socket.handshake.query;
+    const parsedQuery = SocketConnectionQuerySchema.safeParse(
+      socket.handshake.query,
+    );
 
-    if (typeof userId !== "string" || userId.trim() === "") {
+    if (!parsedQuery.success) {
       socket.disconnect(true);
       return;
     }
+
+    const query: SocketConnectionQuery = parsedQuery.data;
+    const { userId, roomId } = query;
 
     const userKey = `user:${userId}`;
     socket.join(userKey);
 
     let roomKey: string | null = null;
 
-    if (typeof roomId === "string" && roomId.trim() !== "") {
+    if (typeof roomId === "number") {
       roomKey = `room:${roomId}`;
       socket.join(roomKey);
     }

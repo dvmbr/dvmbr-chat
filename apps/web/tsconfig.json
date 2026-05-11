@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@dvmbr/shared/*": ["../../packages/shared/src/*"]
+      "@dvmbr/shared/*": ["../../packages/shared/src/*.ts"]
     }
   },
   "include": [

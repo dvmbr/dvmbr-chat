@@ -1,23 +1,21 @@
 import { Message, MessageType, User } from "@prisma/client";
 import { z } from "../zod";
 
-const MessageSenderSchema = z.object({
-  id: z.number(),
-  nickname: z.string(),
-});
-
 export const MessageSchema = z
   .object({
-    id: z.number(),
-    participantId: z.number(),
-    sender: MessageSenderSchema,
-    roomId: z.number(),
+    id: z.number().int().positive(),
+    participantId: z.number().int().positive(),
+    sender: z.object({
+      id: z.number().int().positive(),
+      nickname: z.string().trim().min(1),
+    }),
+    roomId: z.number().int().positive(),
     content: z.string().trim().min(1),
-    type: z.enum(MessageType),
+    type: z.enum(["TEXT", "IMAGE", "SYSTEM"]),
     isDeleted: z.boolean(),
     isEdited: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
   })
   .openapi("Message");
 

@@ -9,7 +9,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schemas/message.schema";
 import { useQueryClient } from "@tanstack/react-query";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket-events";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
 import { MessageType } from "@prisma/client";
 import { ListResponse } from "@/lib/schemas/response.schema";
 import { useReadRoom } from "@/hooks/useRoom";
@@ -23,7 +23,7 @@ export default function ChatContainer({
   participantId,
 }: ChatContainerProps) {
   const queryClient = useQueryClient();
-  const { socketRef, isConnected } = useSocket(roomId);
+  const { socketRef, isConnected } = useSocket(participantId, roomId);
   const { data, isPending } = useGetMessages(roomId);
   const [optimisticMessages, setOptimisticMessages] = useState<MessageDTO[]>(
     [],

@@ -1,5 +1,5 @@
 import prisma from "@/lib/server/db";
-import { socketClient } from "@/lib/api-client";
+import { postUnreadCount } from "@/lib/server/socket/api/unread-count.api";
 import {
   MessageCreateBodySchema,
   MessageParamsSchema,
@@ -186,7 +186,7 @@ export async function POST(
       }),
     );
 
-    // TODO(socket): Send unreadCountPayloads to socket server
+    await postUnreadCount(unreadCountPayloads);
 
     return sendOk(toMessageDTO(message));
   } catch (error) {
