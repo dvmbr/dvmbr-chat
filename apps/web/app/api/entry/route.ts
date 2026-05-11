@@ -1,8 +1,11 @@
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
-import prisma from "@/lib/db";
+import prisma from "@/lib/server/db";
 import { EntryBodySchema, toEntryDTO } from "@/lib/schemas/entry.schema";
-import { badRequest, internalServerError } from "@/lib/utils/error-response";
-import { sendOk } from "@/lib/utils/response";
+import {
+  badRequest,
+  internalServerError,
+} from "@/lib/server/http/error-response";
+import { sendOk } from "@/lib/server/http/response";
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 

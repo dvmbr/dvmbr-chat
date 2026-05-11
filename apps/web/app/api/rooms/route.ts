@@ -1,4 +1,4 @@
-import prisma from "@/lib/db";
+import prisma from "@/lib/server/db";
 import {
   RoomCreateBodySchema,
   toRoomDTO,
@@ -8,9 +8,9 @@ import {
   badRequest,
   conflict,
   internalServerError,
-} from "@/lib/utils/error-response";
-import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
-import { sendList, sendOk } from "@/lib/utils/response";
+} from "@/lib/server/http/error-response";
+import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
+import { sendList, sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {

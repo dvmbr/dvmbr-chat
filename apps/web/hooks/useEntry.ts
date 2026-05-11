@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/http-clients";
+import { apiClient } from "@/lib/api-client";
 import type { EntryBodyDTO, EntryDTO } from "@/lib/schemas/entry.schema";
 import type { ErrorResponse, OkResponse } from "@/lib/schemas/response.schema";
 import { useMutation } from "@tanstack/react-query";

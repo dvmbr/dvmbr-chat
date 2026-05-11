@@ -1,7 +1,9 @@
-import prisma from "@/lib/db";
+import "server-only";
+
+import prisma from "@/lib/server/db";
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import { NextRequest } from "next/server";
-import { notFound, unauthorized } from "@/lib/utils/error-response";
+import { notFound, unauthorized } from "@/lib/server/http/error-response";
 
 export async function getUserFromRequest(req: NextRequest) {
   const token = req.cookies.get(COOKIE_KEY)?.value;

@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/http-clients";
+import { apiClient } from "@/lib/api-client";
 import { ChatRoomEntryDTO } from "@/lib/schemas/chat-room-entry.schema";
 import { ErrorResponse, OkResponse } from "@/lib/schemas/response.schema";
 

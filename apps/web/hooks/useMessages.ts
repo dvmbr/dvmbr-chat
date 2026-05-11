@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/http-clients";
+import { apiClient } from "@/lib/api-client";
 import { MessageCreateBodyDTO, MessageDTO } from "@/lib/schemas/message.schema";
 import {
   ErrorResponse,

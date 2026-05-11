@@ -1,3 +1,5 @@
+import "server-only";
+
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { sendError } from "./response";
 

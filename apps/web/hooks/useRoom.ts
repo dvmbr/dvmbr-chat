@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/http-clients";
+import { apiClient } from "@/lib/api-client";
 import { ErrorResponse, ListResponse } from "@/lib/schemas/response.schema";
 import {
   RoomCreateBody,

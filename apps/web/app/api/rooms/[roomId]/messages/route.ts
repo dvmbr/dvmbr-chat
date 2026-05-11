@@ -1,5 +1,5 @@
-import prisma from "@/lib/db";
-import { socketClient } from "@/lib/http-clients";
+import prisma from "@/lib/server/db";
+import { socketClient } from "@/lib/api-client";
 import {
   MessageCreateBodySchema,
   MessageParamsSchema,
@@ -10,9 +10,9 @@ import {
   badRequest,
   internalServerError,
   unauthorized,
-} from "@/lib/utils/error-response";
-import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
-import { sendList, sendOk } from "@/lib/utils/response";
+} from "@/lib/server/http/error-response";
+import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
+import { sendList, sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
 
 export async function GET(

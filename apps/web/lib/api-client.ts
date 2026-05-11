@@ -17,8 +17,3 @@ export const apiClient = ky.create({
   credentials: "same-origin",
   hooks,
 });
-
-export const socketClient = ky.create({
-  prefixUrl: process.env.SOCKET_SERVER_URL,
-  hooks,
-});
