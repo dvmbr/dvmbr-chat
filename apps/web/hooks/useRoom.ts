@@ -1,11 +1,14 @@
 import { apiClient } from "@/lib/api-client";
-import { ErrorResponse, ListResponse } from "@/lib/schemas_old/response.schema";
 import {
+  ErrorResponse,
+  ListResponse,
+  OkResponse,
+} from "@/lib/schemas/response/schema";
+import { RoomDTO } from "@/lib/schemas/room/schema";
+import type {
   RoomCreateBody,
-  RoomDTO,
-  RoomReadDTO,
   RoomUpdateBody,
-} from "@/lib/schemas_old/room.schema";
+} from "@/lib/schemas/room/request";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useGetRooms() {
@@ -21,9 +24,11 @@ export function useGetRooms() {
 export function useCreateRoom() {
   return useMutation<RoomDTO, ErrorResponse, RoomCreateBody>({
     mutationFn: async (body) => {
-      const res = await apiClient.post("rooms", { json: body }).json<RoomDTO>();
+      const res = await apiClient
+        .post("rooms", { json: body })
+        .json<OkResponse<RoomDTO>>();
 
-      return res;
+      return res.data;
     },
   });
 }
@@ -33,9 +38,9 @@ export function useUpdateRoom(roomId: number) {
     mutationFn: async (body) => {
       const res = await apiClient
         .patch(`rooms/${roomId}`, { json: body })
-        .json<RoomDTO>();
+        .json<OkResponse<RoomDTO>>();
 
-      return res;
+      return res.data;
     },
   });
 }
@@ -49,12 +54,12 @@ export function useDeleteRoom(roomId: number) {
 }
 
 export function useReadRoom(roomId: number) {
-  return useMutation<RoomReadDTO, ErrorResponse>({
+  return useMutation<null, ErrorResponse>({
     mutationFn: async () => {
       const res = await apiClient
         .post(`rooms/${roomId}/read`)
-        .json<RoomReadDTO>();
-      return res;
+        .json<OkResponse<null>>();
+      return res.data;
     },
   });
 }

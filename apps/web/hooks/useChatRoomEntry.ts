@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api-client";
-import { ChatRoomEntryDTO } from "@/lib/schemas_old/chat-room-entry.schema";
-import { ErrorResponse, OkResponse } from "@/lib/schemas_old/response.schema";
+import { ChatRoomEntryDTO } from "@/lib/schemas/chat-room-entry/schema";
+import { ErrorResponse, OkResponse } from "@/lib/schemas/response/schema";
 
 import { useMutation } from "@tanstack/react-query";
 

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 
 import { useDeleteRoom, useUpdateRoom } from "@/hooks/useRoom";
-import { RoomDTO } from "@/lib/schemas_old/room.schema";
+import { RoomDTO } from "@/lib/schemas/room/schema";
 import { Check, Pencil, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 

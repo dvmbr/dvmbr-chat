@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { MessageDTO } from "@/lib/schemas_old/message.schema";
+import { MessageDTO } from "@/lib/schemas/message/schema";
 import { cn } from "@/lib/utils";
 
 type ChatMessagesProps = {

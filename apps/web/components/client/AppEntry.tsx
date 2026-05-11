@@ -16,9 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import useEntry from "@/hooks/useEntry";
-import { EntryBodyDTO } from "@/lib/schemas_old/entry.schema";
+import type { EntryBody } from "@/lib/schemas/entry/request";
+import type { UserDTO } from "@/lib/schemas/user/schema";
 import AppShell from "./AppShell";
-import { UserDTO } from "@/lib/schemas_old/user.schema";
 import { userStore } from "@/lib/stores/userStore";
 import LoadingView from "../ui/LoadingView";
 import ChatRoomScaffold from "./ChatRoom/ChatRoomScaffold";
@@ -59,7 +59,7 @@ export default function AppEntry({ children, user }: Props) {
   const handleSubmit = () => {
     if (!nickname.trim()) return;
 
-    const body: EntryBodyDTO = { nickname: nickname.trim() };
+    const body: EntryBody = { nickname: nickname.trim() };
     mutate(body, {
       onSuccess: (data) => {
         setOpen(false);

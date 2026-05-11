@@ -1,14 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import {
-  MessageCreateBodyDTO,
-  MessageDTO,
-} from "@/lib/schemas_old/message.schema";
+import { MessageDTO } from "@/lib/schemas/message/schema";
+import type { MessageCreateBody } from "@/lib/schemas/message/request";
 import {
   ErrorResponse,
   ListResponse,
   OkResponse,
-} from "@/lib/schemas_old/response.schema";
+} from "@/lib/schemas/response/schema";
 
 export function useGetMessages(roomId: number) {
   return useQuery<ListResponse<MessageDTO>["data"], ErrorResponse>({
@@ -25,7 +23,7 @@ export function useGetMessages(roomId: number) {
 }
 
 export function useCreateMessage(roomId: number) {
-  return useMutation<MessageDTO, ErrorResponse, MessageCreateBodyDTO>({
+  return useMutation<MessageDTO, ErrorResponse, MessageCreateBody>({
     mutationFn: async (body) => {
       const res = await apiClient
         .post(`rooms/${roomId}/messages`, { json: body })

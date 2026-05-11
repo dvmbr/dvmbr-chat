@@ -1,6 +1,7 @@
 "use client";
 
-import { RoomCreateBody, RoomDTO } from "@/lib/schemas_old/room.schema";
+import type { RoomCreateBody } from "@/lib/schemas/room/request";
+import type { RoomDTO } from "@/lib/schemas/room/schema";
 import RoomList from "./RoomList";
 import { Button } from "@/components/ui/button";
 import { CircleAlert, Plus } from "lucide-react";

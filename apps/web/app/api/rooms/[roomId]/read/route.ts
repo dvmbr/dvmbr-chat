@@ -39,7 +39,7 @@ export async function POST(
     });
 
     if (result.count === 0) {
-      forbidden({
+      return forbidden({
         message: "Participant not found",
       });
     }

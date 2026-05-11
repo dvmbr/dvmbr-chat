@@ -1,6 +1,6 @@
 "use client";
 
-import { RoomDTO } from "@/lib/schemas_old/room.schema";
+import { RoomDTO } from "@/lib/schemas/room/schema";
 import RoomItem from "./RoomItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 

@@ -12,41 +12,38 @@ export function errorResponseSchema() {
 }
 
 export function okResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
-  return z
-    .object({
-      data: dataSchema,
-      message: z.string().optional(),
-      statusCode: z.number(),
-      timestamp: z.string(),
-    })
-    .openapi("OkResponse");
+  return z.object({
+    data: dataSchema,
+    message: z.string().optional(),
+    statusCode: z.number(),
+    timestamp: z.string(),
+  });
 }
 
 export function listResponseSchema<T extends z.ZodTypeAny>(itemSchema: T) {
-  return z
-    .object({
-      data: z.object({
-        items: z.array(itemSchema),
-        total: z.number(),
-      }),
-      message: z.string().optional(),
-      statusCode: z.number(),
-      timestamp: z.string(),
-    })
-    .openapi("ListResponse");
+  return z.object({
+    data: z.object({
+      items: z.array(itemSchema),
+      total: z.number(),
+    }),
+    message: z.string().optional(),
+    statusCode: z.number(),
+    timestamp: z.string(),
+  });
 }
 
 export type ErrorResponse = z.infer<ReturnType<typeof errorResponseSchema>>;
 
-export type OkResponse<T extends z.ZodTypeAny> = z.infer<
-  ReturnType<typeof okResponseSchema<T>>
->;
+export type OkResponse<T> = {
+  data: T;
+  message?: string;
+  statusCode: number;
+  timestamp: string;
+};
 
 export type ListData<T> = {
   items: T[];
   total: number;
 };
 
-export type ListResponse<T extends z.ZodTypeAny> = z.infer<
-  ReturnType<typeof listResponseSchema<T>>
->;
+export type ListResponse<T> = OkResponse<ListData<T>>;

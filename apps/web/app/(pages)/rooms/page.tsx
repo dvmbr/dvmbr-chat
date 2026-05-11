@@ -1,8 +1,8 @@
 import RoomsContainer from "@/components/client/Rooms/RoomsContainer";
 import ErrorView from "@/components/ui/ErrorView";
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
+import { toRoomListDTO } from "@/lib/mappers/room.mapper";
 import prisma from "@/lib/server/db";
-import { toRoomListDTO } from "@/lib/schemas_old/room.schema";
 import { cookies } from "next/headers";
 
 export default async function RoomsPage() {

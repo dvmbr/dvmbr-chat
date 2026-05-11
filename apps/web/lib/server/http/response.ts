@@ -3,9 +3,9 @@ import "server-only";
 import { NextResponse } from "next/server";
 import type {
   ErrorResponse,
+  ListResponse,
   OkResponse,
-  ListData,
-} from "@/lib/schemas_old/response.schema";
+} from "@/lib/schemas/response/schema";
 import { toErrorResponse } from "./error-response";
 
 export function sendOk<T>(
@@ -31,7 +31,7 @@ export function sendList<T>(
   items: T[],
   statusCode = 200,
   message?: string,
-): NextResponse<OkResponse<ListData<T>>> {
+): NextResponse<ListResponse<T>> {
   if (statusCode === 204) {
     return new NextResponse(null, { status: statusCode });
   }

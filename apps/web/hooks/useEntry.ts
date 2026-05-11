@@ -1,13 +1,11 @@
 import { apiClient } from "@/lib/api-client";
-import type { EntryBodyDTO, EntryDTO } from "@/lib/schemas_old/entry.schema";
-import type {
-  ErrorResponse,
-  OkResponse,
-} from "@/lib/schemas_old/response.schema";
+import type { EntryBody } from "@/lib/schemas/entry/request";
+import type { EntryDTO } from "@/lib/schemas/entry/schema";
+import type { ErrorResponse, OkResponse } from "@/lib/schemas/response/schema";
 import { useMutation } from "@tanstack/react-query";
 
 export default function useEntry() {
-  return useMutation<EntryDTO, ErrorResponse, EntryBodyDTO | void>({
+  return useMutation<EntryDTO, ErrorResponse, EntryBody | void>({
     mutationFn: async (body) => {
       const res = await apiClient
         .post("entry", { json: body })

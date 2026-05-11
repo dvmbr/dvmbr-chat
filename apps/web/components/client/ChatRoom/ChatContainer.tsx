@@ -7,14 +7,12 @@ import ChatRoomScaffold from "./ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
 import { useSocket } from "@/hooks/useSocket";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  MessageCreateBodyDTO,
-  MessageDTO,
-} from "@/lib/schemas_old/message.schema";
+import { MessageDTO } from "@/lib/schemas/message/schema";
+import type { MessageCreateBody as MessageCreateBodyPayload } from "@/lib/schemas/message/request";
 import { useQueryClient } from "@tanstack/react-query";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
 import { MessageType } from "@prisma/client";
-import { ListResponse } from "@/lib/schemas_old/response.schema";
+import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
 
 type ChatContainerProps = {
@@ -105,7 +103,7 @@ export default function ChatContainer({
 
     sendQueueRef.current = sendQueueRef.current
       .then(async () => {
-        const variables: MessageCreateBodyDTO = { content, type };
+        const variables: MessageCreateBodyPayload = { content, type };
         const message = await asyncCreateMessage(variables);
         setOptimisticMessages((prev) =>
           prev.filter((msg) => msg.id !== optimisticMessage.id),

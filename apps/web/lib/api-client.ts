@@ -1,5 +1,5 @@
 import ky, { Hooks } from "ky";
-import { ErrorResponse } from "./schemas_old/response.schema";
+import { ErrorResponse } from "./schemas/response/schema";
 
 const hooks: Hooks = {
   afterResponse: [
