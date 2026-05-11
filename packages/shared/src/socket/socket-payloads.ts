@@ -23,6 +23,14 @@ export const RoomUnreadCountUpdatedPayloadSchema = z.object({
   unreadCount: z.number().int().min(0),
 });
 
+export function parseMessageCreatedPayload(payload: unknown) {
+  return MessageCreatedPayloadSchema.safeParse(payload);
+}
+
+export function parseRoomUnreadCountUpdatedPayload(payload: unknown) {
+  return RoomUnreadCountUpdatedPayloadSchema.safeParse(payload);
+}
+
 export type MessageType = z.infer<typeof MessageTypeSchema>;
 export type MessageCreatedPayload = z.infer<typeof MessageCreatedPayloadSchema>;
 export type RoomUnreadCountUpdatedPayload = z.infer<

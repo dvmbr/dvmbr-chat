@@ -14,7 +14,15 @@ export function useSocket(participantId: number, roomId: number) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
+
+    if (!socketServerUrl) {
+      console.error("NEXT_PUBLIC_SOCKET_SERVER_URL is not defined");
+      return;
+    }
+
     console.log("useSocket effect:", roomId);
+    console.log(socketServerUrl);
 
     const query: SocketConnectionQuery = {
       userId: participantId,
@@ -22,7 +30,7 @@ export function useSocket(participantId: number, roomId: number) {
     };
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      process.env.SOCKET_SERVER_URL!,
+      socketServerUrl,
       {
         query,
       },

@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
+import { parseMessageCreatedPayload } from "@dvmbr/shared/socket/socket-payloads";
 import {
   SocketConnectionQuerySchema,
   type SocketConnectionQuery,
@@ -44,7 +45,19 @@ export function registerSocketHandlers(
     socket.on(SOCKET_EVENTS.MESSAGE_CREATED, (message) => {
       if (!roomKey) return;
 
-      socket.to(roomKey).emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
+      const parsedMessage = parseMessageCreatedPayload(message);
+
+      if (!parsedMessage.success) {
+        console.warn(
+          `Invalid ${SOCKET_EVENTS.MESSAGE_CREATED} payload from ${socket.id}`,
+          parsedMessage.error.flatten(),
+        );
+        return;
+      }
+
+      socket
+        .to(roomKey)
+        .emit(SOCKET_EVENTS.MESSAGE_CREATED, parsedMessage.data);
     });
 
     socket.on("disconnect", (reason) => {

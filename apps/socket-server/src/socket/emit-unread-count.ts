@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
+import { parseRoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/socket-payloads";
 import { UnreadCountBodyDTO } from "@/lib/schemas/unread-count.schema.js";
 import type {
   ClientToServerEvents,
@@ -15,12 +16,22 @@ export function emitUnreadCount(
   payloads: UnreadCountBodyDTO["payloads"],
 ) {
   for (const payload of payloads) {
+    const parsedPayload = parseRoomUnreadCountUpdatedPayload({
+      roomId: payload.roomId,
+      unreadCount: payload.unreadCount,
+    });
+
+    if (!parsedPayload.success) {
+      console.warn(
+        `Invalid ${SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED} payload for user:${payload.userId}`,
+        parsedPayload.error.flatten(),
+      );
+      continue;
+    }
+
     io.to(`user:${payload.userId}`).emit(
       SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED,
-      {
-        roomId: payload.roomId,
-        unreadCount: payload.unreadCount,
-      },
+      parsedPayload.data,
     );
   }
 }

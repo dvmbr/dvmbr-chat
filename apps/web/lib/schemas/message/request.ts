@@ -1,4 +1,4 @@
-import { MessageType } from "@prisma/client";
+import { MessageTypeSchema } from "@dvmbr/shared/socket/socket-payloads";
 import { z } from "../../zod";
 
 export const MessageParamsSchema = z
@@ -10,7 +10,7 @@ export const MessageParamsSchema = z
 export const MessageCreateBodySchema = z
   .object({
     content: z.string().trim().min(1),
-    type: z.enum(MessageType),
+    type: MessageTypeSchema,
   })
   .openapi("MessageCreateBody");
 

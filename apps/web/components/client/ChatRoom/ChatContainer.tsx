@@ -11,9 +11,9 @@ import { MessageDTO } from "@/lib/schemas/message/schema";
 import type { MessageCreateBody as MessageCreateBodyPayload } from "@/lib/schemas/message/request";
 import { useQueryClient } from "@tanstack/react-query";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
-import { MessageType } from "@prisma/client";
 import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
+import { MessageType } from "@dvmbr/shared/socket/socket-payloads";
 
 type ChatContainerProps = {
   roomId: number;
