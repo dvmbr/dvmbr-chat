@@ -1,5 +1,5 @@
 import { HTTPError } from "ky";
-import { ErrorResponse } from "../schema/response.schema";
+import { ErrorResponse } from "../schemas/response.schema";
 
 export async function parseApiError(error: unknown): Promise<{
   message: string;

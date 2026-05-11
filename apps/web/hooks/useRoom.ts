@@ -1,11 +1,11 @@
 import { apiClient } from "@/lib/http-clients";
-import { ErrorResponse, ListResponse } from "@/lib/schema/response.schema";
+import { ErrorResponse, ListResponse } from "@/lib/schemas/response.schema";
 import {
   RoomCreateBody,
   RoomDTO,
   RoomReadDTO,
   RoomUpdateBody,
-} from "@/lib/schema/room.schema";
+} from "@/lib/schemas/room.schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useGetRooms() {

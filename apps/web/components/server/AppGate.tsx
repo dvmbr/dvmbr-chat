@@ -2,7 +2,7 @@ import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import { cookies } from "next/headers";
 import prisma from "@/lib/db";
 import AppEntry from "@/components/client/AppEntry";
-import { toUserDTO } from "@/lib/schema/user.schema";
+import { toUserDTO } from "@/lib/schemas/user.schema";
 
 /**
  * Check user existence by checking the browser token in cookies and querying the database.

@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
-import { toChatRoomEntryDTO } from "@/lib/schema/chat-room-entry.schema";
-import { RoomItem } from "@/lib/schema/room.schema";
+import { toChatRoomEntryDTO } from "@/lib/schemas/chat-room-entry.schema";
+import { RoomItem } from "@/lib/schemas/room.schema";
 
 import { internalServerError } from "@/lib/utils/error-response";
 import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";

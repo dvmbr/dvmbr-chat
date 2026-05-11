@@ -3,7 +3,7 @@ import {
   RoomParamsSchema,
   RoomUpdateBodySchema,
   toRoomDTO,
-} from "@/lib/schema/room.schema";
+} from "@/lib/schemas/room.schema";
 import {
   badRequest,
   forbidden,

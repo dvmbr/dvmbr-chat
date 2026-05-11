@@ -5,7 +5,7 @@ import {
   MessageParamsSchema,
   toMessageDTO,
   toMessageListDTO,
-} from "@/lib/schema/message.schema";
+} from "@/lib/schemas/message.schema";
 import {
   badRequest,
   internalServerError,

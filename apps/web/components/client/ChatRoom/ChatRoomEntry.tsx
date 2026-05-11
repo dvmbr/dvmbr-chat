@@ -4,7 +4,7 @@ import ChatRoomScaffold from "@/components/client/ChatRoom/ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
 import ErrorView from "@/components/ui/ErrorView";
 import useChatRoomEntry from "@/hooks/useChatRoomEntry";
-import { ChatRoomEntryDTO } from "@/lib/schema/chat-room-entry.schema";
+import { ChatRoomEntryDTO } from "@/lib/schemas/chat-room-entry.schema";
 import { roomStore } from "@/lib/stores/roomStore";
 import { useEffect, useRef, useState } from "react";
 import ChatContainer from "./ChatContainer";

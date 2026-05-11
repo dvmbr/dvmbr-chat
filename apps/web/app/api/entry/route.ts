@@ -1,6 +1,6 @@
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import prisma from "@/lib/db";
-import { EntryBodySchema, toEntryDTO } from "@/lib/schema/entry.schema";
+import { EntryBodySchema, toEntryDTO } from "@/lib/schemas/entry.schema";
 import { badRequest, internalServerError } from "@/lib/utils/error-response";
 import { sendOk } from "@/lib/utils/response";
 import { randomUUID } from "crypto";

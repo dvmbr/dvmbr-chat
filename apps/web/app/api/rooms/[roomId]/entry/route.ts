@@ -2,7 +2,7 @@ import prisma from "@/lib/db";
 import {
   ChatRoomEntryParamsSchema,
   toChatRoomEntryDTO,
-} from "@/lib/schema/chat-room-entry.schema";
+} from "@/lib/schemas/chat-room-entry.schema";
 
 import {
   badRequest,

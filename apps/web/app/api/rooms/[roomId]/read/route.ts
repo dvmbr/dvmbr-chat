@@ -1,5 +1,5 @@
 import prisma from "@/lib/db";
-import { RoomParamsSchema, toRoomReadDTO } from "@/lib/schema/room.schema";
+import { RoomParamsSchema, toRoomReadDTO } from "@/lib/schemas/room.schema";
 import { badRequest, internalServerError } from "@/lib/utils/error-response";
 import { getUserFromRequest } from "@/lib/utils/getUserFromRequest";
 import { sendOk } from "@/lib/utils/response";
