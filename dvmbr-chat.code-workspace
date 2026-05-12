@@ -1,0 +1,28 @@
+{
+  "folders": [
+    {
+      "name": "dvmbr-chat (root)",
+      "path": ".",
+    },
+    {
+      "name": "Web App",
+      "path": "apps/web",
+    },
+    {
+      "name": "Socket Server",
+      "path": "apps/socket-server",
+    },
+    {
+      "name": "Shared",
+      "path": "packages/shared",
+    },
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/.turbo": true,
+      "**/.git": true,
+    },
+  },
+}
