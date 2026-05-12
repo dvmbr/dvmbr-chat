@@ -52,5 +52,10 @@ export default async function RoomsPage() {
     }),
   );
 
-  return <RoomsContainer rooms={toRoomListDTO(RoomsWithUnreadCount)} />;
+  return (
+    <RoomsContainer
+      rooms={toRoomListDTO(RoomsWithUnreadCount)}
+      userId={user.id}
+    />
+  );
 }

@@ -6,7 +6,7 @@ import type {
 } from "@dvmbr/shared/socket/contract";
 import type { SocketConnectionQuery } from "@dvmbr/shared/socket/query";
 
-export function useSocket(userId: number, roomId?: number) {
+export function useSocket(userId: number | null, roomId?: number) {
   const socketRef = useRef<Socket<
     ServerToClientEvents,
     ClientToServerEvents
@@ -14,6 +14,12 @@ export function useSocket(userId: number, roomId?: number) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    if (!userId) {
+      socketRef.current = null;
+      setIsConnected(false);
+      return;
+    }
+
     const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
 
     if (!socketServerUrl) {
@@ -26,7 +32,7 @@ export function useSocket(userId: number, roomId?: number) {
 
     const query: SocketConnectionQuery = {
       userId,
-      roomId,
+      ...(roomId === undefined ? {} : { roomId }),
     };
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(

@@ -5,7 +5,7 @@ import type { RoomDTO } from "@/lib/schemas/room/schema";
 import RoomList from "./RoomList";
 import { Button } from "@/components/ui/button";
 import { CircleAlert, Plus } from "lucide-react";
-import { SubmitEventHandler, useRef, useState } from "react";
+import { SubmitEventHandler, useEffect, useRef, useState } from "react";
 import { useCreateRoom } from "@/hooks/useRoom";
 import { useRouter } from "next/navigation";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -20,19 +20,60 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import LoadingView from "@/components/ui/LoadingView";
+import { useSocket } from "@/hooks/useSocket";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/events";
+import type { RoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/payloads/room";
 
 type RoomsContainerProps = {
   rooms: RoomDTO[];
+  userId: number;
 };
 
-export default function RoomsContainer({ rooms }: RoomsContainerProps) {
+export default function RoomsContainer({ rooms, userId }: RoomsContainerProps) {
   const router = useRouter();
 
+  const [roomItems, setRoomItems] = useState(rooms);
   const [open, setOpen] = useState(false);
   const [roomName, setRoomName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { socketRef, isConnected } = useSocket(userId);
   const { mutate, error, isError, isPending, reset } = useCreateRoom();
+
+  useEffect(() => {
+    setRoomItems(rooms);
+  }, [rooms]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const socket = socketRef.current;
+    if (!socket || !isConnected) return;
+
+    const handleUnreadCountUpdated = (
+      payload: RoomUnreadCountUpdatedPayload,
+    ) => {
+      setRoomItems((prev) =>
+        prev.map((room) =>
+          room.id === payload.roomId
+            ? { ...room, unreadCount: payload.unreadCount }
+            : room,
+        ),
+      );
+    };
+
+    socket.on(
+      SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED,
+      handleUnreadCountUpdated,
+    );
+
+    return () => {
+      socket.off(
+        SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED,
+        handleUnreadCountUpdated,
+      );
+    };
+  }, [userId, socketRef, isConnected]);
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -100,7 +141,7 @@ export default function RoomsContainer({ rooms }: RoomsContainerProps) {
             </DrawerTrigger>
           </div>
           <div className="min-h-0 flex-1">
-            <RoomList rooms={rooms} />
+            <RoomList rooms={roomItems} />
           </div>
         </section>
 
