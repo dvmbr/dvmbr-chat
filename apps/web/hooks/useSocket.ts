@@ -6,7 +6,7 @@ import type {
 } from "@dvmbr/shared/socket/socket-contract";
 import type { SocketConnectionQuery } from "@dvmbr/shared/socket/socket-query";
 
-export function useSocket(participantId: number, roomId: number) {
+export function useSocket(userId: number, roomId: number) {
   const socketRef = useRef<Socket<
     ServerToClientEvents,
     ClientToServerEvents
@@ -25,7 +25,7 @@ export function useSocket(participantId: number, roomId: number) {
     console.log(socketServerUrl);
 
     const query: SocketConnectionQuery = {
-      userId: participantId,
+      userId,
       roomId,
     };
 
@@ -56,7 +56,7 @@ export function useSocket(participantId: number, roomId: number) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [participantId, roomId]);
+  }, [userId, roomId]);
 
   return { socketRef, isConnected };
 }

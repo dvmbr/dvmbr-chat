@@ -1,5 +1,8 @@
 import prisma from "@/lib/server/db";
-import { toChatRoomEntryDTO } from "@/lib/mappers/chat-room-entry.mapper";
+import {
+  chatRoomEntryDTOSelect,
+  toChatRoomEntryDTO,
+} from "@/lib/mappers/chat-room-entry.mapper";
 import { ChatRoomEntryParamsSchema } from "@/lib/schemas/chat-room-entry/request";
 import {
   badRequest,
@@ -27,24 +30,19 @@ export async function POST(
       });
     }
 
+    const userId = user.id;
+    const roomId = parsedParams.data.roomId;
+
     const room = await prisma.room.findUnique({
-      where: { id: parsedParams.data.roomId },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            nickname: true,
-          },
-        },
-      },
+      where: { id: roomId },
+      select: { id: true },
     });
+
     if (!room) {
       return notFound({
         message: "Room not found for the provided roomId",
       });
     }
-    const userId = user.id;
-    const roomId = room.id;
 
     const chatRoomEntry = await prisma.$transaction(async (tx) => {
       const participant = await tx.participant.upsert({
@@ -62,6 +60,8 @@ export async function POST(
           userId,
           lastReadAt: new Date(),
         },
+
+        select: chatRoomEntryDTOSelect,
       });
 
       await tx.user.update({
@@ -69,11 +69,7 @@ export async function POST(
         data: { lastRoomId: roomId },
       });
 
-      return {
-        roomId,
-        participantId: participant.id,
-        room,
-      };
+      return participant;
     });
     return sendOk(toChatRoomEntryDTO(chatRoomEntry));
   } catch (error) {

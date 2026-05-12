@@ -64,6 +64,10 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
   }
 
   return (
-    <ChatContainer roomId={entry.roomId} participantId={entry.participantId} />
+    <ChatContainer
+      userId={entry.userId}
+      roomId={entry.roomId}
+      participantId={entry.participantId}
+    />
   );
 }

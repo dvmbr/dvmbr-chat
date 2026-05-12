@@ -16,15 +16,17 @@ import { useReadRoom } from "@/hooks/useRoom";
 import { MessageType } from "@dvmbr/shared/socket/socket-payloads";
 
 type ChatContainerProps = {
+  userId: number;
   roomId: number;
   participantId: number;
 };
 export default function ChatContainer({
+  userId,
   roomId,
   participantId,
 }: ChatContainerProps) {
   const queryClient = useQueryClient();
-  const { socketRef, isConnected } = useSocket(participantId, roomId);
+  const { socketRef, isConnected } = useSocket(userId, roomId);
   const { data, isPending } = useGetMessages(roomId);
   const [optimisticMessages, setOptimisticMessages] = useState<MessageDTO[]>(
     [],

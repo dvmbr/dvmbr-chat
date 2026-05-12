@@ -4,7 +4,10 @@ import { internalServerError } from "@/lib/server/http/error-response";
 import { getUserFromRequest } from "@/lib/server/auth/getUserFromRequest";
 import { sendOk } from "@/lib/server/http/response";
 import { NextRequest } from "next/server";
-import { toChatRoomEntryDTO } from "@/lib/mappers/chat-room-entry.mapper";
+import {
+  chatRoomEntryDTOSelect,
+  toChatRoomEntryDTO,
+} from "@/lib/mappers/chat-room-entry.mapper";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,30 +15,30 @@ export async function POST(req: NextRequest) {
 
     const entry = await prisma.$transaction(async (tx) => {
       let room = null;
+
       if (user.lastRoomId) {
         room = await tx.room.findUnique({
           where: { id: user.lastRoomId },
-          include: {
-            creator: true,
-          },
+          select: { id: true },
         });
       }
 
       if (!room) {
         const latestUser = await tx.user.findUnique({
           where: { id: user.id },
+          select: { lastRoomId: true },
         });
 
         if (latestUser?.lastRoomId) {
           room = await tx.room.findUnique({
             where: { id: latestUser.lastRoomId },
-
-            include: { creator: true },
+            select: { id: true },
           });
         }
 
         if (!room) {
           const newRoomName = `${user.nickname}'s room`;
+
           room = await tx.room.upsert({
             where: { name: newRoomName },
             update: {},
@@ -43,9 +46,7 @@ export async function POST(req: NextRequest) {
               name: newRoomName,
               creatorId: user.id,
             },
-            include: {
-              creator: true,
-            },
+            select: { id: true },
           });
         }
       }
@@ -65,6 +66,8 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           lastReadAt: new Date(),
         },
+
+        select: chatRoomEntryDTOSelect,
       });
 
       await tx.user.update({
@@ -72,11 +75,7 @@ export async function POST(req: NextRequest) {
         data: { lastRoomId: room.id },
       });
 
-      return {
-        roomId: room.id,
-        participantId: participant.id,
-        room: room,
-      };
+      return participant;
     });
 
     return sendOk(toChatRoomEntryDTO(entry));
