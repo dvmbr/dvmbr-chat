@@ -21,8 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import LoadingView from "@/components/ui/LoadingView";
 import { useSocket } from "@/hooks/useSocket";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket/events";
-import type { RoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/payloads/room";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket";
+import type { RoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket";
 
 type RoomsContainerProps = {
   rooms: RoomDTO[];

@@ -1,4 +1,4 @@
-import { MessageTypeSchema } from "@dvmbr/shared/socket/payloads/message";
+import { MessageTypeSchema } from "@dvmbr/shared/socket";
 import { z } from "../../zod";
 
 export const MessageParamsSchema = z

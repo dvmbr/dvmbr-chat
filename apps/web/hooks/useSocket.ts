@@ -3,8 +3,8 @@ import { io, Socket } from "socket.io-client";
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from "@dvmbr/shared/socket/contract";
-import type { SocketConnectionQuery } from "@dvmbr/shared/socket/query";
+  SocketConnectionQuery,
+} from "@dvmbr/shared/socket";
 
 export function useSocket(userId: number | null, roomId?: number) {
   const socketRef = useRef<Socket<

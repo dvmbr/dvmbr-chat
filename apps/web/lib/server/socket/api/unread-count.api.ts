@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket/payloads/room";
+import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket";
 
 import { socketClient } from "../socket-client";
 

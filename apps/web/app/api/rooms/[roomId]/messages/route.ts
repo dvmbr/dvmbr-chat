@@ -1,6 +1,6 @@
 import prisma from "@/lib/server/db";
 import { postUnreadCount } from "@/lib/server/socket/api/unread-count.api";
-import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket/payloads/room";
+import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket";
 import {
   badRequest,
   internalServerError,

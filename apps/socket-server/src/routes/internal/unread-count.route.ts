@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { Server } from "socket.io";
-import { SOCKET_INTERNAL_SECRET_HEADER } from "@dvmbr/shared/socket/internal";
+import { SOCKET_INTERNAL_SECRET_HEADER } from "@dvmbr/shared/socket";
 
 import {
   UnreadCountBodyDTO,

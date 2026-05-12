@@ -1,5 +1,5 @@
 import type { FastifySchema } from "fastify";
-import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket/payloads/room";
+import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket";
 
 import { ErrorResponseSchema, OkResponseSchema } from "./response.schema.js";
 

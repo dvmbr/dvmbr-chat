@@ -10,10 +10,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageDTO } from "@/lib/schemas/message/schema";
 import type { MessageCreateBody as MessageCreateBodyPayload } from "@/lib/schemas/message/request";
 import { useQueryClient } from "@tanstack/react-query";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket/events";
+import { MessageType, SOCKET_EVENTS } from "@dvmbr/shared/socket";
 import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
-import { MessageType } from "@dvmbr/shared/socket/payloads/message";
 
 type ChatContainerProps = {
   userId: number;
