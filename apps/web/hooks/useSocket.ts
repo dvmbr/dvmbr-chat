@@ -6,7 +6,7 @@ import type {
 } from "@dvmbr/shared/socket/socket-contract";
 import type { SocketConnectionQuery } from "@dvmbr/shared/socket/socket-query";
 
-export function useSocket(userId: number, roomId: number) {
+export function useSocket(userId: number, roomId?: number) {
   const socketRef = useRef<Socket<
     ServerToClientEvents,
     ClientToServerEvents
