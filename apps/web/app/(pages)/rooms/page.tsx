@@ -3,17 +3,21 @@ import ErrorView from "@/components/ui/ErrorView";
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import { toRoomListDTO } from "@/lib/mappers/room.mapper";
 import prisma from "@/lib/server/db";
-import { Prisma } from "@prisma/client";
 import { cookies } from "next/headers";
 
-type RoomWithCurrentParticipant = Prisma.RoomGetPayload<{
-  include: {
-    creator: true;
-    participants: {
-      select: { lastReadAt: true };
-    };
+type RoomWithCurrentParticipant = {
+  id: number;
+  name: string;
+  creator: {
+    id: number;
+    nickname: string;
   };
-}>;
+  createdAt: Date;
+  updatedAt: Date;
+  participants: {
+    lastReadAt: Date | null;
+  }[];
+};
 
 export default async function RoomsPage() {
   const cookieStore = await cookies();
