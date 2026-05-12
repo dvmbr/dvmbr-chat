@@ -3,7 +3,17 @@ import ErrorView from "@/components/ui/ErrorView";
 import { COOKIE_KEY } from "@/lib/constants/cookie-constants";
 import { toRoomListDTO } from "@/lib/mappers/room.mapper";
 import prisma from "@/lib/server/db";
+import { Prisma } from "@prisma/client";
 import { cookies } from "next/headers";
+
+type RoomWithCurrentParticipant = Prisma.RoomGetPayload<{
+  include: {
+    creator: true;
+    participants: {
+      select: { lastReadAt: true };
+    };
+  };
+}>;
 
 export default async function RoomsPage() {
   const cookieStore = await cookies();
@@ -31,7 +41,7 @@ export default async function RoomsPage() {
   });
 
   const RoomsWithUnreadCount = await Promise.all(
-    rooms.map(async (r) => {
+    rooms.map(async (r: RoomWithCurrentParticipant) => {
       const lastReadAt = r.participants[0]?.lastReadAt ?? new Date(0);
 
       const unreadCount = await prisma.message.count({
