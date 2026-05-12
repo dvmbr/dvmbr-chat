@@ -5,7 +5,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup src/server.ts --format esm --platform node --target node22 --out-dir dist --clean",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.39",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

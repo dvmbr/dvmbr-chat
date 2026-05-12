@@ -16,7 +16,9 @@
     "prisma:migrate": "pnpm --filter web prisma:migrate",
     "prisma:generate": "pnpm --filter web prisma:generate",
     "prisma:reset": "pnpm --filter web prisma:reset",
-    "dev:socket": "pnpm --filter socket-server dev"
+    "dev:socket": "pnpm --filter socket-server dev",
+    "build:socket": "pnpm --filter socket-server build",
+    "start:socket": "pnpm --filter socket-server start"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
