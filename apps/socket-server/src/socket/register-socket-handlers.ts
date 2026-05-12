@@ -1,15 +1,14 @@
 import { Server } from "socket.io";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
-
+import { parseMessageCreatedPayload } from "@dvmbr/shared/socket/payloads/message";
 import {
-  SocketConnectionQuerySchema,
-  type SocketConnectionQuery,
-} from "@dvmbr/shared/socket/socket-query";
-import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from "@dvmbr/shared/socket/socket-contract";
-import { parseMessageCreatedPayload } from "@dvmbr/shared/socket/payloads/message";
+} from "@dvmbr/shared/socket/contract";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/events";
+import {
+  SocketConnectionQuerySchema,
+  SocketConnectionQuery,
+} from "@dvmbr/shared/socket/query";
 
 export function registerSocketHandlers(
   io: Server<ClientToServerEvents, ServerToClientEvents>,

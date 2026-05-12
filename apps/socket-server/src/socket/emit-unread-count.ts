@@ -1,11 +1,14 @@
 import { Server } from "socket.io";
-import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
-import { UnreadCountBodyDTO } from "@/lib/schemas/unread-count.schema.js";
+import type { UnreadCountBodyDTO } from "@/lib/schemas/unread-count.schema.js";
+import {
+  parseRoomUnreadCountUpdatedPayload,
+  parseUserRoomUnreadCountPayload,
+} from "@dvmbr/shared/socket/payloads/room";
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
-} from "@dvmbr/shared/socket/socket-contract";
-import { parseRoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/payloads/room";
+} from "@dvmbr/shared/socket/contract";
+import { SOCKET_EVENTS } from "@dvmbr/shared/socket/events";
 
 /** NOTE:
  * A single message can update unread counts
@@ -16,20 +19,31 @@ export function emitUnreadCount(
   payloads: UnreadCountBodyDTO["payloads"],
 ) {
   for (const payload of payloads) {
+    const parsedRecipientPayload = parseUserRoomUnreadCountPayload(payload);
+
+    if (!parsedRecipientPayload.success) {
+      console.warn(
+        `Invalid unread count recipient payload`,
+        parsedRecipientPayload.error.flatten(),
+      );
+      continue;
+    }
+
+    const { userId, ...eventPayload } = parsedRecipientPayload.data;
     const parsedPayload = parseRoomUnreadCountUpdatedPayload({
-      roomId: payload.roomId,
-      unreadCount: payload.unreadCount,
+      roomId: eventPayload.roomId,
+      unreadCount: eventPayload.unreadCount,
     });
 
     if (!parsedPayload.success) {
       console.warn(
-        `Invalid ${SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED} payload for user:${payload.userId}`,
+        `Invalid ${SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED} payload for user:${userId}`,
         parsedPayload.error.flatten(),
       );
       continue;
     }
 
-    io.to(`user:${payload.userId}`).emit(
+    io.to(`user:${userId}`).emit(
       SOCKET_EVENTS.ROOM_UNREAD_COUNT_UPDATED,
       parsedPayload.data,
     );

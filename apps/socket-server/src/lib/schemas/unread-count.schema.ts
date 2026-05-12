@@ -1,13 +1,10 @@
-import { FastifySchema } from "fastify";
+import type { FastifySchema } from "fastify";
+import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket/payloads/room";
 
 import { ErrorResponseSchema, OkResponseSchema } from "./response.schema.js";
 
 export type UnreadCountBodyDTO = {
-  payloads: {
-    roomId: number;
-    userId: number;
-    unreadCount: number;
-  }[];
+  payloads: UserRoomUnreadCountPayload[];
 };
 
 export const UnreadCountBodySchema = {
@@ -20,9 +17,9 @@ export const UnreadCountBodySchema = {
         type: "object",
         required: ["roomId", "userId", "unreadCount"],
         properties: {
-          roomId: { type: "number" },
-          userId: { type: "number" },
-          unreadCount: { type: "number" },
+          roomId: { type: "integer", minimum: 1 },
+          userId: { type: "integer", minimum: 1 },
+          unreadCount: { type: "integer", minimum: 0 },
         },
       },
     },

@@ -1,5 +1,6 @@
 import prisma from "@/lib/server/db";
 import { postUnreadCount } from "@/lib/server/socket/api/unread-count.api";
+import type { UserRoomUnreadCountPayload } from "@dvmbr/shared/socket/payloads/room";
 import {
   badRequest,
   internalServerError,
@@ -145,7 +146,6 @@ export async function POST(
       return createdMessage;
     });
 
-    // TODO(socket): Emit unreadCount update to room participants
     const participants = await prisma.participant.findMany({
       where: {
         roomId,
@@ -160,7 +160,7 @@ export async function POST(
       },
     });
 
-    const unreadCountPayloads = await Promise.all(
+    const unreadCountPayloads: UserRoomUnreadCountPayload[] = await Promise.all(
       participants.map(async (participant) => {
         const unreadCount = await prisma.message.count({
           where: {
@@ -185,7 +185,11 @@ export async function POST(
       }),
     );
 
-    await postUnreadCount(unreadCountPayloads);
+    try {
+      await postUnreadCount(unreadCountPayloads);
+    } catch (error) {
+      console.error("Failed to post unread count updates", error);
+    }
 
     return sendOk(toMessageDTO(message));
   } catch (error) {

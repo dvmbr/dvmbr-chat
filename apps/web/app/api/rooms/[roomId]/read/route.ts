@@ -1,4 +1,5 @@
 import prisma from "@/lib/server/db";
+import { postUnreadCount } from "@/lib/server/socket/api/unread-count.api";
 
 import {
   badRequest,
@@ -42,6 +43,12 @@ export async function POST(
       return forbidden({
         message: "Participant not found",
       });
+    }
+
+    try {
+      await postUnreadCount([{ userId, roomId, unreadCount: 0 }]);
+    } catch (error) {
+      console.error("Failed to post unread count reset", error);
     }
 
     return sendOk(null);
