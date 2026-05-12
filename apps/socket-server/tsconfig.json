@@ -9,5 +9,6 @@
       "@/*": ["./src/*"],
       "@dvmbr/shared/*": ["../../packages/shared/src/*.ts"]
     }
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
