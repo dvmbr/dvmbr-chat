@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
-import { parseMessageCreatedPayload } from "@dvmbr/shared/socket/socket-payloads";
+
 import {
   SocketConnectionQuerySchema,
   type SocketConnectionQuery,
@@ -9,6 +9,7 @@ import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "@dvmbr/shared/socket/socket-contract";
+import { parseMessageCreatedPayload } from "@dvmbr/shared/socket/payloads/message";
 
 export function registerSocketHandlers(
   io: Server<ClientToServerEvents, ServerToClientEvents>,

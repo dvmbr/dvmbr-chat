@@ -1,11 +1,11 @@
 import { Server } from "socket.io";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
-import { parseRoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/socket-payloads";
 import { UnreadCountBodyDTO } from "@/lib/schemas/unread-count.schema.js";
 import type {
   ClientToServerEvents,
   ServerToClientEvents,
 } from "@dvmbr/shared/socket/socket-contract";
+import { parseRoomUnreadCountUpdatedPayload } from "@dvmbr/shared/socket/payloads/room";
 
 /** NOTE:
  * A single message can update unread counts

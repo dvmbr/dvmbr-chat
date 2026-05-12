@@ -18,21 +18,9 @@ export const MessageCreatedPayloadSchema = z.object({
   updatedAt: z.iso.datetime(),
 });
 
-export const RoomUnreadCountUpdatedPayloadSchema = z.object({
-  roomId: z.number().int().positive(),
-  unreadCount: z.number().int().min(0),
-});
-
 export function parseMessageCreatedPayload(payload: unknown) {
   return MessageCreatedPayloadSchema.safeParse(payload);
 }
 
-export function parseRoomUnreadCountUpdatedPayload(payload: unknown) {
-  return RoomUnreadCountUpdatedPayloadSchema.safeParse(payload);
-}
-
 export type MessageType = z.infer<typeof MessageTypeSchema>;
 export type MessageCreatedPayload = z.infer<typeof MessageCreatedPayloadSchema>;
-export type RoomUnreadCountUpdatedPayload = z.infer<
-  typeof RoomUnreadCountUpdatedPayloadSchema
->;

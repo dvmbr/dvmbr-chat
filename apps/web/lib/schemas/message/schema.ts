@@ -1,5 +1,5 @@
+import { MessageCreatedPayloadSchema } from "@dvmbr/shared/socket/payloads/message";
 import { z } from "../../zod";
-import { MessageCreatedPayloadSchema } from "@dvmbr/shared/socket/socket-payloads";
 
 export const MessageSchema = MessageCreatedPayloadSchema.openapi("Message");
 

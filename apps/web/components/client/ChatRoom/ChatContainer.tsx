@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SOCKET_EVENTS } from "@dvmbr/shared/socket/socket-events";
 import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
-import { MessageType } from "@dvmbr/shared/socket/socket-payloads";
+import { MessageType } from "@dvmbr/shared/socket/payloads/message";
 
 type ChatContainerProps = {
   userId: number;
