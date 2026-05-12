@@ -1,88 +1,129 @@
-# 실시간 채팅 서비스 설계
+# dvmbr-chat
 
-## 핵심 아이디어
+## Overview
 
-- 회원가입/로그인 없이 닉네임만 입력해 유저 생성
-- 유저(User), 채팅방(Room), 메시지(Message), 참여(Participant) 4개 엔티티로 구성
-- 실시간 채팅(WebSocket 등) 지원
+A real-time chat monorepo built with a Next.js web app, a Fastify Socket.IO server, and shared TypeScript contracts.
 
-## 데이터 모델 및 관계
+## Tech Stack
 
-- **User**: 채팅에 참여하는 사람
-- **Room**: 여러 유저가 모여 대화하는 공간
-- **Message**: 유저가 방에 남긴 채팅 메시지
-- **Participant**: User와 Room의 참여 관계(N:M 연결 테이블, 한 유저가 여러 방에 참여, 한 방에 여러 유저 참여 가능)
+- Web: Next.js, React, Prisma, PostgreSQL
+- Socket Server: Fastify, Socket.IO
+- Shared: socket event, contract, and payload schemas
+- Workspace: pnpm
 
-### 관계(ERD)
+## Repository Structure
 
-```mermaid
-erDiagram
-   User {
-      int id PK
-      string nickname
-      datetime createdAt
-      datetime updatedAt
-   }
-   Room {
-      int id PK
-      string name
-      datetime createdAt
-      datetime updatedAt
-   }
-   Participant {
-      int id PK
-      int userId FK
-      int roomId FK
-      datetime createdAt
-      datetime updatedAt
-   }
-   Message {
-      int id PK
-      int participantId FK
-      string content
-      datetime createdAt
-      datetime updatedAt
-   }
-   User ||--o{ Participant : "has many"
-   Room ||--o{ Participant : "has many"
-   Participant ||--o{ Message : "has many"
+```text
+apps/web
+apps/socket-server
+packages/shared
 ```
 
-- User 1 : N Participant
-- Room 1 : N Participant
-- Participant N : M Message
+## Getting Started
 
-### 설명
+Use Node.js 22 and pnpm.
 
-- Message는 User와 Room을 각각 참조(FK)
-- 이 구조만으로도 실시간 채팅(방별 메시지 송수신, 유저 구분) 구현 가능
-- Participant는 User와 Room의 N:M(다대다) 참여 관계를 관리하는 연결 테이블 역할
-- 한 유저가 여러 방에 참여할 수 있고, 한 방에 여러 유저가 참여 가능
-- Message는 특정 Participant(=방에 참여 중인 유저)가 남긴 메시지로, 누가 어느 방에서 썼는지 명확하게 추적 가능
+```bash
+pnpm install
+```
 
-## Shared Import 규칙
+Create the environment files for both apps.
 
-### 목적
+```text
+apps/web/.env.local
+apps/socket-server/.env
+```
 
-- shared 패키지 파일이 늘어나도 apps의 tsconfig를 매번 수정하지 않기
-- web(Bundler)와 socket-server(NodeNext)에서 동일한 import 패턴 유지하기
+For local development, the web app should point to the local socket server.
 
-### tsconfig 규칙
+```text
+# apps/web/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_SOCKET_SERVER_URL=http://localhost:4000
+SOCKET_INTERNAL_SECRET=your-local-secret
+DATABASE_URL=postgresql://...
+```
 
-- 각 앱 tsconfig에는 아래 1줄만 유지
-- paths: "@dvmbr/shared/_" -> "../../packages/shared/src/_.ts"
+```text
+# apps/socket-server/.env
+PORT=4000
+CLIENT_ORIGIN=http://localhost:3000
+SOCKET_INTERNAL_SECRET=your-local-secret
+```
 
-### import 규칙
+Prepare the database from the web app workspace.
 
-- shared 코드는 파일 경로를 그대로 사용
-- 예: @dvmbr/shared/socket/socket-events
-- 예: @dvmbr/shared/socket/socket-query
+```bash
+pnpm prisma:generate
+pnpm prisma:migrate
+```
 
-### 피해야 할 패턴
+Start the socket server and the web app in separate terminals.
 
-- 서브패스마다 tsconfig paths를 개별 추가하는 방식
-- NodeNext에서 re-export index를 여러 단계 경유하는 방식
+```bash
+pnpm dev:socket
+```
 
-## Socket 타입 문서
+```bash
+pnpm dev:web
+```
 
-- 소켓 타입 운영 가이드: wiki/socket-typing-guide.md
+The web app runs on `http://localhost:3000` and the socket server runs on `http://localhost:4000` by default.
+
+## Scripts
+
+```bash
+pnpm dev:web
+pnpm build:web
+pnpm dev:socket
+pnpm build:socket
+pnpm start:socket
+pnpm lint
+```
+
+## Shared Package
+
+`@dvmbr/shared` provides socket events, payload schemas, and type contracts shared by the web app and socket server.
+
+## API / Socket Notes
+
+The web app exposes its HTTP API through Next.js route handlers under `apps/web/app/api`.
+
+- `POST /api/entry`: creates a user from a nickname and stores the generated browser token in an HTTP-only cookie.
+- `GET /api/rooms`: returns the rooms joined by the current user.
+- `POST /api/rooms`: creates a new room owned by the current user.
+- `PATCH /api/rooms/:roomId`: updates a room name. Only the room creator can update it.
+- `DELETE /api/rooms/:roomId`: deletes a room. Only the room creator can delete it.
+- `POST /api/rooms/entry`: enters the user's last room, or creates a default room when no valid last room exists.
+- `POST /api/rooms/:roomId/entry`: joins a specific room and updates the user's last room.
+- `GET /api/rooms/:roomId/messages`: returns messages for a room when the current user is a participant.
+- `POST /api/rooms/:roomId/messages`: creates a message, updates the room timestamp, and sends unread-count updates to the socket server.
+- `POST /api/rooms/:roomId/read`: marks the room as read for the current user and resets that user's unread count.
+
+The socket server owns real-time delivery through Socket.IO. Clients connect with `userId` and an optional `roomId` query. The connection joins a user channel (`user:{userId}`) and, when provided, a room channel (`room:{roomId}`).
+
+Socket events are defined in `packages/shared`.
+
+- `message:created`: emitted by a client after creating a message through the HTTP API; the socket server validates the payload and broadcasts it to other clients in the same room.
+- `room:unread-count-updated`: emitted by the socket server to a user's channel when unread counts change.
+
+The web app also calls the socket server's internal HTTP endpoint:
+
+- `POST /internal/unread-count`: accepts unread-count payloads and emits `room:unread-count-updated`. Requests must include the internal secret header.
+
+## Data Model
+
+The database schema is defined with Prisma in `apps/web/prisma/schema.prisma`.
+
+- `User`: represents a browser-based chat user. Each user has a unique `nickname`, a unique `browserToken`, and an optional `lastRoomId` used for room re-entry.
+- `Room`: represents a chat room. Each room has a unique `name`, a creator, participants, and messages.
+- `Participant`: connects a user to a room. It stores `lastReadAt` for unread-count calculation and enforces one participant record per user-room pair.
+- `Message`: stores room messages with a participant author, message content, message type, edit/delete flags, and timestamps.
+- `MessageType`: classifies messages as `TEXT`, `IMAGE`, or `SYSTEM`.
+
+Core relationships:
+
+- A user can create many rooms.
+- A user can participate in many rooms through `Participant`.
+- A room can have many participants and many messages.
+- A message belongs to both a room and the participant who sent it.

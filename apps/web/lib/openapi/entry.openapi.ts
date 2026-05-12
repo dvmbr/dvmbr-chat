@@ -14,9 +14,9 @@ export function registerEntryOpenApi(registry: OpenAPIRegistry) {
   registry.registerPath({
     method: "post",
     path: "/api/entry",
-    summary: "Create or retrieve user entry",
+    summary: "Create user entry",
     description:
-      "Creates a new user with a nickname or retrieves existing user by browser token",
+      "Creates a new user from a nickname and stores a browser token in an HTTP-only cookie",
     request: {
       body: {
         content: {
@@ -28,7 +28,7 @@ export function registerEntryOpenApi(registry: OpenAPIRegistry) {
     },
     responses: {
       200: {
-        description: "User entry created/retrieved successfully",
+        description: "User entry created successfully",
         content: {
           "application/json": {
             schema: okResponseSchema(EntrySchema),
@@ -45,6 +45,14 @@ export function registerEntryOpenApi(registry: OpenAPIRegistry) {
       },
       409: {
         description: "Nickname already exists",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+      500: {
+        description: "Internal server error",
         content: {
           "application/json": {
             schema: errorResponseSchema(),
