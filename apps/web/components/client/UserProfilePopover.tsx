@@ -1,20 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { userStore } from "@/lib/stores/userStore";
 import { apiClient } from "@/lib/api-client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import LoadingView from "@/components/ui/LoadingView";
 
 export default function UserProfilePopover({ children }: { children: React.ReactNode }) {
   const { nickname, setUser, userId } = userStore();
-  const router = useRouter();
 
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -88,9 +93,9 @@ export default function UserProfilePopover({ children }: { children: React.React
 
       {/* Edit nickname dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
+        <DialogContent showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogTitle className="text-center text-lg">Edit Profile</DialogTitle>
           </DialogHeader>
           <Input
             value={nicknameInput}
@@ -100,8 +105,15 @@ export default function UserProfilePopover({ children }: { children: React.React
             onKeyDown={(e) => e.key === "Enter" && handleUpdateNickname()}
           />
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button onClick={handleUpdateNickname} disabled={isLoading || !nicknameInput.trim()}>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary" disabled={isLoading}>Cancel</Button>
+            </DialogClose>
+            <Button
+              type="button"
+              onClick={handleUpdateNickname}
+              disabled={isLoading || !nicknameInput.trim() || nicknameInput.trim() === nickname}
+              className="hover:bg-brand-mint"
+            >
               Save
             </Button>
           </DialogFooter>
@@ -111,26 +123,35 @@ export default function UserProfilePopover({ children }: { children: React.React
       {isDeleting && <LoadingView text="Deleting account..." />}
 
       {/* Delete account confirm */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete your account and all your data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent
+          showCloseButton={false}
+          onInteractOutside={(e) => { if (isDeleting) e.preventDefault(); }}
+          onEscapeKeyDown={(e) => { if (isDeleting) e.preventDefault(); }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-destructive">
+              <span className="block text-center text-lg">Are you sure you want to delete your account?</span>
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              This action cannot be undone. All your data will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="secondary" disabled={isDeleting}>Cancel</Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
               onClick={handleDeleteAccount}
-              disabled={isLoading}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
             >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

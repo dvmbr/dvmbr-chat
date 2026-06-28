@@ -82,10 +82,10 @@ export default function RoomsContainer({ rooms, userId }: RoomsContainerProps) {
       name: roomName.trim(),
     };
     mutate(body, {
-      onSuccess() {
+      onSuccess(data) {
         setOpen(false);
         setRoomName("");
-        router.refresh();
+        router.push(`/rooms/${data.id}`);
       },
       onError() {
         setTimeout(() => {
@@ -141,7 +141,10 @@ export default function RoomsContainer({ rooms, userId }: RoomsContainerProps) {
             </DrawerTrigger>
           </div>
           <div className="min-h-0 flex-1">
-            <RoomList rooms={roomItems} />
+            <RoomList
+              rooms={roomItems}
+              onDeleteRoom={(id) => setRoomItems((prev) => prev.filter((r) => r.id !== id))}
+            />
           </div>
         </section>
 

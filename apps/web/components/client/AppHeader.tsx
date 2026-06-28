@@ -41,7 +41,7 @@ export default function AppHeader() {
               href="/rooms"
               onClick={clearRoom}
               title="Leave room"
-              className="text-muted-foreground hover:text-brand-red block transition-colors sm:text-base"
+              className="text-muted-foreground hover:text-foreground block transition-colors sm:text-base"
             >
               <DoorOpen />
             </Link>

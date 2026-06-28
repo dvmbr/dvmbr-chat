@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, Paperclip, Smile } from "lucide-react";
+import { ArrowUp, Smile } from "lucide-react";
 import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 
 type ChatInputProps = {
@@ -74,7 +74,8 @@ export default function ChatInput({ onSend }: ChatInputProps) {
       </div>
       <Textarea
         ref={textareaRef}
-        className="min-h-0 w-full resize-none self-center rounded-lg bg-transparent! pl-1 text-base! shadow-sm transition-all sm:p-0"
+        rows={1}
+        className="min-h-0! max-h-32 w-full resize-none self-center overflow-y-auto scrollbar-none rounded-lg bg-transparent! pl-1 text-base! shadow-sm transition-all p-0"
         placeholder="Message..."
         onKeyDown={(e) => {
           if (
@@ -90,14 +91,6 @@ export default function ChatInput({ onSend }: ChatInputProps) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <div className="flex grow justify-end">
-        <button
-          className="flex items-center justify-center p-1 transition-transform duration-150 active:scale-90"
-          type="button"
-        >
-          <Paperclip className="text-foreground h-5 w-5 sm:h-6 sm:w-6" />
-        </button>
-      </div>
       <button
         className="bg-foreground hover:bg-background disabled:bg-muted group flex items-center justify-center rounded-full p-1 transition-colors duration-150 active:scale-90 disabled:cursor-not-allowed disabled:active:scale-100"
         type="button"

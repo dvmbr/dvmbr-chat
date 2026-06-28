@@ -28,9 +28,10 @@ import { Badge } from "@/components/ui/badge";
 
 type RoomItemProps = {
   roomItem: RoomDTO;
+  onDelete?: () => void;
 };
 
-export default function RoomItem({ roomItem }: RoomItemProps) {
+export default function RoomItem({ roomItem, onDelete }: RoomItemProps) {
   const { userId } = userStore();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +72,7 @@ export default function RoomItem({ roomItem }: RoomItemProps) {
     deleteMutate(undefined, {
       onSuccess() {
         setIsDeleteAlertOpen(false);
-        router.refresh();
+        onDelete?.();
       },
     });
   };
@@ -94,7 +95,7 @@ export default function RoomItem({ roomItem }: RoomItemProps) {
     <Dialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
       <Card
         className="group hover:bg-muted/50 relative m-1 cursor-pointer transition"
-        onClick={() => router.push(`/rooms/${roomItem.id}`)}
+        onClick={() => !isTyping && router.push(`/rooms/${roomItem.id}`)}
         aria-busy={isDeleting}
       >
         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -127,7 +128,7 @@ export default function RoomItem({ roomItem }: RoomItemProps) {
                   type="button"
                   size="icon-sm"
                   variant="ghost"
-                  className="hover:text-brand-mint text-brand-mint sm:text-foreground"
+                  className="hover:text-brand-mint text-brand-mint disabled:text-muted-foreground"
                   onClick={handleUpdate}
                   disabled={
                     newRoomName.trim() === "" ||
