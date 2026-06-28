@@ -1,6 +1,7 @@
 "use client";
 
 import AiToggleButton from "@/components/client/AiToggleButton";
+import UserProfilePopover from "@/components/client/UserProfilePopover";
 import { roomStore } from "@/lib/stores/roomStore";
 import { DoorOpen, User } from "lucide-react";
 import Link from "next/link";
@@ -30,11 +31,16 @@ export default function AppHeader() {
         )}
 
         <div className="flex gap-x-2">
-          <User className="text-muted-foreground" />
+          <UserProfilePopover>
+            <button title="Profile" className="text-muted-foreground hover:text-foreground transition-colors">
+              <User />
+            </button>
+          </UserProfilePopover>
           {isChatRoomPage && (
             <Link
               href="/rooms"
               onClick={clearRoom}
+              title="Leave room"
               className="text-muted-foreground hover:text-brand-red block transition-colors sm:text-base"
             >
               <DoorOpen />

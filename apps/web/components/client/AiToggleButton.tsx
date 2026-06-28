@@ -12,10 +12,10 @@ export default function AiToggleButton() {
     <button
       onClick={canToggle ? toggleAiMode : undefined}
       disabled={!canToggle}
-      title={isAiMode ? "AI 끄기" : "AI 켜기"}
-      className="relative flex items-center justify-center p-2 disabled:cursor-not-allowed"
+      title={isAiMode ? "Turn off AI" : "Turn on AI"}
+      className="group relative flex items-center justify-center p-2 disabled:cursor-not-allowed"
     >
-      {isAiMode && (
+      {isAiMode ? (
         <>
           <div
             className="animate-rotate-border absolute inset-0 rounded-full"
@@ -24,6 +24,16 @@ export default function AiToggleButton() {
             }}
           />
           <div className="bg-background absolute inset-1 rounded-full" />
+        </>
+      ) : (
+        <>
+          <div
+            className="absolute inset-0 rounded-full opacity-0 transition-opacity group-hover:opacity-30"
+            style={{
+              background: "conic-gradient(from 0deg, #ff3131, #67fff0, #ff3131)",
+            }}
+          />
+          <div className="bg-background absolute inset-0.5 rounded-full opacity-0 transition-opacity group-hover:opacity-100" />
         </>
       )}
       <Bot

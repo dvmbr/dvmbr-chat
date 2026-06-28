@@ -16,7 +16,7 @@ model User {
   updatedAt    DateTime      @updatedAt
   participants Participant[]
   createdRooms Room[]        @relation("RoomCreator")
-  lastRoom     Room?         @relation("UserLastRoom", fields: [lastRoomId], references: [id])
+  lastRoom     Room?         @relation("UserLastRoom", fields: [lastRoomId], references: [id], onDelete: SetNull)
 }
 
 model Room {
@@ -27,7 +27,7 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  creator       User          @relation("RoomCreator", fields: [creatorId], references: [id])
+  creator       User          @relation("RoomCreator", fields: [creatorId], references: [id], onDelete: Cascade)
   participants  Participant[]
   messages      Message[]
   lastRoomUsers User[]        @relation("UserLastRoom")
@@ -41,8 +41,8 @@ model Participant {
   updatedAt  DateTime  @updatedAt
   lastReadAt DateTime?
 
-  user     User      @relation(fields: [userId], references: [id])
-  room     Room      @relation(fields: [roomId], references: [id])
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room     Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
   messages Message[]
 
   @@unique([userId, roomId])
@@ -61,8 +61,8 @@ model Message {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  participant Participant @relation(fields: [participantId], references: [id])
-  room        Room        @relation(fields: [roomId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  room        Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@index([roomId, createdAt])
   @@index([participantId])

@@ -123,6 +123,7 @@ export default function AppEntry({ children, user }: Props) {
                 className="text-center text-lg font-semibold"
                 value={nickname}
                 placeholder="nickname..."
+                maxLength={20}
                 disabled={isPending}
                 onChange={(e) => setNickname(e.target.value)}
                 onKeyDown={(e) => {

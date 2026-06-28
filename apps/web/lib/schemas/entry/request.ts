@@ -2,7 +2,7 @@ import { z } from "../../zod";
 
 export const EntryBodySchema = z
   .object({
-    nickname: z.string().trim().min(1),
+    nickname: z.string().trim().min(1).max(20),
   })
   .openapi("EntryBody");
 
