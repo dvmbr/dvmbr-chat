@@ -44,7 +44,7 @@ export default function ChatMessages({
       ) : (
         <ul>
           {messages.map((msg, idx) => {
-            const isLocalError = msg.id < 0;
+            const isLocalError = msg.id < 0 && msg.type === "SYSTEM";
             const isMe = participantId === msg.participantId;
 
             const prev = messages[idx - 1];
