@@ -92,6 +92,26 @@ export default function ChatContainer({
     };
   }, [addMessageToCache, roomId, socketRef, isConnected, readRoom, setAiMode]);
 
+  const addErrorMessage = useCallback(
+    (content: string) => {
+      const errorMessage: MessageDTO = {
+        id: -Date.now(),
+        participantId: -1,
+        sender: { id: -1, nickname: "System" },
+        roomId,
+        content,
+        type: "SYSTEM",
+        isDeleted: false,
+        isEdited: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      setOptimisticMessages((prev) => [...prev, errorMessage]);
+      return errorMessage;
+    },
+    [roomId],
+  );
+
   const prevIsAiModeRef = useRef<boolean | null>(null);
   const isRemoteChangeRef = useRef(false);
 
@@ -112,6 +132,9 @@ export default function ChatContainer({
         const aiMessage = await fn();
         addMessageToCache(aiMessage);
         socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, aiMessage);
+      } catch {
+        const errMsg = addErrorMessage("AI 응답에 실패했어요.");
+        socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, errMsg);
       } finally {
         setIsAiLoading(false);
       }
@@ -130,7 +153,7 @@ export default function ChatContainer({
     } else {
       run(sendAiFarewell);
     }
-  }, [isAiMode, addMessageToCache, sendAiGreeting, sendAiFarewell, socketRef, roomId, setIsAiLoading]);
+  }, [isAiMode, addMessageToCache, sendAiGreeting, sendAiFarewell, socketRef, roomId, setIsAiLoading, addErrorMessage]);
 
   const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
   const pendingAiRef = useRef(0);
@@ -178,6 +201,9 @@ export default function ChatContainer({
               const aiMessage = await sendAiMessage(content);
               addMessageToCache(aiMessage);
               socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, aiMessage);
+            } catch {
+              const errMsg = addErrorMessage("AI 응답에 실패했어요.");
+              socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, errMsg);
             } finally {
               setIsAiLoading(false);
             }
@@ -189,6 +215,7 @@ export default function ChatContainer({
         setOptimisticMessages((prev) =>
           prev.filter((msg) => msg.id !== optimisticMessage.id),
         );
+        addErrorMessage("메시지 전송에 실패했어요.");
         if (isAiMode) {
           pendingAiRef.current = 0;
           setIsAiLoading(false);
