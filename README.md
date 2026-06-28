@@ -51,14 +51,20 @@ CLIENT_ORIGIN=http://localhost:3000
 SOCKET_INTERNAL_SECRET=your-local-secret
 ```
 
-Prepare the database from the web app workspace.
+Prepare the database.
 
 ```bash
 pnpm prisma:generate
 pnpm prisma:migrate
 ```
 
-Start the socket server and the web app in separate terminals.
+Start the web app and socket server together.
+
+```bash
+pnpm dev
+```
+
+If you want to run services separately, use:
 
 ```bash
 pnpm dev:socket
@@ -73,8 +79,13 @@ The web app runs on `http://localhost:3000` and the socket server runs on `http:
 ## Scripts
 
 ```bash
+pnpm dev
 pnpm dev:web
 pnpm build:web
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm prisma:studio
+pnpm prisma:reset
 pnpm dev:socket
 pnpm build:socket
 pnpm start:socket

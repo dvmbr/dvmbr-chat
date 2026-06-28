@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "lint": "eslint .",
+    "dev": "concurrently -n web,socket -c cyan,green \"pnpm dev:web\" \"pnpm dev:socket\"",
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "prisma:studio": "pnpm --filter web prisma:studio",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.3",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.0.3",
     "prettier": "^3.8.3",
