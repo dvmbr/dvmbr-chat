@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import {
   parseMessageCreatedPayload,
+  AiModeChangedPayloadSchema,
   SOCKET_EVENTS,
   SocketConnectionQuerySchema,
 } from "@dvmbr/shared/socket";
@@ -58,6 +59,15 @@ export function registerSocketHandlers(
       socket
         .to(roomKey)
         .emit(SOCKET_EVENTS.MESSAGE_CREATED, parsedMessage.data);
+    });
+
+    socket.on(SOCKET_EVENTS.AI_MODE_CHANGED, (payload) => {
+      if (!roomKey) return;
+
+      const parsed = AiModeChangedPayloadSchema.safeParse(payload);
+      if (!parsed.success) return;
+
+      socket.to(roomKey).emit(SOCKET_EVENTS.AI_MODE_CHANGED, parsed.data);
     });
 
     socket.on("disconnect", (reason) => {

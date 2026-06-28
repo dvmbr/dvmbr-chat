@@ -10,5 +10,5 @@
       "@dvmbr/shared/*": ["../../packages/shared/src/*.ts"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "tsup.config.ts"]
 }

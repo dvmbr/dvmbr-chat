@@ -5,6 +5,7 @@ import { RoomSchema, type RoomDTO } from "@/lib/schemas/room/schema";
 export const roomDTOSelect = {
   id: true,
   name: true,
+  isAiMode: true,
   creator: {
     select: userSummaryDTOSelect,
   },
@@ -16,6 +17,7 @@ export type RoomDTOData = Prisma.RoomGetPayload<{
   select: typeof roomDTOSelect;
 }> & {
   unreadCount?: number;
+  isAiMode?: boolean;
 };
 
 export function toRoomDTO(data: RoomDTOData): RoomDTO {

@@ -6,6 +6,7 @@ export const RoomSchema = z
     id: z.number().int().positive(),
     name: z.string().trim().min(1),
     creator: UserSummarySchema,
+    isAiMode: z.boolean(),
     unreadCount: z.number().int().nonnegative(),
     createdAt: z.string(),
     updatedAt: z.string(),

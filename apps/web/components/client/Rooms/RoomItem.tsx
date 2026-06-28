@@ -44,7 +44,7 @@ export default function RoomItem({ roomItem }: RoomItemProps) {
     roomItem.id,
   );
 
-  const handleUpdate: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const handleUpdate: MouseEventHandler<HTMLButtonElement> = () => {
     const trimmedName = newRoomName.trim();
     if (!trimmedName || trimmedName === roomItem.name) return;
 

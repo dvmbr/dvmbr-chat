@@ -1,23 +1,26 @@
 "use client";
 
+import AiToggleButton from "@/components/client/AiToggleButton";
 import { roomStore } from "@/lib/stores/roomStore";
-import { userStore } from "@/lib/stores/userStore";
 import { DoorOpen, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function AppHeader() {
   const { roomName, clearRoom } = roomStore();
-  const { nickname } = userStore();
   const pathname = usePathname();
 
   const isChatRoomPage = /^\/rooms\/\d+$/.test(pathname) || pathname === "/";
 
   return (
-    <header className="flex items-center justify-between gap-x-4 px-4 py-2">
-      <h1 className="text-muted-foreground! text-center text-sm! font-normal! tracking-normal! sm:text-base!">
+    <header className="grid grid-cols-3 items-center px-4 py-2">
+      <h1 className="text-muted-foreground! text-sm! font-normal! tracking-normal! sm:text-base!">
         DVMBR Chat
       </h1>
+
+      <div className="flex justify-center">
+        {isChatRoomPage && <AiToggleButton />}
+      </div>
 
       <div className="flex flex-col items-end">
         {isChatRoomPage && (

@@ -16,6 +16,9 @@ export type {
   UserRoomUnreadCountPayload,
 } from "./payloads/room";
 
+export { AiModeChangedPayloadSchema } from "./payloads/ai";
+export type { AiModeChangedPayload } from "./payloads/ai";
+
 export { SocketConnectionQuerySchema } from "./query";
 export type { SocketConnectionQuery } from "./query";
 

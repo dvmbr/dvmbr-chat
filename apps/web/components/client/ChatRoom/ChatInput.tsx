@@ -6,10 +6,9 @@ import EmojiPicker, { EmojiClickData, Theme } from "emoji-picker-react";
 
 type ChatInputProps = {
   onSend: (msg: string) => void;
-  disabled?: boolean;
 };
 
-export default function ChatInput({ onSend, disabled }: ChatInputProps) {
+export default function ChatInput({ onSend }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);

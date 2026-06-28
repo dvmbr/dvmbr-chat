@@ -33,3 +33,41 @@ export function useCreateMessage(roomId: number) {
     },
   });
 }
+
+const AI_TIMEOUT = 60000;
+
+export function useAiMessage(roomId: number) {
+  return useMutation<MessageDTO, ErrorResponse, string>({
+    mutationFn: async (message) => {
+      const res = await apiClient
+        .post(`rooms/${roomId}/ai`, { json: { message }, timeout: AI_TIMEOUT })
+        .json<OkResponse<MessageDTO>>();
+
+      return res.data;
+    },
+  });
+}
+
+export function useAiGreeting(roomId: number) {
+  return useMutation<MessageDTO, ErrorResponse, void>({
+    mutationFn: async () => {
+      const res = await apiClient
+        .post(`rooms/${roomId}/ai`, { json: { greeting: true }, timeout: AI_TIMEOUT })
+        .json<OkResponse<MessageDTO>>();
+
+      return res.data;
+    },
+  });
+}
+
+export function useAiFarewell(roomId: number) {
+  return useMutation<MessageDTO, ErrorResponse, void>({
+    mutationFn: async () => {
+      const res = await apiClient
+        .post(`rooms/${roomId}/ai`, { json: { farewell: true }, timeout: AI_TIMEOUT })
+        .json<OkResponse<MessageDTO>>();
+
+      return res.data;
+    },
+  });
+}

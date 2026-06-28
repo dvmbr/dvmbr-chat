@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "lint": "eslint .",
-    "dev": "concurrently -n web,socket -c cyan,green \"pnpm dev:web\" \"pnpm dev:socket\"",
+    "dev": "concurrently -n web,socket,ollama -c cyan,green,yellow \"pnpm dev:web\" \"pnpm dev:socket\" \"pnpm dev:ollama\"",
+    "dev:ollama": "curl -s http://localhost:11434 > /dev/null 2>&1 && echo 'Ollama already running' || ollama serve",
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "prisma:studio": "pnpm --filter web prisma:studio",

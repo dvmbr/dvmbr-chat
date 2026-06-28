@@ -30,3 +30,16 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes ai-active {
+  0%, 100% { color: #ff3131; }
+  50% { color: #67fff0; }
+}
+
+@keyframes ai-appeal {
+  0%, 60%, 100% { transform: translateY(0) rotate(0deg); }
+  63% { transform: translateY(-4px) rotate(-6deg); }
+  67% { transform: translateY(-2px) rotate(6deg); }
+  71% { transform: translateY(-3px) rotate(-3deg); }
+  75% { transform: translateY(0) rotate(0deg); }
+}

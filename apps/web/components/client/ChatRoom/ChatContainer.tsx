@@ -2,7 +2,7 @@
 
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
-import { useCreateMessage, useGetMessages } from "@/hooks/useMessages";
+import { useCreateMessage, useGetMessages, useAiMessage, useAiGreeting, useAiFarewell } from "@/hooks/useMessages";
 import ChatRoomScaffold from "./ChatRoomScaffold";
 import LoadingView from "@/components/ui/LoadingView";
 import { useSocket } from "@/hooks/useSocket";
@@ -10,11 +10,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageDTO } from "@/lib/schemas/message/schema";
 import type { MessageCreateBody as MessageCreateBodyPayload } from "@/lib/schemas/message/request";
 import { useQueryClient } from "@tanstack/react-query";
-import { MessageType, SOCKET_EVENTS } from "@dvmbr/shared/socket";
+import { MessageType, SOCKET_EVENTS, AiModeChangedPayload } from "@dvmbr/shared/socket";
 import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
-import { cn } from "@/lib/utils";
-import { Bot } from "lucide-react";
+import { roomStore } from "@/lib/stores/roomStore";
 
 type ChatContainerProps = {
   userId: number;
@@ -57,7 +56,11 @@ export default function ChatContainer({
   );
 
   const { mutateAsync: asyncCreateMessage } = useCreateMessage(roomId);
+  const { mutateAsync: sendAiMessage } = useAiMessage(roomId);
+  const { mutateAsync: sendAiGreeting } = useAiGreeting(roomId);
+  const { mutateAsync: sendAiFarewell } = useAiFarewell(roomId);
   const { mutate: readRoom } = useReadRoom(roomId);
+  const { isAiMode, setAiMode, isAiLoading, setIsAiLoading } = roomStore();
 
   useEffect(() => {
     readRoom();
@@ -70,23 +73,67 @@ export default function ChatContainer({
 
     const handleMessageCreated = (message: MessageDTO) => {
       if (message.roomId !== roomId) return;
-
       addMessageToCache(message);
-
       readRoom();
     };
 
+    const handleAiModeChanged = (payload: AiModeChangedPayload) => {
+      if (payload.roomId !== roomId) return;
+      isRemoteChangeRef.current = true;
+      setAiMode(payload.isAiMode);
+    };
+
     socket.on(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
+    socket.on(SOCKET_EVENTS.AI_MODE_CHANGED, handleAiModeChanged);
 
     return () => {
       socket.off(SOCKET_EVENTS.MESSAGE_CREATED, handleMessageCreated);
+      socket.off(SOCKET_EVENTS.AI_MODE_CHANGED, handleAiModeChanged);
     };
-  }, [addMessageToCache, roomId, socketRef, isConnected, readRoom]);
+  }, [addMessageToCache, roomId, socketRef, isConnected, readRoom, setAiMode]);
 
-  const [isAiMode, setIsAiMode] = useState(false);
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const prevIsAiModeRef = useRef<boolean | null>(null);
+  const isRemoteChangeRef = useRef(false);
+
+  useEffect(() => {
+    const prev = prevIsAiModeRef.current;
+    prevIsAiModeRef.current = isAiMode;
+
+    const isRemote = isRemoteChangeRef.current;
+    // eslint-disable-next-line react-hooks/immutability
+    isRemoteChangeRef.current = false;
+
+    if (prev === null || prev === isAiMode) return;
+    if (isRemote) return;
+
+    const run = async (fn: () => Promise<MessageDTO>) => {
+      setIsAiLoading(true);
+      try {
+        const aiMessage = await fn();
+        addMessageToCache(aiMessage);
+        socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, aiMessage);
+      } finally {
+        setIsAiLoading(false);
+      }
+    };
+
+    socketRef.current?.emit(SOCKET_EVENTS.AI_MODE_CHANGED, { roomId, isAiMode });
+
+    fetch(`/api/rooms/${roomId}/ai-mode`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isAiMode }),
+    });
+
+    if (isAiMode) {
+      run(sendAiGreeting);
+    } else {
+      run(sendAiFarewell);
+    }
+  }, [isAiMode, addMessageToCache, sendAiGreeting, sendAiFarewell, socketRef, roomId, setIsAiLoading]);
 
   const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingAiRef = useRef(0);
 
   const handleSend = (content: string, type: MessageType = "TEXT") => {
     const optimisticMessage: MessageDTO = {
@@ -107,6 +154,11 @@ export default function ChatContainer({
 
     setOptimisticMessages((prev) => [...prev, optimisticMessage]);
 
+    if (isAiMode) {
+      pendingAiRef.current += 1;
+      setIsAiLoading(true);
+    }
+
     sendQueueRef.current = sendQueueRef.current
       .then(async () => {
         const variables: MessageCreateBodyPayload = { content, type };
@@ -120,20 +172,15 @@ export default function ChatContainer({
         socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
 
         if (isAiMode) {
-          setIsAiLoading(true);
-          try {
-            const res = await fetch(`/api/rooms/${roomId}/ai`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message: content }),
-            });
-            const json = await res.json();
-            if (json.data) {
-              addMessageToCache(json.data);
-              socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, json.data);
+          pendingAiRef.current -= 1;
+          if (pendingAiRef.current === 0) {
+            try {
+              const aiMessage = await sendAiMessage(content);
+              addMessageToCache(aiMessage);
+              socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, aiMessage);
+            } finally {
+              setIsAiLoading(false);
             }
-          } finally {
-            setIsAiLoading(false);
           }
         }
       })
@@ -142,6 +189,10 @@ export default function ChatContainer({
         setOptimisticMessages((prev) =>
           prev.filter((msg) => msg.id !== optimisticMessage.id),
         );
+        if (isAiMode) {
+          pendingAiRef.current = 0;
+          setIsAiLoading(false);
+        }
       });
   };
 
@@ -156,20 +207,6 @@ export default function ChatContainer({
 
   return (
     <section className="flex h-full flex-col">
-      <div className="flex justify-end px-4 pt-2">
-        <button
-          onClick={() => setIsAiMode((v) => !v)}
-          className={cn(
-            "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-            isAiMode
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:bg-muted/80",
-          )}
-        >
-          <Bot className="h-3.5 w-3.5" />
-          {isAiMode ? "AI 비활성화" : "AI와 대화 시작"}
-        </button>
-      </div>
       <div className="min-h-0 flex-1">
         <ChatMessages participantId={participantId} messages={messages} isAiLoading={isAiLoading} />
       </div>

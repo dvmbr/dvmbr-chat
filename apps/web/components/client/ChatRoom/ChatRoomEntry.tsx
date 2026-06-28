@@ -17,6 +17,8 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
   const { mutateAsync } = useChatRoomEntry();
 
   const setRoom = roomStore((state) => state.setRoom);
+  const setAiMode = roomStore((state) => state.setAiMode);
+  const setIsRoomCreator = roomStore((state) => state.setIsRoomCreator);
 
   const didMutate = useRef(false);
   const [entry, setEntry] = useState<ChatRoomEntryDTO | null>(null);
@@ -34,6 +36,8 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
         const entry = await mutateAsync(roomId);
 
         setRoom(entry.roomId, entry.room.name, entry.participantId);
+        setAiMode(entry.room.isAiMode);
+        setIsRoomCreator(entry.userId === entry.room.creator.id);
         setEntry(entry);
       } catch (error) {
         console.error("ChatRoomEntry mutate error:", error);
@@ -44,7 +48,7 @@ export default function ChatRoomEntry({ roomId }: ChatRoomEntryProps) {
     };
 
     enterRoom();
-  }, [mutateAsync, roomId, setRoom]);
+  }, [mutateAsync, roomId, setRoom, setAiMode, setIsRoomCreator]);
 
   if (hasError) {
     return <ErrorView text="Failed to enter Chatting Room" />;
