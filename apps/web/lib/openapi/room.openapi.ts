@@ -11,6 +11,7 @@ import {
   RoomUpdateBodySchema,
 } from "@/lib/schemas/room/request";
 import { RoomSchema } from "@/lib/schemas/room/schema";
+import { MessageSchema } from "@/lib/schemas/message/schema";
 
 const RoomDeleteResultSchema = z
   .object({
@@ -18,12 +19,31 @@ const RoomDeleteResultSchema = z
   })
   .openapi("RoomDeleteResult");
 
+const AiModeBodySchema = z
+  .object({ isAiMode: z.boolean() })
+  .openapi("AiModeBody");
+
+const AiModeResultSchema = z
+  .object({ success: z.literal(true) })
+  .openapi("AiModeResult");
+
+const AiMessageBodySchema = z
+  .object({
+    message: z.string().optional(),
+    greeting: z.boolean().optional(),
+    farewell: z.boolean().optional(),
+  })
+  .openapi("AiMessageBody");
+
 export function registerRoomOpenApi(registry: OpenAPIRegistry) {
   registry.register("Room", RoomSchema);
   registry.register("RoomCreateBody", RoomCreateBodySchema);
   registry.register("RoomUpdateBody", RoomUpdateBodySchema);
   registry.register("RoomParams", RoomParamsSchema);
   registry.register("RoomDeleteResult", RoomDeleteResultSchema);
+  registry.register("AiModeBody", AiModeBodySchema);
+  registry.register("AiModeResult", AiModeResultSchema);
+  registry.register("AiMessageBody", AiMessageBodySchema);
 
   registry.registerPath({
     method: "get",
@@ -166,7 +186,7 @@ export function registerRoomOpenApi(registry: OpenAPIRegistry) {
     path: "/api/rooms/{roomId}",
     summary: "Delete room",
     description:
-      "Deletes a room and its participants. Only the room creator can delete the room",
+      "Deletes a room and all its participants and messages via cascade. Only the room creator can delete the room",
     request: {
       params: RoomParamsSchema,
     },
@@ -242,6 +262,101 @@ export function registerRoomOpenApi(registry: OpenAPIRegistry) {
       },
       403: {
         description: "Participant not found for this room",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+      500: {
+        description: "Internal server error",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+    },
+  });
+
+  registry.registerPath({
+    method: "patch",
+    path: "/api/rooms/{roomId}/ai-mode",
+    summary: "Toggle AI mode",
+    description: "Enables or disables AI mode for a room. Only the room creator can change this.",
+    request: {
+      params: RoomParamsSchema,
+      body: {
+        content: {
+          "application/json": {
+            schema: AiModeBodySchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "AI mode updated successfully",
+        content: {
+          "application/json": {
+            schema: okResponseSchema(AiModeResultSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid roomId or isAiMode value",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+      500: {
+        description: "Internal server error",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+    },
+  });
+
+  registry.registerPath({
+    method: "post",
+    path: "/api/rooms/{roomId}/ai",
+    summary: "Generate AI message",
+    description:
+      "Generates an AI response and persists it as an AI-type message. Accepts a regular message, a greeting trigger, or a farewell trigger.",
+    request: {
+      params: RoomParamsSchema,
+      body: {
+        content: {
+          "application/json": {
+            schema: AiMessageBodySchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "AI message generated successfully",
+        content: {
+          "application/json": {
+            schema: okResponseSchema(MessageSchema),
+          },
+        },
+      },
+      400: {
+        description: "Invalid roomId or missing message content",
+        content: {
+          "application/json": {
+            schema: errorResponseSchema(),
+          },
+        },
+      },
+      401: {
+        description: "Authenticated user is not a participant in the room",
         content: {
           "application/json": {
             schema: errorResponseSchema(),
