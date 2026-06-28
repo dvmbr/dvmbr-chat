@@ -7,13 +7,13 @@ generator client {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  nickname     String   @unique
-  browserToken String   @unique
+  id           Int           @id @default(autoincrement())
+  nickname     String        @unique
+  browserToken String        @unique
+  isAiBot      Boolean       @default(false)
   lastRoomId   Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   participants Participant[]
   createdRooms Room[]        @relation("RoomCreator")
   lastRoom     Room?         @relation("UserLastRoom", fields: [lastRoomId], references: [id])
@@ -71,4 +71,5 @@ enum MessageType {
   TEXT
   IMAGE
   SYSTEM
+  AI
 }

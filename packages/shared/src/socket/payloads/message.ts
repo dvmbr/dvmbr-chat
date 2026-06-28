@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const MessageTypeSchema = z.enum(["TEXT", "IMAGE", "SYSTEM"]);
+export const MessageTypeSchema = z.enum(["TEXT", "IMAGE", "SYSTEM", "AI"]);
 
 export const MessageCreatedPayloadSchema = z.object({
   id: z.number().int().positive(),

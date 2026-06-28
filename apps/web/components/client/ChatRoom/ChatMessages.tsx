@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
 type ChatMessagesProps = {
   participantId: number;
   messages: MessageDTO[];
+  isAiLoading?: boolean;
 };
 
 export default function ChatMessages({
   participantId,
   messages,
+  isAiLoading,
 }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -93,7 +95,9 @@ export default function ChatMessages({
                           "bg-primary text-primary-foreground rounded-br-sm":
                             isMe,
                           "bg-secondary text-secondary-foreground rounded-bl-sm":
-                            !isMe,
+                            !isMe && msg.type !== "AI",
+                          "bg-violet-500/20 text-foreground rounded-bl-sm":
+                            msg.type === "AI",
                         },
                       )}
                     >
@@ -110,6 +114,13 @@ export default function ChatMessages({
             );
           })}
         </ul>
+      )}
+      {isAiLoading && (
+        <div className="mt-4 flex items-start">
+          <div className="bg-violet-500/20 rounded-2xl rounded-bl-sm px-4 py-2">
+            <span className="text-muted-foreground text-sm">AI 입력 중...</span>
+          </div>
+        </div>
       )}
       <div ref={bottomRef} />
     </section>

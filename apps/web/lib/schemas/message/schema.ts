@@ -11,7 +11,7 @@ export const MessageSchema = z
     }),
     roomId: z.number().int().positive(),
     content: z.string().trim().min(1),
-    type: z.enum(["TEXT", "IMAGE", "SYSTEM"]),
+    type: z.enum(["TEXT", "IMAGE", "SYSTEM", "AI"]),
     isDeleted: z.boolean(),
     isEdited: z.boolean(),
     createdAt: z.iso.datetime(),

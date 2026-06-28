@@ -13,6 +13,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MessageType, SOCKET_EVENTS } from "@dvmbr/shared/socket";
 import { ListResponse } from "@/lib/schemas/response/schema";
 import { useReadRoom } from "@/hooks/useRoom";
+import { cn } from "@/lib/utils";
+import { Bot } from "lucide-react";
 
 type ChatContainerProps = {
   userId: number;
@@ -81,6 +83,9 @@ export default function ChatContainer({
     };
   }, [addMessageToCache, roomId, socketRef, isConnected, readRoom]);
 
+  const [isAiMode, setIsAiMode] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
   const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const handleSend = (content: string, type: MessageType = "TEXT") => {
@@ -113,6 +118,24 @@ export default function ChatContainer({
         addMessageToCache(message);
 
         socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, message);
+
+        if (isAiMode) {
+          setIsAiLoading(true);
+          try {
+            const res = await fetch(`/api/rooms/${roomId}/ai`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message: content }),
+            });
+            const json = await res.json();
+            if (json.data) {
+              addMessageToCache(json.data);
+              socketRef.current?.emit(SOCKET_EVENTS.MESSAGE_CREATED, json.data);
+            }
+          } finally {
+            setIsAiLoading(false);
+          }
+        }
       })
       .catch((error) => {
         console.error("Failed to send message:", error);
@@ -133,8 +156,22 @@ export default function ChatContainer({
 
   return (
     <section className="flex h-full flex-col">
+      <div className="flex justify-end px-4 pt-2">
+        <button
+          onClick={() => setIsAiMode((v) => !v)}
+          className={cn(
+            "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            isAiMode
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80",
+          )}
+        >
+          <Bot className="h-3.5 w-3.5" />
+          {isAiMode ? "AI 비활성화" : "AI와 대화 시작"}
+        </button>
+      </div>
       <div className="min-h-0 flex-1">
-        <ChatMessages participantId={participantId} messages={messages} />
+        <ChatMessages participantId={participantId} messages={messages} isAiLoading={isAiLoading} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
         <ChatInput onSend={handleSend} />
