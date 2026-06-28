@@ -10,7 +10,7 @@ export default function ChatRoomScaffold() {
         <ChatMessages messages={[]} participantId={0} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
-        <ChatInput onSend={() => {}} disabled={true} />
+        <ChatInput onSend={() => {}} />
       </div>
     </section>
   );
