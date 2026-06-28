@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 type RoomWithCurrentParticipant = {
   id: number;
   name: string;
+  isAiMode: boolean;
   creator: {
     id: number;
     nickname: string;
