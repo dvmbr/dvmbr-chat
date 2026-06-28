@@ -70,22 +70,19 @@ export async function POST(
       });
     }
 
-    let prompt: string;
-    let history: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+    let aiText: string;
 
     if (isGreeting || isFarewell) {
       const participants = await prisma.participant.findMany({
         where: { roomId, user: { isAiBot: false } },
         include: { user: { select: { nickname: true } } },
       });
-      const participantList = participants
-        .map((p, i) => `${i + 1}. ${p.user.nickname}`)
-        .join("\n");
+      const mentions = participants.map((p) => p.user.nickname).join(", ");
 
       if (isGreeting) {
-        prompt = `다음은 채팅방 참여자 목록입니다:\n${participantList}\n\n각 참여자의 닉네임을 한 명씩 불러주며 인사해주세요.`;
+        aiText = `${mentions} — AI mode is now on. I'll respond to messages!`;
       } else {
-        prompt = `다음은 채팅방 참여자 목록입니다:\n${participantList}\n\n각 참여자의 닉네임을 한 명씩 언급하며 AI 기능이 꺼졌다고 짧게 알려주세요.`;
+        aiText = `${mentions} — AI mode is now off. See you!`;
       }
     } else {
       // Fetch the last 20 messages as context
@@ -101,32 +98,31 @@ export async function POST(
       });
       recentMessages.reverse();
 
-      history = recentMessages.map((m) => ({
+      const history: OpenAI.Chat.ChatCompletionMessageParam[] = recentMessages.map((m) => ({
         role: m.participant.user.isAiBot
           ? ("assistant" as const)
           : ("user" as const),
         content: `${m.participant.user.nickname}: ${m.content}`,
       }));
-      prompt = userMessage;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const completion = await (openai.chat.completions.create as any)({
+        model: process.env.AI_MODEL!,
+        think: false,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a friendly assistant in a group chat. Keep responses short and conversational. Respond in Korean.",
+          },
+          ...history,
+          { role: "user", content: userMessage },
+        ],
+      });
+
+      const raw = completion.choices[0]?.message?.content ?? "...";
+      aiText = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim() || "...";
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const completion = await (openai.chat.completions.create as any)({
-      model: process.env.AI_MODEL!,
-      think: false,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a friendly assistant in a group chat. Keep responses short and conversational. Respond in Korean.",
-        },
-        ...history,
-        { role: "user", content: prompt },
-      ],
-    });
-
-    const raw = completion.choices[0]?.message?.content ?? "...";
-    const aiText = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim() || "...";
 
     // Save AI message to DB
     const aiMessage = await prisma.message.create({
