@@ -34,6 +34,20 @@ export default function ChatContainer({
 
   const messages = [...(data?.items ?? []), ...optimisticMessages];
 
+  const deleteLocalMessage = useCallback(
+    (id: number) => {
+      setOptimisticMessages((prev) => prev.filter((msg) => msg.id !== id));
+      queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
+        ["messages", roomId],
+        (prev) => {
+          if (!prev) return prev;
+          return { ...prev, items: prev.items.filter((item) => item.id !== id) };
+        },
+      );
+    },
+    [queryClient, roomId],
+  );
+
   const addMessageToCache = useCallback(
     (message: MessageDTO) => {
       queryClient.setQueryData<ListResponse<MessageDTO>["data"]>(
@@ -235,7 +249,7 @@ export default function ChatContainer({
   return (
     <section className="flex h-full flex-col">
       <div className="min-h-0 flex-1">
-        <ChatMessages participantId={participantId} messages={messages} isAiLoading={isAiLoading} />
+        <ChatMessages participantId={participantId} messages={messages} isAiLoading={isAiLoading} onDeleteLocalMessage={deleteLocalMessage} />
       </div>
       <div className="bg-background sticky bottom-0 z-10">
         <ChatInput onSend={handleSend} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import { X } from "lucide-react";
 import { MessageDTO } from "@/lib/schemas/message/schema";
 import { cn } from "@/lib/utils";
 
@@ -8,12 +9,14 @@ type ChatMessagesProps = {
   participantId: number;
   messages: MessageDTO[];
   isAiLoading?: boolean;
+  onDeleteLocalMessage?: (id: number) => void;
 };
 
 export default function ChatMessages({
   participantId,
   messages,
   isAiLoading,
+  onDeleteLocalMessage,
 }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -41,6 +44,7 @@ export default function ChatMessages({
       ) : (
         <ul>
           {messages.map((msg, idx) => {
+            const isLocalError = msg.id < 0;
             const isMe = participantId === msg.participantId;
 
             const prev = messages[idx - 1];
@@ -93,11 +97,13 @@ export default function ChatMessages({
                         "max-w-9/12 rounded-2xl px-4 py-2 shadow-sm",
                         {
                           "bg-primary text-primary-foreground rounded-br-sm":
-                            isMe,
+                            isMe && !isLocalError,
                           "bg-secondary text-secondary-foreground rounded-bl-sm":
-                            !isMe && msg.type !== "AI",
+                            !isMe && msg.type !== "AI" && !isLocalError,
                           "bg-violet-500/20 text-foreground rounded-bl-sm":
-                            msg.type === "AI",
+                            msg.type === "AI" && !isLocalError,
+                          "bg-destructive/15 text-destructive rounded-bl-sm":
+                            isLocalError,
                         },
                       )}
                     >
@@ -107,6 +113,16 @@ export default function ChatMessages({
                     {/* timestamp */}
                     {isLastInGroup && (
                       <small className="text-xs!">{createdAt}</small>
+                    )}
+
+                    {/* delete button for local error messages */}
+                    {isLocalError && onDeleteLocalMessage && (
+                      <button
+                        onClick={() => onDeleteLocalMessage(msg.id)}
+                        className="text-destructive hover:text-destructive/70 mb-1 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     )}
                   </div>
                 </div>
